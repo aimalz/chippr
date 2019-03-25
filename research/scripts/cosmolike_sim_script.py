@@ -179,7 +179,7 @@ def make_catalog_pre_split(given_key):
 
     # replace make_true with read_cosmolike in loop
     # test_info, true_nz = make_true(given_key)
-    true_nzs = read_cosmolike(test_info['bin_ends'], loc='../../../CosmoLike/chippr_forecasts', fn='nz_histo.txt')
+    true_nzs = read_cosmolike(test_info['bin_ends'], loc='.', fn='nz_histo.txt')
 
     interim_prior = make_interim_prior(given_key)
 
