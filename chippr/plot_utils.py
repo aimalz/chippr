@@ -10,6 +10,7 @@ from chippr import defaults as d
 
 # cmap = np.linspace(0., 1., d.plot_colors)
 # colors = [cm.viridis(i) for i in cmap]
+# colors = ['#14B03D', '#540D6E', '#EB811B', '#EE4266']#
 colors = np.array([(213, 94, 0), (0, 158, 115), (0, 114, 178), (86, 180, 233), (230, 159, 0), (204, 121, 167), (240, 228, 66)])/256.
 # ['Vermilion', 'Bluish green', 'Blue', 'Sky blue', 'Orange', 'Reddish purple', 'Yellow']
 

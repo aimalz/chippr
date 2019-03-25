@@ -3,6 +3,9 @@
 \usepackage{tikz}
 \usepackage{natbib}
 \usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{./}{./figures/}}
+\bibliographystyle{apj}
 
 \usetikzlibrary{shapes.geometric, arrows}
 \usetikzlibrary{fit}
@@ -21,92 +24,78 @@
 \newcommand{\nz}{$n(z)$}
 \newcommand{\pz}{photo-$z$}
 \newcommand{\pzpdf}{photo-$z$ PDF}
+\newcommand{\lsst}{\textsc{lsst}}
 
+\newcommand{\aim}[1]{\textcolor{blue}{#1}}
 
 \begin{document}
 
-\title{How to obtain the redshift distribution from probabilistic redshift 
-estimates}
+\title{How to obtain the redshift distribution from probabilistic redshift estimates}
 
 \author{Alex Malz\altaffilmark{1}}
 \author{David W. Hogg\altaffilmark{1,2,3,4}}
 \email{aimalz@nyu.edu}
 
-\altaffiltext{1}{Center for Cosmology and Particle Physics, Department of 
-Physics, New York University, 726 Broadway, 9th floor, New York, NY 10003, USA}
-\altaffiltext{2}{Simons Center for Computational Astrophysics, 162 Fifth 
-Avenue, 7th floor, New York, NY 10010, USA}
-\altaffiltext{3}{Center for Data Science, New York University, 60 Fifth Avenue, 
-7th floor, New York, NY 10003, USA}
-\altaffiltext{4}{Max-Planck-Institut f\"ur Astronomie, K\"onigstuhl 17, D-69117 
-Heidelberg, Germany}
+\altaffiltext{1}{Center for Cosmology and Particle Physics, Department of Physics, New York University, 726 Broadway, 9th floor, New York, NY 10003, USA}
+\altaffiltext{2}{Simons Center for Computational Astrophysics, 162 Fifth Avenue, 7th floor, New York, NY 10010, USA}
+\altaffiltext{3}{Center for Data Science, New York University, 60 Fifth Avenue, 7th floor, New York, NY 10003, USA}
+\altaffiltext{4}{Max-Planck-Institut f\"ur Astronomie, K\"onigstuhl 17, D-69117 Heidelberg, Germany}
 
 \begin{abstract}
-A trustworthy estimate of the redshift distribution $n(z)$ is crucial for 
-weak-lensing cosmology as we know it.
-Spectroscopic redshifts for the dim and numerous galaxies of weak-lensing 
-surveys are expected to be inaccessible, making photometric redshifts 
-(photo-$z$s) the next-best alternative.
-The nontrivial systematics affecting photo-$z$ estimation have motivated the 
-weak-lensing community to favor photo-$z$ probability density functions (PDFs) 
-as a more comprehensive alternative to photo-$z$ point estimates.
-However, analytic methods for utilizing these new data products in cosmological 
-inference are still evolving.
-The ubiquitous methodology known as stacking produces a systematically biased 
-estimator of $n(z)$ that worsens with decreasing signal-to-noise, the very 
-regime where photo-$z$ PDFs are most necessary.
-We introduce a mathematically rigorous probabilistic graphical model (PGM) of 
-hierarchical inference of $n(z)$, which is provably the only self-consistent 
-way to combine photo-$z$ PDFs to produce an estimator of $n(z)$.
-The novel Cosmological Hierarchical Inference with Probabilistic Photometric 
-Redshifts (CHIPPR) model yields a more accurate characterization of $n(z)$ by 
-correctly propagating the redshift uncertainty information beyond the best-fit 
-estimator produced by traditional procedures.
-We conclude by propagating these effects to constraints in the space of 
-cosmological parameters.
+A trustworthy estimate of the redshift distribution $n(z)$ is crucial for weak-lensing cosmology as we know it.
+Spectroscopic redshifts for the dim and numerous galaxies of weak-lensing surveys are expected to be inaccessible, making photometric redshifts (photo-$z$s) the next-best alternative.
+The nontrivial systematics affecting photo-$z$ estimation have motivated the weak-lensing community to favor photo-$z$ probability density functions (PDFs) as a more comprehensive alternative to photo-$z$ point estimates.
+However, analytic methods for utilizing these new data products in cosmological inference are still evolving.
+The ubiquitous methodology known as stacking produces a systematically biased estimator of $n(z)$ that worsens with decreasing signal-to-noise, the very regime where photo-$z$ PDFs are most necessary.
+We introduce a mathematically rigorous probabilistic graphical model (PGM) of hierarchical inference of $n(z)$, which is provably the only self-consistent way to combine photo-$z$ PDFs to produce an estimator of $n(z)$.
+The novel Cosmological Hierarchical Inference with Probabilistic Photometric Redshifts (CHIPPR) model yields a more accurate characterization of $n(z)$ by correctly propagating the redshift uncertainty information beyond the best-fit estimator produced by traditional procedures.
+We conclude by propagating these effects to constraints in the space of cosmological parameters.
 \end{abstract}
 
-\keywords{cosmology: cosmological parameters --- galaxies: statistics --- 
-gravitational lensing: weak --- methods: data analysis --- methods: statistical}
+\keywords{cosmology: cosmological parameters --- galaxies: statistics --- gravitational lensing: weak --- methods: data analysis --- methods: statistical}
 
 \maketitle
 
 \section{Introduction}
 \label{sec:introduction}
 
-\textcolor{blue}{Brief literature review addressing how \pzpdf s are currently 
-used in cosmology}
+\aim{Brief literature review:\\
+Major data releases including \pzpdf s\\
+The cosmology papers by those missions that stack PDFs\\
+Recent papers simultaneously inferring \pzpdf s and \nz}
+
+\aim{Q: What is the status quo?\\
+A: The future of galaxy surveys is \pz s, and \pzpdf s rightfully replace \pz s; however, usage of \pzpdf s is limited.}
+
+\aim{Q: Why should we question existing methods?\\
+A: Stacking is bad and only looks like it works because of assumptions that don't hold when the data is as bad as we anticipate.  Cite pedantic doc?}
 
 
-\textcolor{blue}{Q: Why should we question existing methods?\\
-A: Stacking is bad and only looks like it works because of assumptions that 
-don't hold when the data is as bad as we anticipate.  Cite pedantic doc?}
-
-overview of next questions: How can we improve the effectiveness of using 
-\pzpdf s in inference?  How does the result of \chippr\ compare to established 
-estimators in terms of the accuracy of \nz ?
-\textcolor{blue}{Reach goal: How significant is the effect of the discrepancy 
-between \nz\ estimators on cosmological constraints?}
+\begin{itemize}
+	\item
+	Q: How can we improve the effectiveness of using \pzpdf s in inference?\\
+	A: Hierarchical inference is the only self-consistent way; see flow chart for outline of how it works in practice.
+	\item
+	Q: How does the result of \chippr compare to established estimators in terms of the accuracy of \nz ?\\
+	A: \chippr\ yields the best possible \nz , conditional on the accuracy of the \pzpdf s used.
+	\item
+	Q: How does the result of \chippr compare to established estimators in terms of the precision on cosmological constraints?
+\end{itemize}
 
 \section{Methods}
 \label{sec:methods}
 
-\textcolor{blue}{Q: How can we improve the effectiveness of using \pzpdf s in 
-inference?\\
+\textcolor{blue}{Q: How can we improve the effectiveness of using \pzpdf s in inference?\\
 A: Hierarchical inference is the only self-consistent way.}
-
 
 \subsection{Model generalities}
 \label{sec:model}
 
-We begin by reframing the redshift distribution \nz\ from a probabilistic 
-perspective.
-Here we define a redshift distribution \nz\ as the normalized probability 
-density
+We begin by reframing the redshift distribution \nz\ from a probabilistic perspective.
+Here we define a redshift distribution \nz\ as the normalized probability density
 \begin{equation}
 \label{eqn:nz}
-\int_{-\infty}^{\infty}\ n(z)\ dz\ \equiv\ \frac{1}{J}\ 
-\int_{-\infty}^{\infty}\ \sum_{j=1}^{J}\ \delta(z_{j},\ z)\ dz = 1
+\int_{-\infty}^{\infty}\ n(z)\ dz\ \equiv\ \frac{1}{J}\ \int_{-\infty}^{\infty}\ \sum_{j=1}^{J}\ \delta(z_{j},\ z)\ dz = 1
 \end{equation}
 of finding a galaxy $j$ in a catalog of $J$ galaxies having a redshift $z$.
 We may without loss of generality impose a parametrization
@@ -115,36 +104,26 @@ We may without loss of generality impose a parametrization
 f_{\phi}(z)\ \equiv\ n(z)
 \end{equation}
 in terms of some parameter vector $\phi$.
-We believe that galaxy redshifts are indeed drawn from \nz, making it a 
-probability density over redshift; this fact can also be confirmed from 
-dimensional analysis of Equation~\ref{eqn:nz}.
+We believe that galaxy redshifts are indeed drawn from \nz, making it a probability density over redshift; this fact can also be confirmed from dimensional analysis of Equation~\ref{eqn:nz}.
 Therefore, it can be rewritten as
 \begin{equation}
 \label{eqn:pz}
 z_{j}\ \sim\ \Pr(z \mid \phi)\ \equiv\ f_{\phi}(z),
 \end{equation}
 a probability density over redshift conditioned on the parameters defining \nz.
-Note that $z_{j}$ does not depend on $z_{j'}$, a statement of the causal 
-independence of galaxy redshifts from one another.
+Note that $z_{j}$ does not depend on $z_{j'}$, a statement of the causal independence of galaxy redshifts from one another.
 
-In addition to believing \nz\ is a PDF from which redshifts are drawn, we also 
-believe that there is some PDF from which photometric data $d$, which may be 
-any combination of fluxes, magnitudes, colors, and their observational errors, 
-are drawn.
+In addition to believing \nz\ is a PDF from which redshifts are drawn, we also believe that there is some PDF from which photometric data $d$, which may be any combination of fluxes, magnitudes, colors, and their observational errors, are drawn.
 Such a PDF over data is a likelihood
 \begin{equation}
 \label{eqn:pzpdf}
 d\ \sim\ \Pr(d \mid z)
 \end{equation}
 conditioned on redshift.
-This assumption that the data are drawn from some function of the redshift 
-forms the foundation upon which \pz\ estimation is based.
-Note that galaxies may have different observational data $d$ despite sharing 
-the same redshift and that the data $d_{j}$ of one galaxy is causally 
-independent of the redshifts $z_{j'}$ and data $d_{j'}$ of other galaxies.
+This assumption that the data are drawn from some function of the redshift forms the foundation upon which \pz\ estimation is based.
+Note that galaxies may have different observational data $d$ despite sharing the same redshift and that the data $d_{j}$ of one galaxy is causally independent of the redshifts $z_{j'}$ and data $d_{j'}$ of other galaxies.
 
-This description of the physical system corresponds to a forward model by which 
-we actually believe photometry is generated:
+This description of the physical system corresponds to a forward model by which we actually believe photometry is generated:
 \begin{enumerate}
 	\item There exists a redshift distribution \nz\ with parameters $\phi$.
 	\item Galaxy redshifts $\{z_{j}\}$ are independent draws from $\Pr(z 
@@ -152,8 +131,7 @@ we actually believe photometry is generated:
 	\item Galaxy photometry $d_{j}$ is drawn from the likelihoods $\Pr(d | 
 z_{j})$.
 \end{enumerate}
-A forward model such as this corresponds to a probabilistic graphical model 
-(PGM), represented by a directed acyclic graph (DAG) as in Figure~\ref{fig:pgm}.
+A forward model such as this corresponds to a probabilistic graphical model (PGM), represented by a directed acyclic graph (DAG) as in Figure~\ref{fig:pgm}.
 \begin{figure}
 	\begin{center}
 		\includegraphics[width=0.25\textwidth]{fig/pgm.png}
@@ -161,50 +139,25 @@ A forward model such as this corresponds to a probabilistic graphical model
 		\label{fig:pgm}
 	\end{center}
 \end{figure}
-A DAG conveys the causal relationships between physical parameters and, like a 
-Feynman diagram in the context of particle physics, is a shorthand for 
-mathematical relationships between variables.
+A DAG conveys the causal relationships between physical parameters and, like a Feynman diagram in the context of particle physics, is a shorthand for mathematical relationships between variables.
 
 \subsection{Application to cosmology}
 \label{sec:application}
 
-The problem facing cosmologists is to determine the true parameters $\phi_{0}$ 
-of \nz\ from observing the photometry $\{d_{j}\}$ of a large sample of galaxies 
-$j$.
-To self-consistently propagate the uncertainty in the redshifts, however, it is 
-more appropriate to estimate the posterior $\Pr(\phi \mid \{d_{j}\})$ over all 
-possible parameters $\phi$ (and thus potential redshift distributions \nz ) 
-conditioned on all the observed data $\{d_{j}\}$ available in a generic catalog.
+The problem facing cosmologists is to determine the true parameters $\phi_{0}$ of \nz\ from observing the photometry $\{d_{j}\}$ of a large sample of galaxies $j$.
+To self-consistently propagate the uncertainty in the redshifts, however, it is more appropriate to estimate the posterior $\Pr(\phi \mid \{d_{j}\})$ over all possible parameters $\phi$ (and thus potential redshift distributions \nz ) conditioned on all the observed data $\{d_{j}\}$ available in a generic catalog.
 
-In order to use the DAG of Figure~\ref{fig:pgm} to derive an expression for 
-$\Pr(\phi \mid \{d_{j}\})$ in terms of \pzpdf s, we must introduce two more 
-concepts, confusingly named the implicit prior and the prior probability 
-density.
+In order to use the DAG of Figure~\ref{fig:pgm} to derive an expression for $\Pr(\phi \mid \{d_{j}\})$ in terms of \pzpdf s, we must introduce two more concepts, confusingly named the implicit prior and the prior probability density.
 
-When we constrain the redshift of a galaxy using its observed photometric data 
-$d_{j}$, we are effectively estimating a posterior $\Pr(z \mid d_{j})$.
-However, to do this, we must have a model for the general relationship between 
-redshifts and photometry, whether empirical, as is the case for machine 
-learning \pzpdf\ methods, or analytic, as is the case for template-based 
-\pzpdf\ methods.
-Such a relationship is defined in the space of probability density over 
-redshift, so it must be able to be parameterized by the same functional form 
-$f_{\phi}(z)$ as \nz .
-It is thus natural to write it as $\Pr(z \mid \phi^{*})$, where $\phi^{*}$ is 
-the parameters for this relationship under some generic \pzpdf\ method.
-We call $\Pr(z \mid \phi^{*})$ the \textit{implicit prior}, as it is rarely 
-explicitly known nor chosen by the researcher; for template-based methods where 
-it can be chosen to be ``realistic,'' it may be appropriate to call it an 
-\textit{interim prior}.
-Because the implicit prior is unavoidable, the \pzpdf s reported by any method 
-are really \textit{implicit-weighted posteriors} $\Pr(z \mid d, \phi^{*})$.
+When we constrain the redshift of a galaxy using its observed photometric data $d_{j}$, we are effectively estimating a posterior $\Pr(z \mid d_{j})$.
+However, to do this, we must have a model for the general relationship between redshifts and photometry, whether empirical, as is the case for machine learning \pzpdf\ methods, or analytic, as is the case for template-based \pzpdf\ methods.
+Such a relationship is defined in the space of probability density over redshift, so it must be able to be parameterized by the same functional form $f_{\phi}(z)$ as \nz .
+It is thus natural to write it as $\Pr(z \mid \phi^{*})$, where $\phi^{*}$ is the parameters for this relationship under some generic \pzpdf\ method.
+We call $\Pr(z \mid \phi^{*})$ the \textit{implicit prior}, as it is rarely explicitly known nor chosen by the researcher; for template-based methods where it can be chosen to be ``realistic,'' it may be appropriate to call it an \textit{interim prior}.
+Because the implicit prior is unavoidable, the \pzpdf s reported by any method are really \textit{implicit-weighted posteriors} $\Pr(z \mid d, \phi^{*})$.
 
-The prior probability density $\Pr(\phi)$ is a more familiar concept in 
-astronomy; to progress, we will have to choose a prior probability density over 
-all possible parameters $\phi$.
-This prior need not be excessively proscriptive; for example, it may be chosen 
-to enforce smoothness at physically motivated scales in redshift without 
-imposing any particular region as over- or under-dense.
+The prior probability density $\Pr(\phi)$ is a more familiar concept in astronomy; to progress, we will have to choose a prior probability density over all possible parameters $\phi$.
+This prior need not be excessively proscriptive; for example, it may be chosen to enforce smoothness at physically motivated scales in redshift without imposing any particular region as over- or under-dense.
 
 With these definitions, we obtain the desired expression for $\Pr(\phi \mid 
 \{d_{j}\})$,
@@ -220,44 +173,32 @@ With these definitions, we obtain the desired expression for $\Pr(\phi \mid
 \end{split}
 \end{align}
 which is the heart of \chippr.
-The entire derivation of Equation~\ref{eqn:fullpost} is provided in 
-Appendix~\ref{app:math}.
+The entire derivation of Equation~\ref{eqn:fullpost} is provided in Appendix~\ref{app:math}.
 
 \subsection{Implementation}
 \label{sec:implementation}
 
-In this study, we compare the results of Equation~\ref{eqn:fullpost} to those 
-of the two most common approaches to estimating \nz\ from a catalog of \pzpdf 
-s: the distribution $n(z_{\mathrm{max}})$ of the redshifts at maximum posterior 
-probability (i.e. the modes of the \pzpdf s), and the stacked estimator
+In this study, we compare the results of Equation~\ref{eqn:fullpost} to those of the two most common approaches to estimating \nz\ from a catalog of \pzpdf s: the distribution $n(z_{\mathrm{max}})$ of the redshifts at maximum posterior probability (i.e. the modes of the \pzpdf s), and the stacked estimator
 \begin{align}
   \label{eqn:stacked}
   \hat{n}(z) &\equiv \frac{1}{J}\ \sum_{j=1}^{J}\ \Pr(z \mid d_{j}, \phi^{*}) .
 \end{align}
 
-We perform this comparison on mock data in the form of catalogs of emulated 
-\pzpdf s generated via the forward model discussed above and presented in 
-detail in Appendix~\ref{app:data}.
-The mock data emulates the three sources of error of highest concern to the 
-\pz\ community: intrinsic scatter, catastrophic outliers, and systematic bias.
-Figure~\ref{fig:mega_scatter} illustrates these three effects individually at 
-ten times the tolerance of the upcoming Large Synoptic Survey Telescope (LSST).
+We perform this comparison on mock data in the form of catalogs of emulated \pzpdf s generated via the forward model discussed above and presented in detail in Appendix~\ref{app:data}.
+The mock data emulates the three sources of error of highest concern to the \pz\ community: intrinsic scatter, catastrophic outliers, and systematic bias.
+Figure~\ref{fig:mega_scatter} illustrates these three effects individually at ten times the tolerance of the upcoming Large Synoptic Survey Telescope (LSST).
 \begin{figure*}
 	\begin{center}
-		
-\includegraphics[width=0.3\textwidth]{fig/hivarsigmas_scatter.png}
-    \includegraphics[width=0.3\textwidth]{fig/uouthi_scatter.png}
-    \includegraphics[width=0.3\textwidth]{fig/neghivarbias_scatter.png}
-		\caption{intrinsic scatter (left), uniform outliers (center), 
-bias (right);
-    Not sure how best to broach the subject of nonuniform outliers and bias as 
-model misspecification
-    }
+		\includegraphics[width=0.3\textwidth]{fig/hivarsigmas_scatter.png}
+    	\includegraphics[width=0.3\textwidth]{fig/uouthi_scatter.png}
+    	\includegraphics[width=0.3\textwidth]{fig/neghivarbias_scatter.png}
+		\caption{intrinsic scatter (left), uniform outliers (center), bias (right);
+   		Not sure how best to broach the subject of nonuniform outliers and bias as model misspecification
+    	}
 		\label{fig:mega_scatter}
 	\end{center}
 \end{figure*}
-Tests including all three effects at the tolerance levels of LSST are presented 
-in Section~\ref{sec:results}.
+Tests including all three effects at the tolerance levels of LSST are presented in Section~\ref{sec:results}.
 
 \subsection{Limitations}
 \label{sec:limitations}
@@ -265,34 +206,25 @@ in Section~\ref{sec:results}.
 Finally, we explicitly review the assumptions made by this approach.
 \begin{itemize}
   \item prior $\Pr(\phi)$
-  \item implicit prior $\phi^{*}$ known
+  \item implicit prior $\phi^{*}$ known and shared among all PDFs
 	\item \pzpdf s are accurate posteriors
 	\end{itemize}
-
-
-
-
-
 
 \section{Results}
 \label{sec:results}
 
-\textcolor{blue}{Q: How does the result of \chippr\ compare to established 
-estimators in terms of the accuracy of $n(z)$?\\
-A: \chippr\ yields the best possible $n(z)$, conditional on the accuracy of the 
-photo-$z$ PDFs used.}
+\textcolor{blue}{Q: How does the result of \chippr\ compare to established estimators in terms of the accuracy of $n(z)$?\\
+A: \chippr\ yields the best possible $n(z)$, conditional on the accuracy of the photo-$z$ PDFs used.}
 
 \subsection{LSST Requirements}
 \label{sec:lsstdemo}
 
-\textcolor{blue}{LSST specs: biased to 0.003, 10\% uniform outliers, 
-z-dependent scatter of 0.05}
+\textcolor{blue}{LSST specs: biased to 0.003, 10\% uniform outliers, z-dependent scatter of 0.05}
 
 \begin{figure*}
 	\begin{center}
 		\includegraphics[width=0.45\textwidth]{fig/lsst_scatter.png}
-		
-\includegraphics[width=0.45\textwidth]{fig/lsst_log_estimators.png}
+		\includegraphics[width=0.45\textwidth]{fig/lsst_log_estimators.png}
 		\caption{Using LSST numbers}
 		\label{fig:lsstdemo}
 	\end{center}
@@ -301,25 +233,27 @@ z-dependent scatter of 0.05}
 \subsection{Violations of the model}
 \label{sec:violations}
 
-\textcolor{blue}{mischaracterized interim prior, with idealized or realistic 
-data?}
+\textcolor{blue}{mischaracterized interim prior, with idealized or realistic data?}
 
 \begin{figure*}
 	\begin{center}
 		\includegraphics[width=0.45\textwidth]{fig/wrong_scatter.png}
-		
-\includegraphics[width=0.45\textwidth]{fig/wrong_log_estimators.png}
-		\caption{this is for wrong implicit prior, not bias, haven't 
-done that one yet}
+		\includegraphics[width=0.45\textwidth]{fig/wrong_log_estimators.png}
+		\caption{this is for wrong implicit prior, not bias, haven't done that one yet}
 		\label{fig:mischaracterized}
 	\end{center}
 \end{figure*}
 
-
 \section{Discussion}
 \label{sec:discussion}
 
-
+\begin{figure*}
+	\begin{center}
+		\includegraphics[width=0.99\textwidth]{fig/final_plot.png}
+		\caption{propagation to cosmology}
+		\label{fig:cornerplot}
+	\end{center}
+\end{figure*}
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -330,6 +264,82 @@ done that one yet}
 
 \section{Mathematical derivation}
 \label{app:math}
+
+The derivation is most straightforward in the space of log probabilities.
+
+According to Bayes' rule, the posterior distribution of interest is
+\begin{align}
+\label{eq:hyper_bayes}
+\log[p(\phi | \{d_{i}\})] &\propto \log[p(\{d_{i}\} | \phi)] + \log[p(\phi)] ,
+\end{align}
+where $p(\phi)$ is the \textit{hyperprior} probability distribution over possible values of the hyperparameters $\phi$ defining the redshift distribution.  
+The hyperprior is a choice made by those performing the inference and is not to be confused with the implicit prior parameters $\phi^{*}$, which are a specific instance of $\phi$.
+
+Focusing on the likelihood term $p(\{d_{i}\} | \phi)$, we employ the power of the hierarchical model through \textit{marginalization} of the unobserved redshift parameters by integrating over them to obtain 
+\begin{align}
+\label{eq:marginalize}
+\begin{split}
+\log[p(\{d_{i}\} | \phi)] = & \log\left[\int\exp\left[\log[p(\{d_{i}\} | \{z_{i}\})]\right.\right. \\
+& \left.\left.+ \log[p(\{z_{i}\} | \phi)]\right]\ d\{z_{i}\}\right] .
+\end{split}
+\end{align}
+The redshifts $\{z_{i}\}$ are statistically independent of each other, and each galaxy's photometry depends solely on its own redshift, so we may invoke statistical independence to get
+\begin{align}
+\label{eq:independence_hyper}
+\log[p(\{z_{i}\} |\phi)] &= \sum_{i}^{N} \log[p(z_{i} | \phi)]
+\end{align}
+and
+\begin{align}
+\label{eq:independence}
+\log[p(\{d_{i}\} | \{z_{i}\})] &= \sum_{i}^{N} \log[p(d_{i} | z_{i})] .
+\end{align}
+Having chosen the functional form mapping $\phi$ to $n(z)$, the terms on the righthand side of Eq. \ref{eq:independence_hyper} are known.  
+However, the terms on the righthand side of Eq. \ref{eq:independence} are likelihoods, and the photo-$z$ PDFs we have are implicit posteriors.
+
+To transform the implicit posteriors we have into the likelihoods we need, we start with the vacuously true statement
+\begin{align}
+\begin{split}
+\label{eq:unity}
+\log[p(d_{i} | z_{i})] =& \log[p(d_{i} | z_{i})] + \log[p(z_{i} | d_{i}, \phi^{*})]\\
+& - \log[p(z_{i} | \vec{d}_{i}, \phi^{*})] .
+\end{split}
+\end{align}
+We expand the last term using Bayes' Rule to get
+\begin{align}
+\begin{split}
+\label{eq:bayes}
+\log[p(d_{i} | z_{i})] =& \log[p(d_{i} | z_{i})] + \log[p(z_{i} | d_{i}, \phi^{*})]\\
+& - \log[p(d_{i} | z_{i}, \phi^{*})]\\
+& + \log[p(d_{i} | \phi^{*})] - \log[p(z_{i} | \phi^{*})] .
+\end{split}
+\end{align}
+Fig. \ref{fig:pgm} has no direct connection between $d_{i}$ and $\phi$, so we can break up $\log[p(d_{i} | z_{i}, \phi^{*})]$ as follows:
+\begin{align}
+\begin{split}
+\label{eq:split}
+\log[p(d_{i} | z_{i})] =& \log[p(d_{i} | z_{i})] + \log[p(z_{i} | d_{i}, \phi^{*})]\\
+& - \log[p(d_{i} | z_{i})] - \log[p(d_{i} | \phi^{*})]\\
+& + \log[p(d_{i} | \phi^{*})] - \log[p(z_{i} | \phi^{*})] .
+\end{split}
+\end{align}
+Canceling terms, we find
+\begin{align}
+\label{eq:cancel}
+\log[p(d_{i} | z_{i})] =& \log[p(z_{i} | d_{i}, \phi^{*})] - \log[p(z_{i} | \phi^{*})].
+\end{align}
+
+Now we combine Eqs. \ref{eq:hyper_bayes}, \ref{eq:marginalize}, \ref{eq:independence_hyper}, \ref{eq:independence}, and \ref{eq:cancel} to arrive at 
+\begin{align}
+\begin{split}
+\label{eq:final}
+\log[p(\phi | \{d_{i}\})] \propto& \log[p(\phi)] + \log\left[\int \exp\left[\sum_{i}^{N} \right.\right.\\
+& \left.\left.\left(\log[p(z_{i} | \phi)] - \log[p(z_{i} | \phi^{*})]\right.\right.\right.\\
+& \left.\left.\left. + \log[p(z_{i} | d_{i}, \phi^{*})]
+\right)\right] d\{z_{i}\}\right].
+\end{split}
+\end{align}
+Thus, if we have a catalog of photo-$z$ implicit posteriors $\{p(z_{i} | d_{i}, \phi^{*})\}$, the interim prior parameters $\phi^{*}$, and a prior distribution $p(\phi)$, we may find the posterior $\log[p(\phi | \{d_{i}\})]$ of the redshift distribution $n(z)$.
+Furthermore, since all galaxies share the same range of possible redshifts, the unknown $z_{i}$ may be shortened to $z$.
 
 \section{Mock data generation}
 \label{app:data}
@@ -348,12 +358,8 @@ done that one yet}
 \end{appendices}
 
 \begin{acknowledgements}
-AIM thanks Elisabeth Krause for assistance with the \texttt{CosmoLike} code, 
-Mohammadjavad Vakili for insightful input on statistics, Geoffrey Ryan for 
-advice on debugging, and Boris Leistedt for helpful comments provided in the 
-preparation of this paper.
-This work was completed under the generous nutritional support of the Center 
-for Computational Astrophysics.
+AIM thanks Elisabeth Krause for assistance with the \texttt{CosmoLike} code, Phil Marshall for instruction in software carpentry, Mohammadjavad Vakili for insightful input on statistics, Geoffrey Ryan for advice on debugging, and Boris Leistedt for helpful comments provided in the preparation of this paper.
+This work was completed under the generous nutritional support of the Center for Computational Astrophysics.
 \end{acknowledgements}
 
 \bibliographystyle{apj}
