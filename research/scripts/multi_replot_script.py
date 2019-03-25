@@ -100,7 +100,7 @@ if __name__ == "__main__":
     from chippr import *
 
     result_dir = os.path.join('..', 'results')
-    name_file = 'which_inf_tests.txt'
+    name_file = 'which_plt_tests.txt'
 
     with open(name_file) as tests_to_run:
         all_tests = {}

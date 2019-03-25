@@ -167,9 +167,9 @@ def make_catalog(given_key):
 
     test_dir = os.path.join(result_dir, test_name)
     test_info['dir'] = test_dir
-    if os.path.exists(test_dir):
-        shutil.rmtree(test_dir)
-    os.makedirs(test_dir)
+#    if os.path.exists(test_dir):
+#        shutil.rmtree(test_dir)
+#    os.makedirs(test_dir)
 
     param_file_name = test_name + '.txt'
     params = chippr.utils.ingest(param_file_name)

@@ -100,7 +100,7 @@ if __name__ == "__main__":
     from chippr import *
 
     result_dir = os.path.join('..', 'results')
-    test_name = 'single_varbias'
+    test_name = 'single_trpr'
 
     all_tests = {}
     test_info = {}
