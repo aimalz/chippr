@@ -17,6 +17,8 @@ from chippr import stat_utils as s
 
 lnz, nz = '', ''#r'$\ln[n(z)]$', r'$n(z)$'
 
+
+# TODO Fix this horrible mess of repeated code, use a dict of namedtuples for per-curve params!
 s_tru, w_tru, a_tru, c_tru, d_tru, l_tru = '-', 2., 1., 'k', [(0, (1, 0.001))], 'Underlying Truth '
 s_tbp, w_tbp, a_tbp, c_tbp, d_tbp, l_tbp = ':', 2., 0.75, 'k', [(0, (1, 0.001))], 'Binned Truth '
 s_int, w_int, a_int, c_int, d_int, l_int = '-', 1., 0.5, 'k', [(0, (1, 0.001))], 'Implicit Prior '
@@ -259,9 +261,9 @@ def plot_sampler_progress(plot_information, sampler_output, full_chain, burn_ins
     return plot_information
 
 def make_err_txt(info, key):
-    rms = "{0:.3e}".format(info['stats']['rms']['true_nz'+ '__' + key[4:]])
+    # rms = "{0:.3e}".format(info['stats']['rms']['true_nz'+ '__' + key[4:]])
     kld = "{0:.3e}".format(info['stats']['kld'][key])
-    plot_txt = r'(KLD='+kld+', RMSE='+rms+')'
+    plot_txt = r'(KLD='+kld+')'#', RMSE='+rms+')'
     return plot_txt
 
 def plot_estimators(info, plot_dir, log=True, prepend='', metrics=True, mini=True, both=False):
@@ -337,7 +339,7 @@ def plot_estimators(info, plot_dir, log=True, prepend='', metrics=True, mini=Tru
         sps_log.set_ylim(-4., 1.)
         sps_log.set_ylabel(r'$\ln[n(z)]$')
     else:
-        sps_log.set_ylim(-0.15, 1.5)
+        sps_log.set_ylim(0., 3.)
         sps_log.set_ylabel(r'$n(z)$')
     sps_log.set_xlim(info['bin_ends'][0], info['bin_ends'][-1])
 
