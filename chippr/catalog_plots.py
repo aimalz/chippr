@@ -71,6 +71,9 @@ def plot_prob_space(z_grid, p_space, plot_loc='', prepend='', plot_name='prob_sp
     plt.pcolormesh(z_grid, z_grid, u.safe_log(all_vals), cmap='viridis')
     plt.plot(z_grid, z_grid, color='k')
     plt.colorbar()
+    debugging = p_space.sample(1000).T
+    np.savetxt(os.path.join(plot_loc, 'int_pr_samps.txt'), debugging)
+    plt.scatter(debugging[0], debugging[1], s=1, color='k', marker='.')
     plt.xlabel(r'$z_{\mathrm{true}}$')
     plt.ylabel(r'$\mathrm{``data"}$')#z_{\mathrm{phot}}$')
     plt.axis([z_grid[0], z_grid[-1], z_grid[0], z_grid[-1]])
