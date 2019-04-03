@@ -437,7 +437,7 @@ class log_z_dens(object):
                 full_chain = np.concatenate((full_chain, burn_in_mcmc_outputs['chains']), axis=1)
                 if vb:
                     canvas = plots.plot_sampler_progress(canvas, burn_in_mcmc_outputs, full_chain, self.burn_ins, self.plot_dir, prepend=self.add_text)
-                self.burning_in = s.gr_test(full_chain)
+                self.burning_in = s.gr_test(full_chain, self.info['gr_threshold'])
                 vals = np.array([item[-1] for item in burn_in_mcmc_outputs['chains']])
                 self.burn_ins += 1
 

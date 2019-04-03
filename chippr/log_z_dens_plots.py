@@ -48,6 +48,10 @@ def plot_ivals(ivals, info, plot_dir, prepend=''):
     -------
     f: matplotlib figure
         figure object
+
+    Notes
+    -----
+    TODO: Investigate why step plot is all wrong and why labels are low res.
     """
     pu.set_up_plot()
     n_walkers = len(ivals)
