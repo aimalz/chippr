@@ -46,6 +46,7 @@ def set_up_prior(data, params):
     zs = data['bin_ends']
     # print(str(len(zs))+' input redshift bin ends')
     log_nz_intp = data['log_interim_prior']
+    # modify above line if testing implicit prior misspecification
     print('reading implicit prior '+str(log_nz_intp))
     log_z_posts = data['log_interim_posteriors']
 
@@ -119,7 +120,7 @@ def do_inference(given_key):
         for z in true_data:
             true_vals.append(float(z[0]))
         true_vals = np.array(true_vals)
-        true_vals = np.histogram(true_vals, bins=zs, normed=True)[0]
+        true_vals = np.histogram(true_vals, bins=zs, density=True)[0]
     true_nz = chippr.discrete(zs, true_vals)
 
     (prior, cov) = set_up_prior(data, params)
@@ -143,26 +144,26 @@ def do_inference(given_key):
     nz.plot_estimators(log=False, mini=False)
     nz.write('nz.p')
 
-    # # COMMENT OUT TO AVOID SAMPLING
-    # # start_mean = mvn(nz_mmle, cov).sample_one()
-    # start = prior#mvn(data['log_interim_prior'], cov)
-    #
-    # n_bins = len(zs) - 1
-    # if params['n_walkers'] is not None:
-    #     n_ivals = params['n_walkers']
-    # else:
-    #     n_ivals = 10 * n_bins
-    # initial_values = start.sample(n_ivals)
-    #
-    # start_samps = timeit.default_timer()
-    # nz_samps = nz.calculate_samples(initial_values, no_data=params['no_data'], no_prior=params['no_prior'], n_procs=1)
-    # time_samps = timeit.default_timer()-start_samps
-    # print('Sampled '+str(params['n_accepted'])+' after '+str(nz.burn_ins * params['n_burned'])+' in '+str(time_samps))
-    #
-    # nz_stats = nz.compare()
-    # nz.plot_estimators(log=True, mini=False)
-    # nz.plot_estimators(log=False, mini=False)
-    # nz.write('nz.p')
+    # COMMENT OUT TO AVOID SAMPLING
+    # start_mean = mvn(nz_mmle, cov).sample_one()
+    start = prior#mvn(data['log_interim_prior'], cov)
+
+    n_bins = len(zs) - 1
+    if params['n_walkers'] is not None:
+        n_ivals = params['n_walkers']
+    else:
+        n_ivals = 10 * n_bins
+    initial_values = start.sample(n_ivals)
+
+    start_samps = timeit.default_timer()
+    nz_samps = nz.calculate_samples(initial_values, no_data=params['no_data'], no_prior=params['no_prior'], n_procs=1)
+    time_samps = timeit.default_timer()-start_samps
+    print('Sampled '+str(params['n_accepted'])+' after '+str(nz.burn_ins * params['n_burned'])+' in '+str(time_samps))
+
+    nz_stats = nz.compare()
+    nz.plot_estimators(log=True, mini=False)
+    nz.plot_estimators(log=False, mini=False)
+    nz.write('nz.p')
 
 if __name__ == "__main__":
 
@@ -176,7 +177,7 @@ if __name__ == "__main__":
     from chippr import *
 
     result_dir = os.path.join('..', 'results')
-    test_name = 'single_lsst'
+    test_name = 'thesis_neghibias'
     all_tests = {}
     test_info = {}
     test_info['name'] = test_name

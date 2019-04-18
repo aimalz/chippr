@@ -19,11 +19,18 @@ def check_extra_params(params):
         # params['true_shape'] = int(params['true_shape'][0])
         params['true_loc'] = float(params['true_loc'][0])
         params['true_scale'] = 1./float(params['true_scale'][0])
-
     if 'interim_prior' not in params:
         params['interim_prior'] = 'flat'
     else:
         params['interim_prior'] = str(params['interim_prior'][0])
+    if 'wrong_prior' not in params:
+        params['wrong_prior'] = 0
+    else:
+        params['wrong_prior'] = int(params['wrong_prior'][0])
+        if 'bias_model' not in params:
+            params['bias_model'] = 'flat'
+        else:
+            params['bias_model'] = str(params['bias_model'][0])
     if 'n_galaxies' not in params:
         params['n_galaxies'] = 10**4
     else:
@@ -82,7 +89,7 @@ def make_true(given_key):
 
     return(test_info, true_nz)
 
-def make_interim_prior(given_key):
+def make_interim_prior(given_key, wrong=False, grid=None):
     """
     Function to make the histogram-parametrized interim prior
 
@@ -97,8 +104,17 @@ def make_interim_prior(given_key):
         the discrete distribution that will be the interim prior
     """
     test_info = all_tests[given_key]
+    bin_mids = (test_info['bin_ends'][1:] + test_info['bin_ends'][:-1]) / 2.
+    bin_difs = test_info['bin_ends'][1:] - test_info['bin_ends'][:-1]
 
-    if test_info['params']['interim_prior'] == 'template':
+    if not wrong:
+        int_pr_type = test_info['params']['interim_prior']
+        print('using true interim prior of '+int_pr_type)
+    else:
+        int_pr_type = test_info['params']['bias_model']
+        print('using wrong interim prior of '+int_pr_type)
+
+    if int_pr_type == 'template':
         bin_range = max(test_info['bin_ends']) - min(test_info['bin_ends'])
         int_amps = np.array([0.35, 0.5, 0.15])
         int_means = np.array([0.1, 0.5, 0.9]) * bin_range + min(test_info['bin_ends'])
@@ -192,7 +208,17 @@ def make_catalog(given_key):
 
     posteriors = chippr.catalog(param_file_name, loc=test_dir, prepend=test_name)
     output = posteriors.create(true_nz, interim_prior, N=test_info['params']['n_gals'], vb=True)
+    print('using implicit prior '+str(posteriors.cat['log_interim_prior']))
     # data = np.exp(output['log_interim_posteriors'])
+    # print('bin ends from simulation: '+str(posteriors.bin_ends))
+
+    if test_info['params']['wrong_prior']:
+        int_pr = make_interim_prior(given_key, wrong=True)
+        int_pr_fine = np.array([int_pr.pdf(posteriors.z_fine)])
+        int_pr_coarse = posteriors.coarsify(int_pr_fine)
+        posteriors.cat['log_interim_prior'] = u.safe_log(int_pr_coarse[0])
+    print('writing implicit prior '+str(posteriors.cat['log_interim_prior']))
+
     posteriors.write()
     data_dir = posteriors.data_dir
     with open(os.path.join(data_dir, 'true_params.p'), 'w') as true_file:

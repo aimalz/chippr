@@ -150,25 +150,27 @@ def make_interim_prior(given_key, wrong=False, grid=None):
         interim_prior = chippr.gmix(int_amps, int_funcs,
             limits=(min(test_info['bin_ends']), max(test_info['bin_ends'])))
     elif int_pr_type == 'training':
-        int_amps = [0.150,0.822,1.837,2.815,3.909,
+        int_amps = np.array([0.150,0.822,1.837,2.815,3.909,
                               5.116,6.065,6.477,6.834,7.304,
                               7.068,6.771,6.587,6.089,5.165,
                               4.729,4.228,3.664,3.078,2.604,
                               2.130,1.683,1.348,0.977,0.703,
                               0.521,0.339,0.283,0.187,0.141,
-                              0.104,0.081,0.055,0.043,0.034]
+                              0.104,0.081,0.055,0.043,0.034])
         int_grid = np.linspace(0., 1.1, len(int_amps) + 1)
-        # int_grid = np.concatenate((int_grid, np.array([test_info['bin_ends'][-1]])))
-        # print(int_grid)
-        int_amps.append(int_amps[-1])
-        int_amps = np.array(int_amps)
-        # this basically hardcodes in that grids start at 0.!
-
-        int_grid_mids = (int_grid[1:] + int_grid[:-1]) / 2.
-
-        int_grid_mids = np.concatenate((int_grid_mids, np.array([test_info['bin_ends'][-1]])))
-        f = spi.interp1d(int_grid_mids, int_amps)
-        int_amps = f(bin_mids)
+        int_mids = (int_grid[1:] + int_grid[:-1]) / 2.
+        int_amps = spi.griddata(int_mids, int_amps, bin_mids, method='linear', fill_value=np.min(int_amps), rescale=False)
+        # # int_grid = np.concatenate((int_grid, np.array([test_info['bin_ends'][-1]])))
+        # # print(int_grid)
+        # int_amps.append(int_amps[-1])
+        # int_amps = np.array(int_amps)
+        # # this basically hardcodes in that grids start at 0.!
+        #
+        # int_grid_mids = (int_grid[1:] + int_grid[:-1]) / 2.
+        #
+        # int_grid_mids = np.concatenate((int_grid_mids, np.array([test_info['bin_ends'][-1]])))
+        # f = spi.interp1d(int_grid_mids, int_amps)
+        # int_amps = f(bin_mids)
         int_means = bin_mids
         int_sigmas = bin_difs
         n_mix_comps = len(int_amps)
@@ -225,6 +227,7 @@ def make_catalog(given_key):
     #         limits=(test_info['params']['bin_min'], test_info['params']['bin_max']))
 
     interim_prior = make_interim_prior(given_key)
+    print('providing interim prior '+str(interim_prior))
 
     posteriors = chippr.catalog(param_file_name, loc=test_dir, prepend=test_name)
     output = posteriors.create(true_nz, interim_prior, N=test_info['params']['n_gals'])
@@ -258,7 +261,7 @@ if __name__ == "__main__":
     from chippr import *
 
     result_dir = os.path.join('..', 'results')
-    test_name = 'single_lsst'
+    test_name = 'single_lsst_trpr'
     all_tests = {}
     test_info = {}
     test_info['name'] = test_name
