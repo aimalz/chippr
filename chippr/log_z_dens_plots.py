@@ -71,7 +71,7 @@ def plot_ivals(ivals, info, plot_dir, prepend=''):
     bin_difs = info['bin_ends'][1:]-info['bin_ends'][:-1]
     ival_integrals = np.dot(np.exp(ivals), bin_difs)
     log_ival_integrals = u.safe_log(ival_integrals)
-    sps_sum.hist(log_ival_integrals, color='k', normed=1)
+    sps_sum.hist(log_ival_integrals, color='k', density=1)
     sps_sum.vlines(np.log(np.dot(np.exp(info['log_interim_prior']), bin_difs)), 0., 1., linewidth=w_int, linestyle=s_int, alpha=a_int, color=c_int, dashes=d_int, label=l_int+nz)
     sps_sum.vlines(np.mean(log_ival_integrals), 0., 1., linewidth=w_bfe, linestyle=s_bfe, alpha=a_bfe, color=c_bfe, dashes=d_bfe, label=l_bfe+lnz)
 
@@ -499,7 +499,7 @@ def plot_estimators(info, plot_dir, log=True, prepend='', metrics=True, mini=Tru
                         w=w_mle, s=s_mle, a=a_mle, c=c_mle, d=d_mle, l=l_mle+lnz+err_txt)
 
     # sps_log.legend(handles=color_plots[:-1], fontsize='x-small', loc='lower center', frameon=False)
-    sps_log.legend(fontsize='x-small', loc='upper right', frameon=False)
+    sps_log.legend(fontsize='small', loc='upper right', frameon=False)
     f.subplots_adjust(hspace=0, wspace=0)
     f.savefig(os.path.join(plot_dir, prepend+'estimators.png'), bbox_inches='tight', pad_inches = 0, dpi=d.dpi)
     print(info['stats'])
@@ -554,7 +554,7 @@ def plot_samples(info, plot_dir, prepend=''):
     pu.plot_step(sps_log, info['bin_ends'], locs, s=s_smp, d=d_smp, w=2., a=1., c='k', l=l_bfe+lnz)
     pu.plot_step(sps, info['bin_ends'], np.exp(locs), s=s_smp, d=d_smp, w=2., a=1., c='k', l=l_bfe+nz)
 
-    sps_log.legend(fontsize='x-small', loc='lower left')
+    sps_log.legend(fontsize='small', loc='lower left')
     sps.set_xlabel('x')
     sps_log.set_ylabel('Log probability density')
     sps.set_ylabel('Probability density')
