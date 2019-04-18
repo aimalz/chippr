@@ -1,1 +1,10 @@
 *.txt
+*.pyc
+*.aux
+*.log
+*.bbl
+*.pdf
+*.png
+*.zip
+*.gz
+*.fdb_latexmk
