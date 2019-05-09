@@ -67,6 +67,7 @@ def just_plot(given_key):
     true_vals = np.array(alldata).T
     bin_mids = (data['bin_ends'][1:] + data['bin_ends'][:-1]) / 2.
     catalog_plots.plot_obs_scatter(true_vals.T, np.exp(data['log_interim_posteriors']), bin_mids, plot_loc=os.path.join(test_dir, 'plots'))
+    catalog_plots.plot_mega_scatter(true_vals.T, np.exp(data['log_interim_posteriors']), bin_mids, data['bin_ends'], plot_loc=os.path.join(test_dir, 'plots'), prepend=test_name+'-')
 
     prior = set_up_prior(data)
     n_bins = len(data['log_interim_prior'])

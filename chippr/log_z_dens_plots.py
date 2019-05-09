@@ -63,7 +63,7 @@ def plot_ivals(ivals, info, plot_dir, prepend=''):
         pu.plot_step(sps_samp, info['bin_ends'], ivals[walkers[i]], c=pu.colors[i])
     pu.plot_step(sps_samp, info['bin_ends'], info['log_interim_prior'], w=w_int, s=s_int, a=a_int, c=c_int, d=d_int, l=l_int+nz)
     if info['truth'] is not None:
-        sps_samp.plot(info['truth']['z_grid'], np.log(info['truth']['nz_grid']), linewidth=w_tru, alpha=a_tru, color=c_tru, label=l_tru+nz)
+        sps_samp.plot(info['truth']['z_grid'], u.safe_log(info['truth']['nz_grid']), linewidth=w_tru, alpha=a_tru, color=c_tru, label=l_tru+nz)
     sps_samp.set_xlabel(r'$z$')
     sps_samp.set_ylabel(r'$\ln\left[n(z)\right]$')
 
@@ -72,7 +72,7 @@ def plot_ivals(ivals, info, plot_dir, prepend=''):
     ival_integrals = np.dot(np.exp(ivals), bin_difs)
     log_ival_integrals = u.safe_log(ival_integrals)
     sps_sum.hist(log_ival_integrals, color='k', density=1)
-    sps_sum.vlines(np.log(np.dot(np.exp(info['log_interim_prior']), bin_difs)), 0., 1., linewidth=w_int, linestyle=s_int, alpha=a_int, color=c_int, dashes=d_int, label=l_int+nz)
+    sps_sum.vlines(u.safe_log(np.dot(np.exp(info['log_interim_prior']), bin_difs)), 0., 1., linewidth=w_int, linestyle=s_int, alpha=a_int, color=c_int, dashes=d_int, label=l_int+nz)
     sps_sum.vlines(np.mean(log_ival_integrals), 0., 1., linewidth=w_bfe, linestyle=s_bfe, alpha=a_bfe, color=c_bfe, dashes=d_bfe, label=l_bfe+lnz)
 
     sps_sum.set_xlabel(r'$\ln\left[\int n(z)dz\right]$')

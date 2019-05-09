@@ -2,7 +2,7 @@ import sys
 
 seed = 42
 
-eps = sys.float_info.min
+eps = 2. * sys.float_info.min
 log_eps = sys.float_info.min_exp
 
 min_x = 0.001

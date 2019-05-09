@@ -134,7 +134,7 @@ class log_z_dens(object):
 
         # testing whether the norm step is still necessary
         hyper_lfs = np.sum(norm_nz[None,:] * self.pdfs / self.int_pr[None,:] * self.bin_difs, axis=1)
-        log_hyper_likelihood = np.sum(u.safe_log(hyper_lfs)) - np.log(np.dot(norm_nz, self.bin_difs))
+        log_hyper_likelihood = np.sum(u.safe_log(hyper_lfs)) - u.safe_log(np.dot(norm_nz, self.bin_difs))
 
         # this used to work...
         # log_hyper_likelihood = np.dot(np.exp(log_nz + self.precomputed), self.bin_difs)
@@ -155,7 +155,7 @@ class log_z_dens(object):
         log_hyper_prior: float
             log prior probability associated with parameters in log_nz
         """
-        log_hyper_prior = np.log(self.hyper_prior.evaluate_one(log_nz))
+        log_hyper_prior = u.safe_log(self.hyper_prior.evaluate_one(log_nz))
         return log_hyper_prior
 
     def evaluate_log_hyper_posterior(self, log_nz):

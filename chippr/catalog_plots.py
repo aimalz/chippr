@@ -133,11 +133,14 @@ def plot_mega_scatter(zs, pfs, z_grid, grid_ends, truth=None, plot_loc='', prepe
     for r in range(d.plot_colors):
         pf = sorted_pfs[randos[r]]
         norm_pf = pf / max_pfs
-        pu.plot_h(scatplot, [min(z_grid), max(z_grid)], [sorted_obs[randos[r]], sorted_obs[randos[r]]], c='k', s=':', w=0.75)
-        pu.plot_v(scatplot, [min(z_grid), sorted_true[randos[r]], max(z_grid)], [sorted_obs[randos[r]], max(norm_pf)+sorted_obs[randos[r]]], c='k', s=':', w=0.75)
+        pu.plot_h(scatplot, [min(grid_ends), max(grid_ends)], [sorted_obs[randos[r]], sorted_obs[randos[r]]], c='k', s=':', w=0.75)
+        pu.plot_v(scatplot, [min(grid_ends), sorted_true[randos[r]], max(z_grid)], [sorted_obs[randos[r]], max(norm_pf)+sorted_obs[randos[r]]], c='k', s=':', w=0.75)
         scatplot.step(z_grid, norm_pf + sorted_obs[randos[r]], c=pu.colors[r], where='mid')# plt.plot(z_grid, norm_pf + sorted_obs[randos[r]], c='k')
-    scatplot.set_xlabel(r'$z_{spec}$')
-    scatplot.set_ylabel(r'$z_{phot}$')
+    limval = (max(grid_ends) - min(grid_ends)) / (len(grid_ends) - 1.)
+    scatplot.set_xlim([min(grid_ends)-limval, max(grid_ends)+limval])
+    scatplot.set_ylim([min(grid_ends)-limval, max(grid_ends)+limval])
+    scatplot.set_xlabel(r'$z_{spec}$', fontsize=20)
+    scatplot.set_ylabel(r'$z_{phot}$', fontsize=20)
 
     # scatplot.set_aspect(1.)
     divider = make_axes_locatable(scatplot)
@@ -156,6 +159,8 @@ def plot_mega_scatter(zs, pfs, z_grid, grid_ends, truth=None, plot_loc='', prepe
         histy.plot(int_pr[1] / np.sum(int_pr[1] * spacing), int_pr[0], color='r', alpha=0.75)
     histx.set_yticks([])
     histy.set_xticks([])
+    histx.set_xlim([min(grid_ends)-limval, max(grid_ends)+limval])
+    histy.set_ylim([min(grid_ends)-limval, max(grid_ends)+limval])
 
     f.savefig(os.path.join(plot_loc, prepend+plot_name), bbox_inches='tight', pad_inches=0, dpi=d.dpi)
     return
