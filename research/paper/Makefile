@@ -1,4 +1,7 @@
 
 all:
-	pdflatex draft
-	pdflatex draft
+	pdflatex from_thesis
+	pdflatex from_thesis
+	bibtex from_thesis
+	pdflatex from_thesis
+	pdflatex from_thesis

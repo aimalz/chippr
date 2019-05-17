@@ -500,6 +500,7 @@ def plot_estimators(info, plot_dir, log=True, prepend='', metrics=True, mini=Tru
 
     # sps_log.legend(handles=color_plots[:-1], fontsize='x-small', loc='lower center', frameon=False)
     sps_log.legend(fontsize='small', loc='upper right', frameon=False)
+    sps_log.text(0.5, 0., r'inferred $n(z)$ results', rotation=0, size=16)
     f.subplots_adjust(hspace=0, wspace=0)
     f.savefig(os.path.join(plot_dir, prepend+'estimators.png'), bbox_inches='tight', pad_inches = 0, dpi=d.dpi)
     print(info['stats'])
