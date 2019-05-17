@@ -134,7 +134,7 @@ class log_z_dens(object):
 
         # testing whether the norm step is still necessary
         hyper_lfs = np.sum(norm_nz[None,:] * self.pdfs / self.int_pr[None,:] * self.bin_difs, axis=1)
-        log_hyper_likelihood = np.sum(u.safe_log(hyper_lfs)) - np.log(np.dot(norm_nz, self.bin_difs))
+        log_hyper_likelihood = np.sum(u.safe_log(hyper_lfs)) - u.safe_log(np.dot(norm_nz, self.bin_difs))
 
         # this used to work...
         # log_hyper_likelihood = np.dot(np.exp(log_nz + self.precomputed), self.bin_difs)
@@ -155,7 +155,7 @@ class log_z_dens(object):
         log_hyper_prior: float
             log prior probability associated with parameters in log_nz
         """
-        log_hyper_prior = np.log(self.hyper_prior.evaluate_one(log_nz))
+        log_hyper_prior = u.safe_log(self.hyper_prior.evaluate_one(log_nz))
         return log_hyper_prior
 
     def evaluate_log_hyper_posterior(self, log_nz):
@@ -376,7 +376,7 @@ class log_z_dens(object):
         mcmc_outputs['acors'] = acors
         return mcmc_outputs
 
-    def calculate_samples(self, ivals, n_accepted=d.n_accepted, n_burned=d.n_burned, vb=True, n_procs=1, no_data=0, no_prior=0):
+    def calculate_samples(self, ivals, n_accepted=d.n_accepted, n_burned=d.n_burned, vb=True, n_procs=1, no_data=0, no_prior=0, gr_threshold=d.gr_threshold):
         """
         Calculates samples estimating the redshift density function
 
@@ -437,7 +437,7 @@ class log_z_dens(object):
                 full_chain = np.concatenate((full_chain, burn_in_mcmc_outputs['chains']), axis=1)
                 if vb:
                     canvas = plots.plot_sampler_progress(canvas, burn_in_mcmc_outputs, full_chain, self.burn_ins, self.plot_dir, prepend=self.add_text)
-                self.burning_in = s.gr_test(full_chain)
+                self.burning_in = s.gr_test(full_chain, gr_threshold)
                 vals = np.array([item[-1] for item in burn_in_mcmc_outputs['chains']])
                 self.burn_ins += 1
 

@@ -12,13 +12,13 @@ def check_extra_params(params):
     params: dict
         dictionary containing key/value pairs for simulation
     """
-    if 'smooth_truth' not in params:
-        params['smooth_truth'] = 0
-    else:
-        params['smooth_truth'] = int(params['smooth_truth'][0])
-        # params['true_shape'] = int(params['true_shape'][0])
-        params['true_loc'] = float(params['true_loc'][0])
-        params['true_scale'] = 1./float(params['true_scale'][0])
+    # if 'smooth_truth' not in params:
+    #     params['smooth_truth'] = 0
+    # else:
+    #     params['smooth_truth'] = int(params['smooth_truth'][0])
+    #     # params['true_shape'] = int(params['true_shape'][0])
+    #     params['true_loc'] = float(params['true_loc'][0])
+    #     params['true_scale'] = 1./float(params['true_scale'][0])
 
     if 'interim_prior' not in params:
         params['interim_prior'] = 'flat'
@@ -39,75 +39,45 @@ def check_extra_params(params):
 
     return(params)
 
-def make_true(given_key):
+def read_cosmolike(bin_ends, loc='.', fn='nz_histo.txt'):
     """
-    Function to create true redshift distribution to be shared among several
-    test cases
+    Turns cosmolike n(z) file into true n(z)s
 
     Parameters
     ----------
     given_key: string
         name of test case for which true n(z) is to be made
+    loc: string
+        path to file with n(z) evaluations
+    fn: string
+        filename
 
     Returns
     -------
-    test_info: dict
-        information necessary to reconstruct true_nz
-    true_nz: chippr.gmix object
-        gaussian mixture probability distribution
-
-    Notes
-    -----
-    test_name is currently ignored but will soon be used to load parameters for
-    making true_nz instead of hardcoded values.
+    true_nzs: list, chippr.discrete objects
+        per-bin true_nzs
     """
-    test_info = all_tests[given_key]
+    bin_mids = (bin_ends[1:] + bin_ends[:-1]) / 2.
+    cl_input = np.genfromtxt(loc+'/'+fn).T
+    n_tomobins = len(cl_input) - 1
+    zs = cl_input[0]
+    nzs = cl_input[1:]
+    true_nzs = []
+    writeout = []
+    for b in range(n_tomobins):
+        f = spi.interp1d(zs, nzs[b])
+        bin_vals = f(bin_mids)
+        writeout.append(bin_vals)
+        true_func = discrete(bin_ends, bin_vals)
+        true_nzs.append(true_func)
 
-    if test_info['params']['smooth_truth'] == 1:
-        # true_shape = test_info['params']['true_shape']
-        true_loc = test_info['params']['true_loc']
-        true_scale = test_info['params']['true_scale']
-        true_nz = gamma(true_loc, true_scale**2, bounds=(min(test_info['bin_ends']), max(test_info['bin_ends'])))#sps.erlang(true_shape, true_loc, true_scale)
-        true_dict = {'amps': [1.], 'means': [true_loc], 'sigmas': [true_scale]}
-        # true_amps = np.array([0.150,0.822,1.837,2.815,3.909,
-        #                       5.116,6.065,6.477,6.834,7.304,
-        #                       7.068,6.771,6.587,6.089,5.165,
-        #                       4.729,4.228,3.664,3.078,2.604,
-        #                       2.130,1.683,1.348,0.977,0.703,
-        #                       0.521,0.339,0.283,0.187,0.141,
-        #                       0.104,0.081,0.055,0.043,0.034])
-        # true_grid = np.linspace(test_info['bin_ends'][0], test_info['bin_ends'][-1], len(true_amps) + 1)
-        # true_grid_mids = (true_grid[1:] + true_grid[:-1]) / 2.
-        # f = spi.interp1d(true_grid_mids, true_amps)
-        # bin_mids = (test_info['bin_ends'][1:] + test_info['bin_ends'][:-1]) / 2.
-        # bin_difs = test_info['bin_ends'][1:] - test_info['bin_ends'][:-1]
-        # true_means = bin_mids
-        # true_amps = f(bin_mids)
-        # true_sigmas = bin_difs
-    else:
-        bin_range = max(test_info['bin_ends']) - min(test_info['bin_ends'])
-        if test_info['params']['delta_truth'] == 1:
-            true_amps = np.array([1.])
-            true_means = np.array([1.]) + min(test_info['bin_ends'])
-            true_sigmas = np.array([0.003])
-        else:
-            true_amps = np.array([0.20, 0.35, 0.55])
-            true_means = np.array([0.5, 0.2, 0.75]) * bin_range + min(test_info['bin_ends'])
-            true_sigmas = np.array([0.4, 0.2, 0.1]) * bin_range
-        n_mix_comps = len(true_amps)
-        true_funcs = []
-        for c in range(n_mix_comps):
-            true_funcs.append(chippr.gauss(true_means[c], true_sigmas[c]**2))
-            true_nz = chippr.gmix(true_amps, true_funcs, limits=(min(test_info['bin_ends']), max(test_info['bin_ends'])))
+    cl_data = np.empty((n_tomobins, len(bin_mids)))
+    cl_data[0] = bin_mids
+    for i in range(n_tomobins - 1):
+        cl_data[i+1] = writeout[i]
+    np.savetxt(loc+'/'+'downbinned_'+fn, cl_data)
 
-            true_dict = {'amps': true_amps, 'means': true_means, 'sigmas': true_sigmas}
-    true_dict['bins'] = test_info['bin_ends']
-
-    # true_zs = true_nz.sample(test_info['params']['n_galaxies'])
-    # true_dict['zs'] = true_zs
-    test_info['truth'] = true_dict
-
-    return(test_info, true_nz)
+    return(true_nzs)
 
 def make_interim_prior(given_key, wrong=False, grid=None):
     """
@@ -150,27 +120,25 @@ def make_interim_prior(given_key, wrong=False, grid=None):
         interim_prior = chippr.gmix(int_amps, int_funcs,
             limits=(min(test_info['bin_ends']), max(test_info['bin_ends'])))
     elif int_pr_type == 'training':
-        int_amps = np.array([0.150,0.822,1.837,2.815,3.909,
+        int_amps = [0.150,0.822,1.837,2.815,3.909,
                               5.116,6.065,6.477,6.834,7.304,
                               7.068,6.771,6.587,6.089,5.165,
                               4.729,4.228,3.664,3.078,2.604,
                               2.130,1.683,1.348,0.977,0.703,
                               0.521,0.339,0.283,0.187,0.141,
-                              0.104,0.081,0.055,0.043,0.034])
+                              0.104,0.081,0.055,0.043,0.034]
         int_grid = np.linspace(0., 1.1, len(int_amps) + 1)
-        int_mids = (int_grid[1:] + int_grid[:-1]) / 2.
-        int_amps = spi.griddata(int_mids, int_amps, bin_mids, method='linear', fill_value=np.min(int_amps), rescale=False)
-        # # int_grid = np.concatenate((int_grid, np.array([test_info['bin_ends'][-1]])))
-        # # print(int_grid)
-        # int_amps.append(int_amps[-1])
-        # int_amps = np.array(int_amps)
-        # # this basically hardcodes in that grids start at 0.!
-        #
-        # int_grid_mids = (int_grid[1:] + int_grid[:-1]) / 2.
-        #
-        # int_grid_mids = np.concatenate((int_grid_mids, np.array([test_info['bin_ends'][-1]])))
-        # f = spi.interp1d(int_grid_mids, int_amps)
-        # int_amps = f(bin_mids)
+        # int_grid = np.concatenate((int_grid, np.array([test_info['bin_ends'][-1]])))
+        # print(int_grid)
+        int_amps.append(int_amps[-1])
+        int_amps = np.array(int_amps)
+        # this basically hardcodes in that grids start at 0.!
+
+        int_grid_mids = (int_grid[1:] + int_grid[:-1]) / 2.
+
+        int_grid_mids = np.concatenate((int_grid_mids, np.array([test_info['bin_ends'][-1]])))
+        f = spi.interp1d(int_grid_mids, int_amps)
+        int_amps = f(bin_mids)
         int_means = bin_mids
         int_sigmas = bin_difs
         n_mix_comps = len(int_amps)
@@ -186,7 +154,7 @@ def make_interim_prior(given_key, wrong=False, grid=None):
 
     return(interim_prior)
 
-def make_catalog(given_key):
+def make_catalog_pre_split(given_key):
     """
     Function to create a catalog once true redshifts exist
 
@@ -197,12 +165,6 @@ def make_catalog(given_key):
     """
     test_info = all_tests[given_key]
     test_name = test_info['name']
-
-    test_dir = os.path.join(result_dir, test_name)
-    test_info['dir'] = test_dir
-    if os.path.exists(test_dir):
-        shutil.rmtree(test_dir)
-    os.makedirs(test_dir)
 
     param_file_name = test_name + '.txt'
     params = chippr.utils.ingest(param_file_name)
@@ -215,19 +177,20 @@ def make_catalog(given_key):
                                 test_info['params']['n_bins']+1)
     # print('bin ends to simulation = '+str(test_info['bin_ends']))
 
-    test_info, true_nz = make_true(given_key)
-    # true_amps = test_info['truth']['amps']
-    # true_means = test_info['truth']['means']
-    # true_sigmas =  test_info['truth']['sigmas']
-    # n_mix_comps = len(true_amps)
-    # true_funcs = []
-    # for c in range(n_mix_comps):
-    #     true_funcs.append(chippr.gauss(true_means[c], true_sigmas[c]**2))
-    # true_nz = chippr.gmix(true_amps, true_funcs,
-    #         limits=(test_info['params']['bin_min'], test_info['params']['bin_max']))
+    # replace make_true with read_cosmolike in loop
+    # test_info, true_nz = make_true(given_key)
+    true_nzs = read_cosmolike(test_info['bin_ends'], loc='.', fn='nz_histo.txt')
 
     interim_prior = make_interim_prior(given_key)
-    print('providing interim prior '+str(interim_prior))
+
+    return(test_info, interim_prior, true_nzs, param_file_name)
+
+def make_catalog_at_split(given_key, param_file_name, interim_prior, true_nz):
+
+    test_info['dir'] = test_dir
+    if os.path.exists(test_dir):
+        shutil.rmtree(test_dir)
+    os.makedirs(test_dir)
 
     posteriors = chippr.catalog(param_file_name, loc=test_dir, prepend=test_name)
     output = posteriors.create(true_nz, interim_prior, N=test_info['params']['n_gals'])
@@ -243,6 +206,7 @@ def make_catalog(given_key):
     print('writing implicit prior '+str(posteriors.cat['log_interim_prior']))
 
     posteriors.write()
+    test_info['truth'] = {'bin_ends': true_nz.bin_ends, 'weights': true_nz.distweights}
     data_dir = posteriors.data_dir
     with open(os.path.join(data_dir, 'true_params.p'), 'w') as true_file:
         pickle.dump(test_info['truth'], true_file)
@@ -253,6 +217,7 @@ if __name__ == "__main__":
     import scipy.stats as sps
     import pickle
     import shutil
+    from shutil import copyfile
     import os
     import scipy.interpolate as spi
     import timeit
@@ -261,10 +226,22 @@ if __name__ == "__main__":
     from chippr import *
 
     result_dir = os.path.join('..', 'results')
-    test_name = 'single_lsst_trpr'
+    test_name = 'single_lsst'
+
+    param_file_name = test_name + '.txt'
+
     all_tests = {}
     test_info = {}
     test_info['name'] = test_name
     all_tests[test_name] = test_info
 
-    make_catalog(test_name)
+    test_info, imp_pr, true_nzs, orig_param_file_name = make_catalog_pre_split(test_name)
+
+    for i in range(len(true_nzs)):
+        param_file_name = str(i) + orig_param_file_name
+        copyfile(orig_param_file_name, param_file_name)
+
+        new_test_name = str(i) + test_name
+        test_dir = os.path.join(result_dir, new_test_name)
+
+        make_catalog_at_split(test_name, param_file_name, imp_pr, true_nzs[i])

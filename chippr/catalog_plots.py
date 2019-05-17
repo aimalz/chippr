@@ -31,8 +31,8 @@ def plot_true_histogram(true_samps, n_bins=(10, 50), plot_loc='', prepend='', pl
     pu.set_up_plot()
     f = plt.figure(figsize=(5, 5))
     sps = f.add_subplot(1, 1, 1)
-    sps.hist(true_samps, bins=n_bins[1], density=1, color='k', alpha=0.5, log=True)
-    sps.hist(true_samps, bins=n_bins[0], density=1, color='y', alpha=0.5, log=True)
+    sps.hist(true_samps, bins=n_bins[1], normed=1, color='k', alpha=0.5, log=True)
+    sps.hist(true_samps, bins=n_bins[0], normed=1, color='y', alpha=0.5, log=True)
     sps.set_xlabel(r'$z_{true}$')
     sps.set_ylabel(r'$n(z_{true})$')
     f.savefig(os.path.join(plot_loc, prepend+plot_name), bbox_inches='tight', pad_inches = 0, dpi=d.dpi)
@@ -71,6 +71,9 @@ def plot_prob_space(z_grid, p_space, plot_loc='', prepend='', plot_name='prob_sp
     plt.pcolormesh(z_grid, z_grid, u.safe_log(all_vals), cmap='viridis')
     plt.plot(z_grid, z_grid, color='k')
     plt.colorbar()
+    debugging = p_space.sample(1000).T
+    np.savetxt(os.path.join(plot_loc, 'int_pr_samps.txt'), debugging)
+    plt.scatter(debugging[0], debugging[1], s=1, color='k', marker='.')
     plt.xlabel(r'$z_{\mathrm{true}}$')
     plt.ylabel(r'$\mathrm{``data"}$')#z_{\mathrm{phot}}$')
     plt.axis([z_grid[0], z_grid[-1], z_grid[0], z_grid[-1]])
@@ -116,6 +119,8 @@ def plot_mega_scatter(zs, pfs, z_grid, grid_ends, truth=None, plot_loc='', prepe
     # sps_x.hist(obs_zs, bins=info['bin_ends'][0])
     # sps_y.hist(true_zs)
 
+    spacing = np.mean(z_grid[1:] - z_grid[:-1])
+
     scatplot.plot(z_grid, z_grid, color='r', alpha=0.5, linewidth=1.)
     scatplot.scatter(true_zs, obs_zs, c='k', marker='.', s=1., alpha=0.1)
     randos = np.floor(n / (d.plot_colors + 1)) * np.arange(1., d.plot_colors + 1)# np.random.choice(range(len(z_grid)), d.plot_colors)
@@ -128,11 +133,14 @@ def plot_mega_scatter(zs, pfs, z_grid, grid_ends, truth=None, plot_loc='', prepe
     for r in range(d.plot_colors):
         pf = sorted_pfs[randos[r]]
         norm_pf = pf / max_pfs
-        pu.plot_h(scatplot, [min(z_grid), max(z_grid)], [sorted_obs[randos[r]], sorted_obs[randos[r]]], c='k', s=':', w=0.75)
-        pu.plot_v(scatplot, [min(z_grid), sorted_true[randos[r]], max(z_grid)], [sorted_obs[randos[r]], max(norm_pf)+sorted_obs[randos[r]]], c='k', s=':', w=0.75)
+        pu.plot_h(scatplot, [min(grid_ends), max(grid_ends)], [sorted_obs[randos[r]], sorted_obs[randos[r]]], c='k', s=':', w=0.75)
+        pu.plot_v(scatplot, [min(grid_ends), sorted_true[randos[r]], max(z_grid)], [sorted_obs[randos[r]], max(norm_pf)+sorted_obs[randos[r]]], c='k', s=':', w=0.75)
         scatplot.step(z_grid, norm_pf + sorted_obs[randos[r]], c=pu.colors[r], where='mid')# plt.plot(z_grid, norm_pf + sorted_obs[randos[r]], c='k')
-    scatplot.set_xlabel(r'$z_{spec}$')
-    scatplot.set_ylabel(r'$z_{phot}$')
+    limval = (max(grid_ends) - min(grid_ends)) / (len(grid_ends) - 1.)
+    scatplot.set_xlim([min(grid_ends)-limval, max(grid_ends)+limval])
+    scatplot.set_ylim([min(grid_ends)-limval, max(grid_ends)+limval])
+    scatplot.set_xlabel(r'$z_{spec}$', fontsize=20)
+    scatplot.set_ylabel(r'$z_{phot}$', fontsize=20)
 
     # scatplot.set_aspect(1.)
     divider = make_axes_locatable(scatplot)
@@ -141,16 +149,18 @@ def plot_mega_scatter(zs, pfs, z_grid, grid_ends, truth=None, plot_loc='', prepe
 
     histx.xaxis.set_tick_params(labelbottom=False)
     histy.yaxis.set_tick_params(labelleft=False)
-    histx.hist(true_zs, bins=grid_ends, alpha=0.5, color='k', density=True, stacked=False)
-    histy.hist(obs_zs, bins=grid_ends, orientation='horizontal', alpha=0.5, color='k', density=True, stacked=False)
+    histx.hist(true_zs, bins=grid_ends, alpha=0.5, color='k', normed=True, stacked=False)
+    histy.hist(obs_zs, bins=grid_ends, orientation='horizontal', alpha=0.5, color='k', normed=True, stacked=False)
     if truth is not None:
-        histx.plot(truth[0], truth[1] / np.max(truth[1]), color='b', alpha=0.75)
-        histy.plot(truth[1] / np.max(truth[1]), truth[0], color='b', alpha=0.75)
+        histx.plot(truth[0], truth[1] / np.sum(truth[1] * spacing), color='b', alpha=0.75)
+        histy.plot(truth[1] / np.sum(truth[1] * spacing), truth[0], color='b', alpha=0.75)
     if int_pr is not None:
-        histx.plot(int_pr[0], int_pr[1] / np.max(int_pr[1]), color='r', alpha=0.75)
-        histy.plot(int_pr[1] / np.max(int_pr[1]), int_pr[0], color='r', alpha=0.75)
+        histx.plot(int_pr[0], int_pr[1] / np.sum(int_pr[1] * spacing), color='r', alpha=0.75)
+        histy.plot(int_pr[1] / np.sum(int_pr[1] * spacing), int_pr[0], color='r', alpha=0.75)
     histx.set_yticks([])
     histy.set_xticks([])
+    histx.set_xlim([min(grid_ends)-limval, max(grid_ends)+limval])
+    histy.set_ylim([min(grid_ends)-limval, max(grid_ends)+limval])
 
     f.savefig(os.path.join(plot_loc, prepend+plot_name), bbox_inches='tight', pad_inches=0, dpi=d.dpi)
     return

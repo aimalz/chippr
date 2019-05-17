@@ -17,11 +17,17 @@ def set_up_plot():
     """
     Sets up plots to look decent
     """
-    title = 16
-    label = 14
+    title = 18
+    label = 16
+    mpl.rcParams['mathtext.rm'] = 'serif'
+    plt.rcParams['mathtext.fontset'] = "dejavuserif"
+    mpl.rcParams['font.family'] = 'serif'
+    mpl.rcParams['font.serif'] = 'Times New Roman'
     mpl.rcParams['text.usetex'] = True
     mpl.rcParams['axes.titlesize'] = title
     mpl.rcParams['axes.labelsize'] = label
+    mpl.pyplot.rcParams['xtick.labelsize'] = label
+    mpl.pyplot.rcParams['ytick.labelsize'] = label
     mpl.rcParams['figure.subplot.left'] = 0.2
     mpl.rcParams['figure.subplot.right'] = 0.9
     mpl.rcParams['figure.subplot.bottom'] = 0.2

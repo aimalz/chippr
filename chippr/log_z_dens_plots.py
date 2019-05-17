@@ -17,6 +17,8 @@ from chippr import stat_utils as s
 
 lnz, nz = '', ''#r'$\ln[n(z)]$', r'$n(z)$'
 
+
+# TODO Fix this horrible mess of repeated code, use a dict of namedtuples for per-curve params!
 s_tru, w_tru, a_tru, c_tru, d_tru, l_tru = '-', 2., 1., 'k', [(0, (1, 0.001))], 'Underlying Truth '
 s_tbp, w_tbp, a_tbp, c_tbp, d_tbp, l_tbp = ':', 2., 0.75, 'k', [(0, (1, 0.001))], 'Binned Truth '
 s_int, w_int, a_int, c_int, d_int, l_int = '-', 1., 0.5, 'k', [(0, (1, 0.001))], 'Implicit Prior '
@@ -46,6 +48,10 @@ def plot_ivals(ivals, info, plot_dir, prepend=''):
     -------
     f: matplotlib figure
         figure object
+
+    Notes
+    -----
+    TODO: Investigate why step plot is all wrong and why labels are low res.
     """
     pu.set_up_plot()
     n_walkers = len(ivals)
@@ -57,7 +63,7 @@ def plot_ivals(ivals, info, plot_dir, prepend=''):
         pu.plot_step(sps_samp, info['bin_ends'], ivals[walkers[i]], c=pu.colors[i])
     pu.plot_step(sps_samp, info['bin_ends'], info['log_interim_prior'], w=w_int, s=s_int, a=a_int, c=c_int, d=d_int, l=l_int+nz)
     if info['truth'] is not None:
-        sps_samp.plot(info['truth']['z_grid'], np.log(info['truth']['nz_grid']), linewidth=w_tru, alpha=a_tru, color=c_tru, label=l_tru+nz)
+        sps_samp.plot(info['truth']['z_grid'], u.safe_log(info['truth']['nz_grid']), linewidth=w_tru, alpha=a_tru, color=c_tru, label=l_tru+nz)
     sps_samp.set_xlabel(r'$z$')
     sps_samp.set_ylabel(r'$\ln\left[n(z)\right]$')
 
@@ -65,8 +71,8 @@ def plot_ivals(ivals, info, plot_dir, prepend=''):
     bin_difs = info['bin_ends'][1:]-info['bin_ends'][:-1]
     ival_integrals = np.dot(np.exp(ivals), bin_difs)
     log_ival_integrals = u.safe_log(ival_integrals)
-    sps_sum.hist(log_ival_integrals, color='k', normed=1)
-    sps_sum.vlines(np.log(np.dot(np.exp(info['log_interim_prior']), bin_difs)), 0., 1., linewidth=w_int, linestyle=s_int, alpha=a_int, color=c_int, dashes=d_int, label=l_int+nz)
+    sps_sum.hist(log_ival_integrals, color='k', density=1)
+    sps_sum.vlines(u.safe_log(np.dot(np.exp(info['log_interim_prior']), bin_difs)), 0., 1., linewidth=w_int, linestyle=s_int, alpha=a_int, color=c_int, dashes=d_int, label=l_int+nz)
     sps_sum.vlines(np.mean(log_ival_integrals), 0., 1., linewidth=w_bfe, linestyle=s_bfe, alpha=a_bfe, color=c_bfe, dashes=d_bfe, label=l_bfe+lnz)
 
     sps_sum.set_xlabel(r'$\ln\left[\int n(z)dz\right]$')
@@ -259,9 +265,9 @@ def plot_sampler_progress(plot_information, sampler_output, full_chain, burn_ins
     return plot_information
 
 def make_err_txt(info, key):
-    rms = "{0:.3e}".format(info['stats']['rms']['true_nz'+ '__' + key[4:]])
+    # rms = "{0:.3e}".format(info['stats']['rms']['true_nz'+ '__' + key[4:]])
     kld = "{0:.3e}".format(info['stats']['kld'][key])
-    plot_txt = r'(KLD='+kld+', RMSE='+rms+')'
+    plot_txt = r'(KLD='+kld+')'#', RMSE='+rms+')'
     return plot_txt
 
 def plot_estimators(info, plot_dir, log=True, prepend='', metrics=True, mini=True, both=False):
@@ -337,7 +343,7 @@ def plot_estimators(info, plot_dir, log=True, prepend='', metrics=True, mini=Tru
         sps_log.set_ylim(-4., 1.)
         sps_log.set_ylabel(r'$\ln[n(z)]$')
     else:
-        sps_log.set_ylim(-0.15, 1.5)
+        sps_log.set_ylim(0., 3.)
         sps_log.set_ylabel(r'$n(z)$')
     sps_log.set_xlim(info['bin_ends'][0], info['bin_ends'][-1])
 
@@ -493,7 +499,7 @@ def plot_estimators(info, plot_dir, log=True, prepend='', metrics=True, mini=Tru
                         w=w_mle, s=s_mle, a=a_mle, c=c_mle, d=d_mle, l=l_mle+lnz+err_txt)
 
     # sps_log.legend(handles=color_plots[:-1], fontsize='x-small', loc='lower center', frameon=False)
-    sps_log.legend(fontsize='x-small', loc='upper right', frameon=False)
+    sps_log.legend(fontsize='small', loc='upper right', frameon=False)
     f.subplots_adjust(hspace=0, wspace=0)
     f.savefig(os.path.join(plot_dir, prepend+'estimators.png'), bbox_inches='tight', pad_inches = 0, dpi=d.dpi)
     print(info['stats'])
@@ -548,7 +554,7 @@ def plot_samples(info, plot_dir, prepend=''):
     pu.plot_step(sps_log, info['bin_ends'], locs, s=s_smp, d=d_smp, w=2., a=1., c='k', l=l_bfe+lnz)
     pu.plot_step(sps, info['bin_ends'], np.exp(locs), s=s_smp, d=d_smp, w=2., a=1., c='k', l=l_bfe+nz)
 
-    sps_log.legend(fontsize='x-small', loc='lower left')
+    sps_log.legend(fontsize='small', loc='lower left')
     sps.set_xlabel('x')
     sps_log.set_ylabel('Log probability density')
     sps.set_ylabel('Probability density')

@@ -104,11 +104,11 @@ class catalog(object):
         coarse: numpy.ndarray, float
             vector of binned values of function
         """
-        fine = fine.T
-        fine /= np.sum(fine, axis=0)[np.newaxis, :] * self.dz_fine
-        coarse = np.array([np.sum(fine[k * self.n_fine : (k+1) * self.n_fine], axis=0) * self.dz_fine for k in range(self.n_coarse)])
-        coarse /= np.sum(coarse, axis=0)[np.newaxis, :]  * self.dz_coarse
+        # fine /= np.sum(fine, axis=0)[np.newaxis, :] * self.dz_fine
+        coarse = fine.T
+        coarse = np.array([np.sum(coarse[k * self.n_fine : (k+1) * self.n_fine], axis=0) for k in range(self.n_coarse)])
         coarse = coarse.T
+        # coarse /= np.sum(coarse, axis=1)[:, np.newaxis]  * self.dz_coarse
         return coarse
 
     def create(self, truth, int_pr, N=d.n_gals, vb=True):
@@ -161,7 +161,8 @@ class catalog(object):
         #self.obs_lfs /= np.sum(self.obs_lfs, axis=1)[:, np.newaxis] * self.dz_fine
 
         self.int_pr = int_pr
-        int_pr_fine = np.array([self.int_pr.pdf(self.z_fine)])
+        int_pr_fine = self.int_pr.pdf(self.z_fine)
+        int_pr_fine = int_pr_fine / np.dot(int_pr_fine, self.bin_difs_fine)
         self.pspace_eval = gmix(int_pr_fine, prob_components)
         if vb:
             plots.plot_prob_space(self.z_fine, self.pspace_eval, plot_loc=self.plot_dir, prepend=self.cat_name+'eval_')
@@ -172,14 +173,19 @@ class catalog(object):
         #
         # pfs_fine = self.obs_lfs * int_pr_fine[np.newaxis, :] / truth_fine[np.newaxis, :]
         pfs_coarse = self.coarsify(self.obs_lfs)
-        int_pr_coarse = self.coarsify(int_pr_fine)
+        if vb:
+            print('before coarsify: '+str(int_pr_fine))
+        int_pr_coarse = self.coarsify(np.array([int_pr_fine]))[0]
+        if vb:
+            print('after coarsify: '+str(int_pr_coarse))
 
         if vb:
             # plots.plot_scatter(self.samps, self.obs_lfs, self.z_fine, plot_loc=self.plot_dir, prepend=self.cat_name)
-            plots.plot_mega_scatter(self.samps, self.obs_lfs, self.z_fine, self.bin_ends, truth=[self.z_fine, hor_amps], plot_loc=self.plot_dir, prepend=self.cat_name, int_pr=[self.z_fine, int_pr_fine[0]])
+            plots.plot_mega_scatter(self.samps, self.obs_lfs, self.z_fine, self.bin_ends, truth=[self.z_fine, hor_amps], plot_loc=self.plot_dir, prepend=self.cat_name, int_pr=[self.z_fine, int_pr_fine])
 
+        norm_int_pr_coarse = int_pr_coarse / (np.sum(int_pr_coarse) * self.dz_coarse)
         self.cat['bin_ends'] = self.bin_ends
-        self.cat['log_interim_prior'] = u.safe_log(int_pr_coarse[0])
+        self.cat['log_interim_prior'] = u.safe_log(norm_int_pr_coarse)
         self.cat['log_interim_posteriors'] = u.safe_log(pfs_coarse)
 
         return self.cat
@@ -198,7 +204,8 @@ class catalog(object):
 
         Notes
         -----
-        only one outlier population at a time for now
+        TO DO: only one outlier population at a time for now, will enable more
+        TO DO: also doesn't yet include perpendicular features from passing between filter curves, should add that
         """
         hor_funcs = [discrete(np.array([self.z_all[kk], self.z_all[kk+1]]), np.array([1.])) for kk in range(self.n_tot)]
 

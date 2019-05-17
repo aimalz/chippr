@@ -26,33 +26,6 @@ def check_prob_params(params):
         params['no_data'] = int(params['no_data'][0])
     return params
 
-# def make_true_nz(test_name):
-#     """
-#     Function to create true redshift distribution to be shared among several
-#     test cases
-#
-#     Parameters
-#     ----------
-#     test_name: string
-#         name used to look up parameters for making true_nz
-#
-#     Returns
-#     -------
-#     true_nz: chippr.gmix object
-#         gaussian mixture probability distribution
-#
-#     Notes
-#     -----
-#     test_name is currently ignored but will soon be used to load parameters for making true_nz instead of hardcoded values.
-#     """
-#     true_amps = np.array([0.20, 0.35, 0.55])
-#     true_means = np.array([0.5, 0.2, 0.75])
-#     true_sigmas = np.array([0.4, 0.2, 0.1])
-#
-#     true_nz = chippr.gmix(true_amps, true_means, true_sigmas, limits=(0., 1.))
-#
-#     return true_nz
-
 def set_up_prior(data, params):
     """
     Function to create prior distribution from data
@@ -107,6 +80,10 @@ def do_inference(given_key):
     ----------
     given_key: string
         name of test case to be run
+
+    Notes
+    -----
+    TODO: enable continuation of sampling starting from samples in a file
     """
     test_info = all_tests[given_key]
     test_name = test_info['name']
@@ -132,7 +109,7 @@ def do_inference(given_key):
         for z in true_data:
             true_vals.append(float(z[0]))
         true_vals = np.array(true_vals)
-        true_vals = np.histogram(true_vals, bins=zs, normed=True)[0]
+        true_vals = np.histogram(true_vals, bins=zs, density=True)[0]
     true_nz = chippr.discrete(zs, true_vals)
 
     (prior, cov) = set_up_prior(data, params)
@@ -156,26 +133,26 @@ def do_inference(given_key):
     nz.plot_estimators(log=False, mini=False)
     nz.write('nz.p')
 
-    # # COMMENT OUT TO AVOID SAMPLING
-    # #start_mean = mvn(nz_mmle, cov).sample_one()
-    # start = prior#mvn(data['log_interim_prior'], cov)
-    #
-    # n_bins = len(zs) - 1
-    # if params['n_walkers'] is not None:
-    #     n_ivals = params['n_walkers']
-    # else:
-    #     n_ivals = 10 * n_bins
-    # initial_values = start.sample(n_ivals)
-    #
-    # start_samps = timeit.default_timer()
-    # nz_samps = nz.calculate_samples(initial_values, no_data=params['no_data'], no_prior=params['no_prior'], n_procs=1)
-    # time_samps = timeit.default_timer()-start_samps
-    # print('Sampled '+str(params['n_accepted'])+' after '+str(nz.burn_ins * params['n_burned'])+' in '+str(time_samps))
-    #
-    # nz_stats = nz.compare()
-    # nz.plot_estimators(log=True, mini=False)
-    # nz.plot_estimators(log=False, mini=False)
-    # nz.write('nz.p')
+    # COMMENT OUT TO AVOID SAMPLING
+    #start_mean = mvn(nz_mmle, cov).sample_one()
+    start = prior#mvn(data['log_interim_prior'], cov)
+
+    n_bins = len(zs) - 1
+    if params['n_walkers'] is not None:
+        n_ivals = params['n_walkers']
+    else:
+        n_ivals = 10 * n_bins
+    initial_values = start.sample(n_ivals)
+
+    start_samps = timeit.default_timer()
+    nz_samps = nz.calculate_samples(initial_values, no_data=params['no_data'], no_prior=params['no_prior'], n_procs=1, gr_threshold=params['gr_threshold'])
+    time_samps = timeit.default_timer()-start_samps
+    print(test_name+' sampled '+str(params['n_accepted'])+' after '+str(nz.burn_ins * params['n_burned'])+' in '+str(time_samps))
+
+    nz_stats = nz.compare()
+    nz.plot_estimators(log=True, mini=False)
+    nz.plot_estimators(log=False, mini=False)
+    nz.write('nz.p')
 
 if __name__ == "__main__":
 
