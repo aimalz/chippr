@@ -118,7 +118,7 @@ Many more \pz s may be obtained in the time it would take to observe a smaller n
 
 However, \pz s are susceptible to inaccuracy and imprecision via a number of effects, particularly their inherent noisiness due to the coarseness of photometric filters, catastrophic errors in which galaxies of one type at one redshift are mistaken for galaxies of another type at a different redshift, and systematics introduced by observational techniques, data reduction processes, and training or template set limitations.  
 Figure~\ref{fig:pedagogical_scatter} illustrates the relationship between photometry and redshift generically by showing ``data'' in one dimension for visualization purposes, suggesting that a special nonlinear projection of the photometry could more-or-less yield a one-to-one relationship with true redshifts.
-This plot looks very much like the traditional $z_{\mathrm{spec}}$ versus $z_{\mathrm{phot}}$ plots of traditional \pz\ point estimates and was indeed adapted from one such plot in \citet{jain_whole_2015}, because \pz\ point estimates effectively are a special nonlinear projection of the data.
+This plot looks very much like the traditional $z_{\mathrm{spec}}$ versus $z_{\mathrm{phot}}$ plots of \pz\ point estimates and was indeed adapted from one such plot in \citet{jain_whole_2015}, because \pz\ point estimates effectively are a special nonlinear projection of the data.
 
 \begin{figure}
 	\begin{center}
@@ -152,6 +152,40 @@ For example, the Science Requirements Document \citep{mandelbaum_weak_2017} stat
 	\end{center}
 \end{table}
 
+Once propagated through the calculations of correlation functions of cosmic shear and galaxy positions, \pz\ errors are not insignificant contributors to the total uncertainties reported on cosmological parameters.
+As progress has been made on the influence of other sources of systematic error, the uncertainties associated with \pz s have come to dominate the error budget of cosmological parameter estimates made by current surveys such as \des\ \citep{hoyle_dark_2017}, \project{HSC} \citep{tanaka_photometric_2018}, and \project{KiDS} \citep{hildebrandt_kids-450:_2017}.
+
+Much effort has been dedicated to improving \pz s, though they are still most commonly obtained by a maximum likelihood estimator (MLE) based on libraries of galaxy SED templates, with conservative approaches to error estimation.
+This approach tends to lead to catastrophic outliers like the horizontally oriented population of \Fig{fig:pedagogical_scatter}, due to the presence of galaxies whose SEDs are not represented by the template library.
+Data-driven approaches tend to result in catastrophic outliers like the vertically oriented population of \Fig{fig:pedagogical_scatter}, due to training sets that are incomplete in redshift coverage.
+Recent advances have focused on identifying and removing catastrophic outliers when using \pz s for 
+inference \citep{gorecki_new_2014}.  
+The approaches of using a training set versus a template library are related to one another by \citet{budavari_unified_2009}.
+Sophisticated Bayesian techniques and cutting-edge machine learning methods have been employed to improve precision \citep{carliles_random_2010} and accuracy \citep{sadeh_annz2:_2016}. 
+
+An alternative to point estimation of \pz s is redshift probability distribution function (PDF) estimation that reports the probability $\pr{z}$ over all possible redshifts for every galaxy rather than an MLE (with or without presumed Gaussian error bars) \citep{koo_photometric_1999}.  
+This option is favorable because it contains more potentially useful information about the uncertainty on each galaxy's redshift, incorporating notions of precision, accuracy, and systematic errors.
+However, denoting \pzpdf s as ``$\pr{z}$'' is an abuse of notation, as it does not adequately convey what information is being used to constrain the redshift $z$; \pzpdf s are \textit{posterior} PDFs, conditioned on the photometric data and prior knowledge.
+In terms of \Fig{fig:pedagogical_scatter}, \pzpdf s are horizontal cuts, probabilities of redshift conditioned on a specific value of data, i.e. posteriors, which constrain redshifts, whereas vertical cuts through this space are probabilities of data conditioned on a specific redshift, i.e. likelihoods, from which data is actually drawn.
+
+\Pzpdf s have been produced by completed surveys \citep{hildebrandt_cfhtlens:_2012, sheldon_photometric_2012} and will be produced by ongoing and upcoming surveys \citep{abell_lsst_2009, carrasco_kind_exhausting_2014, bonnett_redshift_2016, masters_mapping_2015}.  
+\Pzpdf s are not without their own weaknesses, however, including the resources necessary to calculate and record them for large galaxy surveys \citep{carrasco_kind_sparse_2014} and the divergent results of each method used to derive them \citep{hildebrandt_phat:_2010, dahlen_critical_2013, sanchez_clustering_2013, bonnett_redshift_2016, tanaka_photometric_2018}.  
+The most important of these issues, however, is that use of them in the literature is inconsistent at best and incorrect at worst.  
+The most common application of \pzpdf s is their use in estimating \Nz, the distribution of redshifts of a sample of galaxies, a quantity essential to the calculation of the power spectra of weak gravitational lensing and large-scale structure that are used to constrain the parameters of cosmological models \citet{mandelbaum_precision_2008, sheldon_photometric_2012, bonnett_redshift_2016}.
+%\aim{Provide equations/citations for the use of \Nz\ in cosmology.}
+
+If the true redshifts $\{z_{i}^{\dagger}\}$ of galaxies $i$ were known, then the redshift PDFs would be delta functions $\{\delta(z, z_{i}^{\dagger})\}$ centered at the true redshift, and the redshift distribution could be effectively approximated by a histogram or other interpolation of the delta functions $\{\delta(z, z_{i}^{\dagger})\}$.
+When \pzpdf s are available instead of true redshifts, the simplest approach reduces them to point estimates $\{\hat{z}_{i}\}$ of redshift by using $\delta(z, \hat{z}_{i})$ in place of $\delta(z, z_{i}^{\dagger})$.
+Though it is most common for $\hat{z}_{i}$ to be the mode (maximum) of the \pzpdf, there are other, more principled point estimate reduction procedures \citep{tanaka_photometric_2018}.
+
+To circumvent the reduction of uncertainty information due to point estimation, however, it has grown to be more common to calculate the mathematically inconsistent but conceptually simple \textit{stacked estimator} of the redshift density function \citep{lima_estimating_2008}, 
+\begin{align}
+\label{eqn:stack}
+\hat{n}(z) &= \frac{1}{\ntot} \sum_{i = 0}^{\ntot} \pr{z}_{i}
+\end{align}
+for a sample of $\ntot$ galaxies $i$, or, equivalently, the redshift distribution function $\hat{N}(z) = \ntot \hat{n}(z)$.
+Much of this thesis centers around the problems with this logically invalid yet pervasive quantity.
+
 \aim{TODO: Pull in content from global intro of thesis.}
 
 Though their potential to improve estimates of physical parameters is tremendous, \pzpdf s have been applied only to a limited extent.  
@@ -168,12 +202,10 @@ The \textit{redshift distribution function \Nz}, or, almost interchangably, its 
 The observed \Nz\ also been used to validate survey selection functions usnfenjed in generation of realistic, multi-purpose mock catalogs \citep{norberg_2df_2002}.  
 Additionally, \Nz\ has been the subject of inference using \pzpdf s before \citep{sheldon_photometric_2012, hildebrandt_cfhtlens:_2012, kelly_weighing_2014, benjamin_cfhtlens_2013, bonnett_using_2015, viironen_high_2015, asorey_galaxy_2016, leistedt_hierarchical_2016}, so comparisons to the literature may easily be made. 
 
-The prevailing way to estimate \nz\ for a sample of $\ntot$ galaxies $i$ is to ``stack'' \pzpdf s according to \aim{fix reference}.
-% Equation~\ref{intro:eq:eqn:stack}.
+The prevailing way to estimate \nz\ for a sample of galaxies $j$ is to ``stack'' \pzpdf s according to Equation~\ref{eqn:stack}.
 The stacked estimator of the redshift density function is effectively an average of the \pzpdf\ catalog and, as we show in this paper, not in general mathematically valid.
 Stacking is nonetheless considered the preferred method for obtaining \Nz\ from a \pzpdf\ catalog \citep{sheldon_photometric_2012, kelly_weighing_2014, benjamin_cfhtlens_2013, bonnett_using_2015, viironen_high_2015, asorey_galaxy_2016}.  
-However, it must be noted here that \aim{fix reference}
-%Equation~\ref{intro:eq:eqn:stack} 
+However, it must be noted here that Equation~\ref{eqn:stack} 
 is not in general mathematically valid.  
 (See \citet{hogg_data_2012} for a complete discussion.)  
 
@@ -247,8 +279,7 @@ The forward model corresponds to first drawing redshifts according to \Eq{eqn:pz
 \label{eqn:pzpdf}
 \data_{j}\ \sim\ \pr{\data \gvn z_{j}}
 \end{equation}
-of photometry conditioned on redshift, illustrated in \aim{fix reference}.
-%Figure~\ref{intro:fig:fig:pedagogical_scatter}.
+of photometry conditioned on redshift, illustrated in Figure~\ref{fig:pedagogical_scatter}.
 
 This description of the physical system corresponds to a forward model by which we actually believe photometry is generated:
 \begin{enumerate}
@@ -612,11 +643,9 @@ with $c_{z} = 0.3$, because it has been used in forecasting studies for \des\ an
 %\aim{I learned this from talking to people and don't know of a published source that talks about the nitty gritty of the internal validation tests performed before there was data.}
 
 The mock data emulates the three sources of error of highest concern to the \pz\ community that are explored in detail later in this section: intrinsic scatter (\Sect{sec:scatter}), catastrophic outliers (\Sect{sec:outliers}), and systematic bias (\Sect{sec:bias}).
-Tests including all three effects at the tolerance levels of \lsst\ (see \aim{fix reference})
-%Table~\ref{intro:tab:tab:lsstsrd}) 
+Tests including all three effects at the tolerance levels of \lsst\ (see Table~\ref{tab:lsstsrd}) 
 are presented in \Sect{sec:results}.
-\Fig{fig:mega_scatter} illustrates these three effects individually at twice the tolerance of \lsst\ for demonstrative purposes, hearkening back to \aim{fix reference}.
-%Figure~\ref{intro:fig:fig:pedagogical_scatter}.
+\Fig{fig:mega_scatter} illustrates these three effects individually at twice the tolerance of \lsst\ for demonstrative purposes, hearkening back to Figure~\ref{fig:pedagogical_scatter}.
 We also test nontrivial implicit priors in \Sect{sec:interim}, which ought to be a priority for the \pz\ community.
 
 \aim{TODO: add in the plot from thesis intro}
@@ -705,8 +734,7 @@ However, the \lsst\ requirements do not specify details for a distribution of ou
 A uniformly distributed population of outliers was simulated by giving every sample in true redshift a $10\%$ chance of having an observed redshift drawn from a uniform distribution rather than the Gaussian about the true redshift.
 Though this results in slightly less than the $10\%$ catastrophic outlier rate, it can be done independently of the definition of the standard deviation so was implemented for demonstrative purposes.
 \Fig{fig:uniform-outliers} shows examples of \pzpdf s from a uniformly distributed outlier population at the level of the \lsst\ requirements (left) as well as the results of \Chippr\ and other \nz\ estimation methods (right).
-The intrinsic scatter of the tests in this section does not increase with redshift as indicated in \aim{fix reference},
-%Table~\ref{intro:tab:tab:lsstsrd}
+The intrinsic scatter of the tests in this section does not increase with redshift as indicated in Table~\ref{tab:lsstsrd}
 in order to isolate the effect of outliers, and is instead held at a constant $\sigma_{z} = 0.02$.
 
 \begin{figure}
@@ -767,8 +795,7 @@ The \Chippr\ \mmle, however, appears unbiased and withstands these effects, and 
 
 Systematic bias in \pz\ point estimates is a concern for \lsst's cosmology results, for the same reasons explored in \citet{hoyle_dark_2017}.
 However, in the context of \pzpdf s, the notion of redshift bias is a form of model misspecification.
-Consider that if bias were included in the framework of \aim{fix reference},
-%Figure~\ref{intro:fig:fig:pedagogical_scatter}
+Consider that if bias were included in the framework of Figure~\ref{fig:pedagogical_scatter};
 a simple linear transformation of $z_{\mathrm{phot}} \to z_{\mathrm{phot}} - \Delta_{z} (1 + z_{\mathrm{phot}})$ would eliminate the bias.
 Regardless, for completeness, a test at ten times the bias of the \lsst\ requirements, with no redshift-dependent intrinsic scatter nor catastrophic outliers, is provided in \Fig{fig:bias}.
 
@@ -852,8 +879,7 @@ Now, we stress-test \Chippr\ by investigating two realistically complex cases, o
 \aim{TODO: clarify the scope: the "binned" samples are already determined by some observational property but redshift distributions are probabilistic as follows.}
 
 It is of interest to explore the impact of incorrectly estimated \nz\ on the cosmological inference to answer the question of how wrong we will be in our understanding of the universe if we incorrectly constrain \nz.
-To test the impact of these uncertainties, we simulate mock data with all three effects with which \lsst\ is concerned at the levels of \aim{fix reference}
-%Table~\ref{intro:tab:tab:lsstsrd} 
+To test the impact of these uncertainties, we simulate mock data with all three effects with which \lsst\ is concerned at the levels of Table~\ref{tab:lsstsrd} 
 and propagated the results of \Chippr\ and the other estimators to a Fisher matrix forecast using \cosmolike\ \citep{krause_cosmolike_2017}, a publicly available cosmological forecasting code.
 Though redshift tomography is non-physical, as redshift is a continuous random variable, and binning in estimated redshift introduces poorly understood systematic error, we perform this analysis as an example of how it affects the current standard in how cosmological parameters are constrained by galaxy surveys, rather than how we think they ought to be constrained.
 % \aim{don't introduce anti-tomography rant here, kind of controversial and should be explored where it has its own space}
@@ -872,8 +898,7 @@ We consider a set of tomographically binned \nz\ and cosmological parameter cova
 First, we bin them down to a piecewise constant parameterization with a manageable $35$ parameters for \chippr's sampling capabilities.
 Next, we draw $10^{4}$ true redshifts from the binned true \nz\ for each tomographic bin.
 The original, binned, and drawn \nz\ are shown in \Fig{fig:tomobins}.
-We emulate \pzpdf s for the $10^{4}$ true redshifts drawn from the true \nz\ in each bin using the procedure of \Fig{fig:flowchart} with all three effects of \aim{fix reference}
-%Table~\ref{intro:tab:tab:lsstsrd}
+We emulate \pzpdf s for the $10^{4}$ true redshifts drawn from the true \nz\ in each bin using the procedure of \Fig{fig:flowchart} with all three effects of Table~\ref{tab:lsstsrd}
 at their given levels.
 Illustrations of this process are provided in \Fig{fig:per-bin-scatter}.
 
@@ -883,8 +908,7 @@ Illustrations of this process are provided in \Fig{fig:per-bin-scatter}.
 		\includegraphics[width=0.24\textwidth]{figures/chippr/1single_lsst_mega_scatter.png}
 		\includegraphics[width=0.24\textwidth]{figures/chippr/2single_lsst_mega_scatter.png}
 		\includegraphics[width=0.24\textwidth]{figures/chippr/3single_lsst_mega_scatter.png}
-		\caption{As in \Fig{fig:mega_scatter}, with a different tomographic bin in each panel and the three effects of intrinsic scatter, uniformly distributed catastrophic outliers, and bias at the levels of the \lsst\ SRD, given in \aim{fix reference}.
-%			 Table~\ref{intro:tab:tab:lsstsrd}.
+		\caption{As in \Fig{fig:mega_scatter}, with a different tomographic bin in each panel and the three effects of intrinsic scatter, uniformly distributed catastrophic outliers, and bias at the levels of the \lsst\ SRD, given in Table~\ref{tab:lsstsrd}.
 		\aim{TODO: Make this one big plot instead of four little ones to eliminate repeated insets and legend, and make the axis labels bigger.}
 		}
 		\label{fig:per-bin-scatter}
