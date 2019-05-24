@@ -1,4 +1,4 @@
-\RequirePackage[]{lineno}
+%\RequirePackage[]{lineno}
 
 \documentclass[iop]{emulateapj}
 
@@ -6,7 +6,7 @@
 \usepackage{natbib}
 \usepackage{amsmath}
 \usepackage{graphicx}
-\usepackage{lineno}
+%\usepackage{lineno}
 
 \usetikzlibrary{shapes.geometric, arrows}
 \usetikzlibrary{fit}
@@ -27,7 +27,7 @@
 \newcommand{\Eq}[1]{Equation~\ref{#1}}
 \newcommand{\Fig}[1]{Figure~\ref{#1}}
 \newcommand{\Tab}[1]{Table~\ref{#1}}
-\newcommand{\project}[1]{{\textsc{#1}}~}
+\newcommand{\project}[1]{{\textsc{#1}}}
 \newcommand{\lsst}{\project{LSST}}
 \newcommand{\desc}{\lsst-\project{DESC}}
 \newcommand{\sdss}{\project{SDSS}}
@@ -50,7 +50,7 @@
 \newcommand{\expect}[1]{\left<#1\right>}
 \newcommand{\normal}[2]{\mathcal{N} (#1, #2)}
 \newcommand{\gvn}{\mid}% could use | or \vert
-\newcommand{\integral}[2]{\ensuremath{\int\ #1\ \mathrm{d} #2}}
+\newcommand{\integral}[2]{\ensuremath{\int #1 \mathrm{d} #2}}
 \newcommand{\sz}{spec-$z$~}
 \newcommand{\Sz}{Spec-$z$~}
 \newcommand{\pz}{photo-$z$~}
@@ -73,7 +73,7 @@
 
 
 \begin{document}
-\linenumbers
+%\linenumbers
 
 \title{How to obtain the redshift distribution from probabilistic redshift estimates}
 
@@ -96,7 +96,7 @@ We introduce a mathematically rigorous probabilistic graphical model (PGM) of $n
 Our Cosmological Hierarchical Inference with Probabilistic Photometric Redshifts (\Chippr) model yields a more accurate characterization of $n(z)$ by correctly propagating the redshift uncertainty information beyond the best-fit estimator produced by traditional procedures.
 The CHIPPR approach is applicable to any one-point statistic of any random variable.
 We conclude by propagating these effects to constraints in the space of cosmological parameters, .
-% be clear that rigor comes at a cost, chippr makes explicit the requirements that the pzpdfs be posteriors under a known prior (which would be required by any justifiable method), be honest that we're not ready
+\aim{be clear that rigor comes at a cost, chippr makes explicit the requirements that the pzpdfs be posteriors under a known prior (which would be required by any justifiable method), be honest that we're not ready for prime time}
 \end{abstract}
 
 \keywords{cosmology: cosmological parameters --- galaxies: statistics --- gravitational lensing: weak --- methods: data analysis --- methods: statistical}
@@ -104,10 +104,53 @@ We conclude by propagating these effects to constraints in the space of cosmolog
 \maketitle
 
 \aim{Some of the figures refer to left/right but are shown as top/bottom \textemdash I'm still working through a LaTeX bug.}
-\aim{The language is very thesis-centric (``me, me, me''), but I'll change it to the standard ``we'' style soon.}
 
 \section{Introduction}
 \label{sec:introduction}
+
+Photometric redshift (\pz) estimation has been a staple of studies of galaxy evolution, large-scale structure, and cosmology since its conception decades ago \citep{baum_photoelectric_1962}.  
+An extremely coarse spectrum in the form of photometry in a handful of broadband filters can be an effective substitute for the time- and photon-intensive process of obtaining a spectroscopic redshift (\sz), a procedure that may only be applied to relatively bright galaxies.  
+Once the photometric colors are calibrated against either a library of spectral energy distribution (SED) templates or a data set of spectra for galaxies with known redshifts, a correspondence between photometric colors and redshifts may be constructed, forming a trustworthy basis for \pz\ estimation or testing.
+
+Calculations of correlation functions of cosmic shears and galaxy positions that constrain the cosmological parameters require large numbers of high-confidence redshifts of surveyed galaxies.  
+Many more \pz s may be obtained in the time it would take to observe a smaller number of \sz s, and \pz s may be measured for galaxies too dim for accurate \sz\ confirmation, permitting the compilation of large catalogs of galaxy redshifts spanning a broad range of redshifts and luminosities.  
+\Pz s have thus enabled the era of precision cosmology, heralded by weak gravitational lensing tomography and baryon acoustic oscillation peak measurements.  
+
+However, \pz s are susceptible to inaccuracy and imprecision via a number of effects, particularly their inherent noisiness due to the coarseness of photometric filters, catastrophic errors in which galaxies of one type at one redshift are mistaken for galaxies of another type at a different redshift, and systematics introduced by observational techniques, data reduction processes, and training or template set limitations.  
+Figure~\ref{fig:pedagogical_scatter} illustrates the relationship between photometry and redshift generically by showing ``data'' in one dimension for visualization purposes, suggesting that a special nonlinear projection of the photometry could more-or-less yield a one-to-one relationship with true redshifts.
+This plot looks very much like the traditional $z_{\mathrm{spec}}$ versus $z_{\mathrm{phot}}$ plots of traditional \pz\ point estimates and was indeed adapted from one such plot in \citet{jain_whole_2015}, because \pz\ point estimates effectively are a special nonlinear projection of the data.
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=0.45\textwidth]{figures/jain05.png}
+		\caption{
+			A generic probability space (darker in areas of higher probability density) of redshift ($x$-axis) and data ($y$-axis), where the data is projected into a single dimension, with vertical cuts and marginals (cyan) indicating the construction of likelihoods and horizontal cuts and marginals (magenta) indicating the construction of posteriors.
+			The data (black points) used to generate the contours were extracted from \citet{jain_whole_2015} using WebPlotDigitizer \citep{rohatgi_webplotdigitizer_2019}, with the ideal redshift estimation provided for reference (red diagonal).
+			\aim{Choose better colors?}
+		}
+		\label{fig:pedagogical_scatter}
+	\end{center}
+\end{figure}
+
+There are several varieties of generally non-Gaussian deviation from a perfect correspondence between redshift and data in Figure~\ref{fig:pedagogical_scatter}, represented by a $y = x$ diagonal line.
+There is scatter about the diagonal due to the coarseness of the photometric filters, with larger scatter perpendicular to the diagonal due to the specific wavelengths where highly identifiable spectral features pass between the filters, as well as higher scatter at high redshifts due to larger photometric errors on fainter galaxies.
+There are populations of outliers, far from the diagonal, comprised of galaxies for which the redshift estimate is catastrophically distinct from the true redshift, showing that outliers are not uniformly distributed nor restricted to long tails away from a Gaussian scatter.
+And, though hardly perceptible in the plot, there is a systematic bias, wherein the average of the points would not lie on the diagonal but would be offset by a small amount, suggested by the trend of points to lie below the diagonal at high redshift.
+Based on the goals of a photometric galaxy survey, limits can be placed on the tolerance to these effects.
+For example, the Science Requirements Document \citep{mandelbaum_weak_2017} states \lsst's requirements for the main cosmological sample, reproduced in Table~\ref{tab:lsstsrd}.
+
+\begin{table}
+	\begin{center}
+		\caption{\Pz\ requirements for \lsst\ cosmology \citep{mandelbaum_weak_2017}.}
+		\begin{tabular}{ll}
+			Number of galaxies & $\approx 10^{7}$\\
+			Root-mean-square error & $< 0.02 (1 + z)$\\
+			$3 \sigma$ catastrophic outlier rate & $< 10\%$\\
+			Bias & $< 0.003 (1 + z)$\\
+		\end{tabular}
+	\label{tab:lsstsrd}
+	\end{center}
+\end{table}
 
 \aim{TODO: Pull in content from global intro of thesis.}
 
@@ -117,7 +160,7 @@ through the calculations of physical parameters \citep{van_breukelen_reliable_20
 Probability cuts on Bayesian quantities are not uncommon \citep{leung_bayesian_2017, dipompeo_quasar_2015}, but that procedure does not fully take advantage of all information contained in a probability distribution for parameter inference.  
 
 Despite the growing prevalence of \pzpdf\ production, no implementation of inference using \pzpdf s has yet been presented with a mathematically consistent methodology.  
-I present and validate a hierarchical Bayesian technique for the use of \pzpdf\ in inference of arbitrary statistics relevant to cosmology, large-scale structure, and galaxy evolution.  
+We present and validate a hierarchical Bayesian technique for the use of \pzpdf\ in inference of arbitrary statistics relevant to cosmology, large-scale structure, and galaxy evolution.  
 For simplicity, we consider only one-point statistics, though future work will extend this methodology to higher-order statistics.
 
 The \textit{redshift distribution function \Nz}, or, almost interchangably, its normalized cousin the \textit{redshift density function \nz}, serves as an ideal statistic upon which to demonstrate this novel approach.  
@@ -127,7 +170,7 @@ Additionally, \Nz\ has been the subject of inference using \pzpdf s before \cite
 
 The prevailing way to estimate \nz\ for a sample of $\ntot$ galaxies $i$ is to ``stack'' \pzpdf s according to \aim{fix reference}.
 % Equation~\ref{intro:eq:eqn:stack}.
-The stacked estimator of the redshift density function is effectively an average of the \pzpdf\ catalog and, as I will show in this paper, not in general mathematically valid.
+The stacked estimator of the redshift density function is effectively an average of the \pzpdf\ catalog and, as we show in this paper, not in general mathematically valid.
 Stacking is nonetheless considered the preferred method for obtaining \Nz\ from a \pzpdf\ catalog \citep{sheldon_photometric_2012, kelly_weighing_2014, benjamin_cfhtlens_2013, bonnett_using_2015, viironen_high_2015, asorey_galaxy_2016}.  
 However, it must be noted here that \aim{fix reference}
 %Equation~\ref{intro:eq:eqn:stack} 
@@ -138,12 +181,12 @@ is not in general mathematically valid.
 %	New paragraph here: Say what precision is needed for \Nz\ for future weak lensing surveys. 
 %	Say what precision the mass function is needed (in, say cluster studies) for precision cosmology.}
 
-I aim to develop a clear methodology guiding the use of \pzpdf s in inference so they may be utilized effectively by the cosmology community.
+We aim to develop a clear methodology guiding the use of \pzpdf s in inference so they may be utilized effectively by the cosmology community.
 Though others have approached the problem before \citep{leistedt_hierarchical_2016}, the method presented here differs in that it makes use of any existing catalog of \pzpdf s, rather than requiring a simultaneous derivation of the \pzpdf s and the redshift distribution, making it preferable to ongoing surveys that may be resistant to restructuring their analysis pipelines.
 
-In Section~\ref{sec:meth}, I present the \Chippr\ model and \chippr\ implementation for characterizing the full posterior probability landscape of \Nz\ using \pzpdf s. 
-In Section~\ref{sec:alldata}, I describe the experimental design for testing the fully probabilistic approach to mock and real datasets, the results of which are found in Section~\ref{sec:results}.
-In Section~\ref{sec:results}, I stress-test the \Chippr\ model against stacking and its other competitors in the context of cosmology.
+In Section~\ref{sec:meth}, we present the \Chippr\ model and \chippr\ implementation for characterizing the full posterior probability landscape of \Nz\ using \pzpdf s. 
+In Section~\ref{sec:alldata}, we describe the experimental design for testing the fully probabilistic approach to mock and real datasets, the results of which are found in Section~\ref{sec:results}.
+In Section~\ref{sec:results}, we stress-test the \Chippr\ model against stacking and its other competitors in the context of cosmology.
 
 \section{Method}
 \label{sec:meth}
@@ -155,7 +198,7 @@ This situation may be considered to be a probabilistic generative model, illustr
 
 The redshift distribution function \nz\ is the number of galaxies per unit redshift, effectively defining the evolution in the number of galaxies \citep{menard_clustering-based_2013}.  
 % \aim{also selection function}
-In the following sections, I present and compare methods for estimating \nz\ from \pzpdf s.  
+In the following sections, we present and compare methods for estimating \nz\ from \pzpdf s.  
 \Sect{sec:prob} contains the mathematical derivation of a probabilistic model for $n(z)$ dependent on photo-$z$ probability distribution functions, and \Sect{sec:sheldon} contrasts the probabilistic model with alternative methods.
 
 \subsection{Forward Model}
@@ -217,13 +260,15 @@ This description of the physical system corresponds to a forward model by which 
 \subsection{Probabilistic Model}
 \label{sec:prob}
 
+\aim{TODO: fix implicit posterior vs. implicit-weighted posterior}
+
 A forward model such as that of \Sect{sec:forward} corresponds to a probabilistic graphical model (PGM), represented by a directed acyclic graph (DAG) as in \Fig{fig:pgm}.
 A DAG conveys the causal relationships between physical parameters and, like a Feynman diagram in the context of particle physics, is a shorthand for mathematical relationships between variables.
 The photometric data $\data_{j}$ of a galaxy is drawn from some function of its redshift $z_{j}$, independent of other galaxies' data and redshift.
 Both data and redshift are random variables, but data is the one that we observe and redshift is not directly observable.
 In this problem, we don't care about further constraining the redshifts of individual galaxies, only the redshift distribution, so we consider redshift to be a \textit{latent variable}.
 Because the parameters $\ndphi$ that we seek are causally separated from the data by the latent variable of redshift, we call them \textit{hyperparameters}.
-%\aim{I'm not explaining the distinction between hyperparameters and parameters adequately.}
+\aim{Am I adequately explaining the distinction between hyperparameters and parameters?}
 
 \begin{figure}
 	\begin{center}
@@ -261,19 +306,15 @@ In the case of estimating \nz\ photometrically, it is common to use $\ndphi^{*}$
 The prior probability density $\pr{\ndphi}$ is a more familiar concept in astronomy; to progress, we will have to choose a prior probability density over all possible parameters $\ndphi$.
 This prior need not be excessively proscriptive; for example, it may be chosen to enforce smoothness at physically motivated scales in redshift without imposing any particular region as over- or under-dense.
 
-% this is what we want to compute
-% what we're given is implicit posteriors
-% this turns out to be the correct answer
-% derivation in appendix
-% human-readable description of ratios replaces the implict prior with model at each sample step, converting posterior into likelihood
+\aim{TODO: Clarify what we want to compute ($\pr{\ndphi \gvn\ \data}$), what we're given ($\{\pr{z \gvn \data, \ndphi^{*}}\}$).}
+\aim{TODO: Give answer here, say this is correct, move derivation to appendix.}
+\aim{TODO: Give human-readable description of ratios, explain that \Chippr\ replaces implicit prior with sampled model, converting posterior into likelihood.}
+
 With these definitions, we obtain the desired expression for $\pr{\ndphi \gvn \{\data_{j}\}}$,
-\begin{align}
-\begin{split}
+\begin{equation}
 \label{eqn:fullpost}
-\pr{\ndphi \gvn \{\data_{j}\}} \propto & \pr{\ndphi} \left[\integral{\prod_{j=1}^{J} \right.\\
-	& \left. \left(\pr{z \gvn \data_{j}, \ndphi^{*}} \pr{z \gvn \ndphi}(\pr{z \gvn \ndphi^{*}})^{-1}\right)}{z}\right] ,
-\end{split}
-\end{align}
+\pr{\ndphi \gvn \{\data_{j}\}} \propto \pr{\ndphi} \integral{\prod_{j=1}^{J} \frac{\pr{z \gvn \data_{j}, \ndphi^{*}} \pr{z \gvn \ndphi}}{\pr{z \gvn \ndphi^{*}}}}{z},
+\end{equation}
 the heart of \Chippr.
 The derivation is provided below in \Sect{app:math}.
 
@@ -344,25 +385,30 @@ To do so, we will need an explicit statement of this implicit prior $\ndphi^{*}$
 
 To perform the necessary transformation from likelihoods to posteriors, we follow the reasoning of \citet{foreman-mackey_exoplanet_2014}.  
 Let us consider the probability of the parameters conditioned on the data and an interim prior and rewrite the problematic likelihood of \Eq{eqn:posterior} as 
-\begin{equation}
+\begin{align}
 \label{eqn:trick}
-\ln[\pr{\data_{j} \gvn z}] = \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] - \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}].
-\end{equation}
+\begin{split}
+\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\\
+ & - \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}].
+ \end{split}
+\end{align}
 
 Once the implicit prior $\ndphi^{*}$ is explicitly introduced, we may expand the last term in \Eq{eqn:trick} according to Bayes' Rule to get 
 \begin{align}
 \begin{split}
 \label{eqn:expand}
-\ln[\pr{\data_{j} \gvn z}] & = \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{\data_{j} \gvn \ndphi^{*}}]\\
-& - \ln[\pr{z \gvn \ndphi^{*}}] - \ln[\pr{\data_{j} \gvn z, \ndphi^{*}}].
+\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\\
+& + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}] \\
+& - \ln[\pr{\data_{j} \gvn z, \ndphi^{*}}].
 \end{split}
 \end{align}
 Because there is no direct dependence of the data upon the hyperparameters, we may again expand the term $\ln[\pr{\data_{j} \gvn z, \ndphi^{*}}]$ to obtain 
 \begin{align}
 \begin{split}
 \label{eqn:indterm}
-\ln[\pr{\vec{d}_{j} \gvn z}] & = \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] \\
-& - \ln[\pr{z \gvn \ndphi^{*}}] - \ln[\pr{\data_{j} \gvn z}] - \ln[\pr{\data_{j} \gvn \ndphi^{*}}].
+\ln[\pr{\vec{d}_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] \\
+& + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}]\\
+& - \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{\data_{j} \gvn z}] .
 \end{split}
 \end{align}
 Canceling the undesirable terms for the inaccessible likelihood $\ln[\pr{\data_{j} \gvn z}]$ and trivial $\ln[\pr{\data_{j} \gvn \ndphi^{*}}]$ yields
@@ -374,10 +420,12 @@ We put this all together to get the full log-posterior probability distribution 
 \begin{align}
 \begin{split}
 \label{eqn:final}
-\ln[\pr{\ndphi \gvn \{\data_{j}\}}] & \propto \ln[\pr{\ndphi}] + \ln \left[\integral{\exp \left[\sum_{j=1}^{J} \right.\right.\\
-& \left.\left.\left(\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{z \gvn \ndphi}] - \ln[\pr{z \gvn \ndphi^{*}}]\right)\right]}{z}\right] ,
+\ln[\pr{\ndphi \gvn \{\data_{j}\}}] \propto & \ln[\pr{\ndphi}] + \ln \left[\integral{\exp \left[\sum_{j=1}^{J} \right.\right.\\
+& \left.\left.\left(\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{z \gvn \ndphi}]\right.\right.\right.\\
+& \left.\left.\left. - \ln[\pr{z \gvn \ndphi^{*}}] \right)\right]}{z}\right] ,
 \end{split}
 \end{align}
+\aim{TODO: fix the trailing parentheses/brackets.}
 
 The argument of the integral in the log-posterior of \Eq{eqn:final} depends solely on knowable quantities (and those we must explicitly assume) and can be calculated for a given sample of \pz\ log-posteriors $\{\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\}$ and the implicit prior $\pr{z \gvn \ndphi^{*}}$ with which they were obtained, noting the relation of 
 \begin{equation}
@@ -411,15 +459,13 @@ First, the photometric data are not a set of independent measurements; the data 
 Second, the reported \pzip s may not be trustworthy; there is not yet agreement on the best technique to obtain \pzpdf s, and the implicit prior may not be appropriate or even known to us as consumers of \pzip s.  
 Third, the hyperprior may be quite arbitrary and poorly motivated if the underlying physics is complex, and it can only be appropriate if our prior beliefs about \nz\ are accurate.
 
-%\clearpage
 \subsection{Implementation}
 \label{sec:exp}
 
-I implemented the \Chippr\ model in code in order to perform tests of its validity and to compare its performance to that of traditional alternatives.
-In \Sect{sec:mcmc}, I describe the publicly available \chippr\ library.
-In \Sect{sec:acorr}, I outline how \chippr\ can be used to sample the full log-posterior distribution $\ln[\pr{\ndphi \gvn \{\data_{j}\}}]$.
+We implement the \Chippr\ model in code in order to perform tests of its validity and to compare its performance to that of traditional alternatives.
+In \Sect{sec:mcmc}, we describe the publicly available \chippr\ library.
+In \Sect{sec:acorr}, we outline how \chippr\ can be used to sample the full log-posterior distribution $\ln[\pr{\ndphi \gvn \{\data_{j}\}}]$.
 
-%\clearpage
 \subsubsection{Code}
 \label{sec:mcmc}
 
@@ -451,7 +497,6 @@ Though previous versions used \texttt{HDF5} for the primary I/O format due to it
 The resulting output is a set of $I$ ordered \texttt{hickle} files enumerated by $\rho$ containing the state information after each sub-run.  
 The state information includes $\frac{I_{0}}{s}$ actual samples $\ndphi_{i}$ for a pre-specified chain thinning factor $s$ and their full posterior probabilities $\pr{\ndphi_{i} \gvn \{\data_{j}\}}$ as well as the autocorrelation times and acceptance fractions calculated for each element of $\ndphi$ over the entire sub-run.  
 
-%\clearpage
 \subsubsection{Convergence Criteria}
 \label{sec:acorr}
 
@@ -523,7 +568,6 @@ In general, derivatives will not be available for the full posterior distributio
 
 In \Sect{sec:diag} we outline the measures used to evaluate the performance of the method.
 
-%\clearpage
 \subsubsection{Performance metrics}
 \label{sec:diag}
 
@@ -549,16 +593,15 @@ We compare the results of \Chippr\ to those of stacking and the histogram of \pz
 
 \begin{figure*}
 	\begin{center}
-		\includegraphics[width=0.74\textwidth]{figures/chippr/flowchart.png}
+		\includegraphics[width=0.9\textwidth]{figures/chippr/flowchart.png}
 		\caption{\aim{Check that all names and formulae are defined in the text and the same way as in diagram, say the whole thing in words in the text as well.
 			Explain that this is the forward model of the validation, not of CHIPPR! contrast this with Fig. 1 (joke about simple model and complex validation?)}
 			A flow chart illustrating the forward model used to generate mock data in the validation of \Chippr, as described in \Sect{sec:forward}.
-			Ovals indicate a quantity that must be chosen in order to generate the data, rectangles indicate an operation I perform, and rounded rectangles indicate a quantity created by the forward model.
+			Ovals indicate a quantity that must be chosen in order to generate the data, rectangles indicate an operation we perform, and rounded rectangles indicate a quantity created by the forward model.
 			Arrows indicate the inputs and outputs of each operation performed to simulate mock \pzpdf\ catalogs.}
 		\label{fig:flowchart}
 	\end{center}
 \end{figure*}
-% \aim{clarify caption}
 
 The true redshift distribution used in these tests is a particular instance of the gamma function
 \begin{equation}
@@ -608,7 +651,7 @@ We adapt the full log-posterior of \Eq{eqn:final} to the chosen binning of redsh
 %		Samples (colored lines) of $\pr{z \gvn \ndphi}$ where each $\ndphi$ is drawn from the hyperprior distribution $\pr{\ndphi}$ given in \Eq{eqn:priorcov}.}
 %	\figlabel{fig:prior}
 %\end{figure}
-% \aim{Add back the prior figure!}
+ \aim{TODO: Add back the figure of prior samples?}
 
 The sampler is initialized with $W=100$ walkers each with a value chosen from a Gaussian distribution of identity covariance around a sample from the hyperprior distribution.  
 
@@ -671,8 +714,8 @@ in order to isolate the effect of outliers, and is instead held at a constant $\
 	\includegraphics[width=0.45\textwidth]{figures/chippr/single_uout_mega_scatter.png}
 	\includegraphics[width=0.45\textwidth]{figures/chippr/single_uout_log_estimators.png}
 	\caption{
-		Left: Examples of \pzpdf s with a uniform catastrophic outlier population at the level of the \lsst\ requirements, including samples from the probability space of true and observed redshift (black points), \pzpdf s (colored curves), and the true redshifts of the example \pzpdf s (black vertical lines), with marginal histograms (gray) for each dimension with the true redshift distribution (blue curve) and implicit prior (red curve) in the insets.
-		Right: The results of \Chippr\ (samples in light blue, optimization in dark blue) and the alternative approaches (the stacked estimator in red, the histogram of modes in yellow) on \pzpdf s with uniformly distributed catastrophic outliers, with the true redshift density (black curve) and implicit prior (gray curve).
+		Top: Examples of \pzpdf s with a uniform catastrophic outlier population at the level of the \lsst\ requirements, including samples from the probability space of true and observed redshift (black points), \pzpdf s (colored curves), and the true redshifts of the example \pzpdf s (black vertical lines), with marginal histograms (gray) for each dimension with the true redshift distribution (blue curve) and implicit prior (red curve) in the insets.
+		Bottom: The results of \Chippr\ (samples in light blue, optimization in dark blue) and the alternative approaches (the stacked estimator in red, the histogram of modes in yellow) on \pzpdf s with uniformly distributed catastrophic outliers, with the true redshift density (black curve) and implicit prior (gray curve).
 		The presence of the catastrophic outlier population broadens the histogram of modes and stacked estimator of the redshift distribution, but the result of \Chippr\ is unbiased.
 	}
 	\label{fig:uniform-outliers}
@@ -707,7 +750,7 @@ The effect on the stacked estimator of \nz\ is more subtle though still concerni
 In the case of outliers like those resulting from template-fitting, the stacked estimator is overly broad even without realistic intrinsic scatter, resulting in ten times the information loss compared to the \Chippr\ \mmle, and in the case of outliers like those resulting from machine learning, the stacked estimator features an overestimate at the redshift affected by the outlier population, resulting in about five times the information loss as the \Chippr\ \mmle.
 The \Chippr\ \mmle, however, appears unbiased and withstands these effects, and the breadth of the distribution of samples of \nz\ is invariant.
 
-\begin{figure}
+\begin{figure*}
 	\begin{center}
 	\includegraphics[width=0.45\textwidth]{figures/chippr/thesis_eout_log_estimators.png}
 	\includegraphics[width=0.45\textwidth]{figures/chippr/thesis_rout_log_estimators.png}
@@ -717,7 +760,7 @@ The \Chippr\ \mmle, however, appears unbiased and withstands these effects, and 
 	}
 	\label{fig:nonuniform-outliers-results}
 	\end{center}
-\end{figure}
+\end{figure*}
 
 \subsection{Systematic bias}
 \label{sec:bias}
@@ -743,7 +786,7 @@ Regardless, for completeness, a test at ten times the bias of the \lsst\ require
 \end{figure}
 
 As expected based on consistency with the forward model, \Chippr\ is completely resistant to bias, and the alternative estimators are only weakly affected, with information loss two and four times greater than that of the \Chippr\ \mmle\ for the histogram of modes and stacked estimator respectively.
-%\aim{I'm not sure I effectively explained why \Chippr\ is expected to be unaffected by bias of this form.}
+\aim{I'm not sure I effectively explained why \Chippr\ is expected to be unaffected by bias of this form.}
 
 \subsection{Implicit prior}
 \label{sec:interim}
@@ -765,7 +808,7 @@ Some efforts have been made to modify an observationally informed implicit prior
 One can see that the \pzpdf s take different shapes from one another even though the marginal histograms of the points are identical.
 The machine learning-like implicit prior has been modified to have nonzero value at high redshift because the implicit prior must be strictly positive definite for the \Chippr\ model to be valid.
 
-\begin{figure}
+\begin{figure*}
 	\begin{center}
 	\includegraphics[width=0.45\textwidth]{figures/chippr/samplepzs_trpr.png}
 	\includegraphics[width=0.45\textwidth]{figures/chippr/samplepzs_tmpr.png}
@@ -775,7 +818,7 @@ The machine learning-like implicit prior has been modified to have nonzero value
 	}
 	\label{fig:pzs-priors}
 	\end{center}
-\end{figure}
+\end{figure*}
 
 \Fig{fig:results-priors} shows the performance of \Chippr\ and the traditional methods on \pzpdf s generated with nontrivial implicit priors.
 In both cases, the \Chippr\ \mmle\ effectively recovers the true redshift distribution, and the distribution of \nz\ parameter values reflects higher uncertainty where the implicit prior undergoes large changes in derivative.
@@ -809,27 +852,27 @@ Now, we stress-test \Chippr\ by investigating two realistically complex cases, o
 \aim{TODO: clarify the scope: the "binned" samples are already determined by some observational property but redshift distributions are probabilistic as follows.}
 
 It is of interest to explore the impact of incorrectly estimated \nz\ on the cosmological inference to answer the question of how wrong we will be in our understanding of the universe if we incorrectly constrain \nz.
-To test the impact of these uncertainties, I simulated mock data with all three effects with which \lsst\ is concerned at the levels of \aim{fix reference}
+To test the impact of these uncertainties, we simulate mock data with all three effects with which \lsst\ is concerned at the levels of \aim{fix reference}
 %Table~\ref{intro:tab:tab:lsstsrd} 
 and propagated the results of \Chippr\ and the other estimators to a Fisher matrix forecast using \cosmolike\ \citep{krause_cosmolike_2017}, a publicly available cosmological forecasting code.
-Though redshift tomography is non-physical, as redshift is a continuous random variable, and binning in estimated redshift introduces poorly understood systematic error, I perform this analysis as an example of how it affects the current standard in how cosmological parameters are constrained by galaxy surveys, rather than how I think they ought to be constrained.
+Though redshift tomography is non-physical, as redshift is a continuous random variable, and binning in estimated redshift introduces poorly understood systematic error, we perform this analysis as an example of how it affects the current standard in how cosmological parameters are constrained by galaxy surveys, rather than how we think they ought to be constrained.
 % \aim{don't introduce anti-tomography rant here, kind of controversial and should be explored where it has its own space}
 
-\begin{figure*}
+\begin{figure}
 	\begin{center}
-		\includegraphics[width=0.74\textwidth]{figures/chippr/cosmolike_inputs.png}
+		\includegraphics[width=0.49\textwidth]{figures/chippr/cosmolike_inputs.png}
 		\caption{
 			The \lsst-like tomographic binning and true redshift distribution, where the truth (solid) is a PDF evaluated on a fine grid of $350$ redshifts $0.0101 < z < 3.5001$, and the binned (dashed) and drawn (dotted) \nz\ are piecewise constant functions evaluated in $35$ evenly spaced bins, for four different tomographic bins (colors).
 		}
 		\label{fig:tomobins}
 	\end{center}
-\end{figure*}
+\end{figure}
 
-I considered a set of tomographically binned \nz\ and cosmological parameter covariance matrices used for \desc\ forecasting, for which the true \nz\ in each pre-defined bin is already provided in the form of an evaluation of a function on a fine grid of $350$ redshifts $0.0101 < z < 3.5001$.
-First, I binned them down to a piecewise constant parameterization with a manageable $35$ parameters for \chippr's sampling capabilities.
-Next, I drew $10^{4}$ true redshifts from the binned true \nz\ for each tomographic bin.
+We consider a set of tomographically binned \nz\ and cosmological parameter covariance matrices used for \desc\ forecasting, for which the true \nz\ in each pre-defined bin is already provided in the form of an evaluation of a function on a fine grid of $350$ redshifts $0.0101 < z < 3.5001$.
+First, we bin them down to a piecewise constant parameterization with a manageable $35$ parameters for \chippr's sampling capabilities.
+Next, we draw $10^{4}$ true redshifts from the binned true \nz\ for each tomographic bin.
 The original, binned, and drawn \nz\ are shown in \Fig{fig:tomobins}.
-I emulated \pzpdf s for the $10^{4}$ true redshifts drawn from the true \nz\ in each bin using the procedure of \Fig{fig:flowchart} with all three effects of \aim{fix reference}
+We emulate \pzpdf s for the $10^{4}$ true redshifts drawn from the true \nz\ in each bin using the procedure of \Fig{fig:flowchart} with all three effects of \aim{fix reference}
 %Table~\ref{intro:tab:tab:lsstsrd}
 at their given levels.
 Illustrations of this process are provided in \Fig{fig:per-bin-scatter}.
@@ -842,14 +885,14 @@ Illustrations of this process are provided in \Fig{fig:per-bin-scatter}.
 		\includegraphics[width=0.24\textwidth]{figures/chippr/3single_lsst_mega_scatter.png}
 		\caption{As in \Fig{fig:mega_scatter}, with a different tomographic bin in each panel and the three effects of intrinsic scatter, uniformly distributed catastrophic outliers, and bias at the levels of the \lsst\ SRD, given in \aim{fix reference}.
 %			 Table~\ref{intro:tab:tab:lsstsrd}.
-			%		\aim{Make this one big plot instead of four little ones to eliminate repeated insets and legend, and make the axis labels bigger.
+		\aim{TODO: Make this one big plot instead of four little ones to eliminate repeated insets and legend, and make the axis labels bigger.}
 		}
 		\label{fig:per-bin-scatter}
 	\end{center}
 \end{figure*}
-% \aim{how to get the bias? Ask Elisabeth about what I'd need for bias}
+ \aim{TODO: Ask Elisabeth how to get the bias here}
 
-I then made a point estimate of \nz\ using \Chippr\ as well as the alternative methods on the \pzpdf\ catalog for each tomographic bin, shown in \Fig{fig:per-bin-ests}, because \cosmolike\ produces cosmology constraints from a single \nz\ result, rather than samples from the full posterior probability density of possible \nz.
+We then make a point estimate of \nz\ using \Chippr\ as well as the alternative methods on the \pzpdf\ catalog for each tomographic bin, shown in \Fig{fig:per-bin-ests}, because \cosmolike\ produces cosmology constraints from a single \nz\ result, rather than samples from the full posterior probability density of possible \nz.
 Note that \Fig{fig:per-bin-ests} is shown in linear rather than log probability units, unlike all other plots in this paper, to better show the behavior at low probability.
 The excessive breadth of the alternative estimators can be seen quite plainly.
 
@@ -862,46 +905,46 @@ The excessive breadth of the alternative estimators can be seen quite plainly.
 		\caption{
 			The \chippr-derived and other estimators of \nz\ in each tomographic bin, with the true \nz\ (black), the implicit prior (gray), stacked estimator (red), histogram of modes (yellow), and \Chippr\ \mmle\ (blue).
 			The result of stacking is far too broad for \lsst-like \pzpdf s, even moreso than the simplistic histogram of modes.
-			%			\aim{Make this one big plot instead of four little ones to eliminate repeated axis labels and legend, and make the legend text bigger.}
+			\aim{TODO: Make this one big plot instead of four little ones to eliminate repeated axis labels and legend, and make the legend text bigger.}
 		}
 		\label{fig:per-bin-ests}
 	\end{center}
 \end{figure*}
 
-I then used the different estimators of \nz\ in a cosmological forecasting procedure with \cosmolike, constraining $\Omega_{m}$, $\Omega_{b}$, $w_{a}$, $w_{0}$, $n_{s}$, $S_{8}$, and $H_{0}$.
+We then use the different estimators of \nz\ in a cosmological forecasting procedure with \cosmolike, constraining $\Omega_{m}$, $\Omega_{b}$, $w_{a}$, $w_{0}$, $n_{s}$, $S_{8}$, and $H_{0}$.
 Though there are also slight differences in the angle of the error ellipses, most of the differences are due to broadening of the contours under the alternative estimators relative to \Chippr, which are almost indistinguishable from those derived by using the true redshift distribution in each bin.
 The stacked estimator is significantly worse than the \Chippr\ \mmle\ for all parameters except $\Omega_{b}$ and $H_{0}$.
 Stacking, however, outperforms the histogram of modes for all parameters except $\Omega_{m}$ and $S_{8}$, for which their constraints are quite similar.
-Though the true values of the parameters themselves were not accessible with the Fisher matrix-based framework, I calculated the seven-dimensional KLD for the three \nz\ estimators relative to the constraints derived from the true \nz, showing that \Chippr\ preserves information $200-800$ times better than the alternatives, with the histogram of modes doing about four times better than stacking.
+Though the true values of the parameters themselves were not accessible with the Fisher matrix-based framework, we calculate the seven-dimensional KLD for the three \nz\ estimators relative to the constraints derived from the true \nz, showing that \Chippr\ preserves information $200-800$ times better than the alternatives, with the histogram of modes doing about four times better than stacking.
 
 \begin{figure*}
 	\begin{center}
-%		\includegraphics[width=0.95\textwidth]{figures/chippr/final_plot.png}
+		\includegraphics[width=0.94\textwidth]{figures/chippr/final_plot.png}
 		\caption{
 			The result of propagating the estimators of \nz\ by stacking (red), the histogram of modes (yellow), \Chippr\ (blue), and the true \nz\ (black) of \Fig{fig:per-bin-ests} to a subset of cosmological parameters.
 			For all parameters considered, \Chippr\ yields contours no broader than those corresponding to the true \nz, whereas for most parameters, stacking and the histogram of modes yield broader contours.
-			\aim{You can't see the \Chippr\ contours because they're exteemely close to the truth}
+			\aim{Are the contours any easier to see now?}
 		}
 		\label{fig:cornerplot}
 	\end{center}
 \end{figure*}
 
-%\aim{Hogg says ``I think it would be good to talk a little quantitatively about where people need to know N(z) and other one-point statistics, and how much they will get various things wrong if they don't know these correctly. 
-%	And situate that discussion within the current context of cosmological parameter estimation and precision cosmology.''
-%	Did I successfully answer the question?}
+\aim{Hogg says ``I think it would be good to talk a little quantitatively about where people need to know N(z) and other one-point statistics, and how much they will get various things wrong if they don't know these correctly. 
+	And situate that discussion within the current context of cosmological parameter estimation and precision cosmology.''
+	Did I successfully answer the question?}
 
 \subsection{Violations of the model}
 \label{sec:violations}
 
-%\aim{Move \Sect{sec:interim} here?}
+\aim{Move \Sect{sec:interim} here?}
 
 In this test, without tomographic binning, the \pzip s are made to the \lsst\ requirements but the implicit prior used for the inference is not the same as the implicit prior used for generating the data.
 \Pzpdf\ codes do not generally provide their implicit prior, with the exception of some template-fitting techniques for which it is a known input.
 If we naively used the \pzpdf\ catalog produced by a generic machine learning code and assumed a flat implicit prior, we would observe the contents of \Fig{fig:mischaracterized}.
 
-\begin{figure*}
+\begin{figure}
 	\begin{center}
-		\includegraphics[width=0.45\textwidth]{figures/chippr/misspecified_mega_scatter.png}
+		\includegraphics[width=0.45\textwidth]{figures/chippr/misspecified_mega_scatter.png}\\
 		\includegraphics[width=0.45\textwidth]{figures/chippr/misspecified_log_estimators.png}
 		\caption{
 			Left: Examples of \pzpdf s with systematics at the level of the \lsst\ requirements with a machine learning-like implicit prior, including samples from the probability space of true and observed redshift (black points), \pzpdf s (colored curves), and the true redshifts of the example \pzpdf s (black vertical lines), with marginal histograms (gray) for each dimension with the true redshift distribution (blue curve) and implicit prior (red curve) in the insets.
@@ -910,7 +953,7 @@ If we naively used the \pzpdf\ catalog produced by a generic machine learning co
 		}
 		\label{fig:mischaracterized}
 	\end{center}
-\end{figure*}
+\end{figure}
 
 The results of using a mischaracterized implicit prior are disastrous, causing every estimator, including \Chippr, to be strongly biased.
 The stacked estimator and histogram of modes don't make use of the implicit prior so do no worse than when the implicit prior is accurately provided, but \Chippr\ is sensitive to prior misspecification, which violates the model upon which it is based.
@@ -921,12 +964,12 @@ It is thus crucial that \pzpdf\ methods always characterize and provide the impl
 \section{Conclusion}
 \label{sec:con}
 
-% new paragraph for what can go wrong, call to community for what to do about it
-% what aspects are knowable and not knowable, if testable how so? outside the scope of paper, data producers be warned
-% a likelihood is better -- give us that if you can!
-% focus on methods that acknowledge probabilistic structure of problem
+\aim{TODO: new paragraph for what can go wrong, call to community for what to do about it, what aspects of implicit prior are knowable and not knowable?
+	 if testable how so? outside the scope of paper, data producers be warned!
+	 a likelihood is better -- give us that if you can!
+	focus on methods that acknowledge probabilistic structure of problem}
 
-% implications for tomographic binning are severe
+\aim{claim: implications for tomographic binning are severe}
 
 This study derives and demonstrates a mathematically consistent inference of a one-point statistic, the redshift density function \nz, based on an arbitrary catalog of \pzpdf s.  
 The fully Bayesian method, based in the fundamental laws of probability, begins with a probabilistic graphical model corresponding to equations for the full posterior distribution over the parameters for \nz.  
