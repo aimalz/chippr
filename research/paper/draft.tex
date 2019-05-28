@@ -17,7 +17,7 @@
 \tikzstyle{arrow} = [thick,->,>=stealth]
 
 \usepackage{soul}
-%\usepackage[title]{appendix}
+\usepackage[title]{appendix}
 
 \newcommand{\todo}[3]{{\color{#2}\emph{#1}: #3}}
 \newcommand{\aim}[1]{\todo{AIM}{red}{#1}}
@@ -41,7 +41,6 @@
 \newcommand{\emcee}{\repo{emcee}}
 \newcommand{\github}{\href{https://github.com}{GitHub}}
 \newcommand{\python}{\textit{Python}}
-\newcommand{\nz}{$n(z)$}
 \newcommand{\data}{\ensuremath{\vec{d}}}
 % could change to bold
 \newcommand{\like}{\mathscr{L}}
@@ -51,10 +50,10 @@
 \newcommand{\normal}[2]{\mathcal{N} (#1, #2)}
 \newcommand{\gvn}{\mid}% could use | or \vert
 \newcommand{\integral}[2]{\ensuremath{\int #1 \mathrm{d} #2}}
-\newcommand{\sz}{spec-$z$~}
-\newcommand{\Sz}{Spec-$z$~}
-\newcommand{\pz}{photo-$z$~}
-\newcommand{\Pz}{Photo-$z$~}
+\newcommand{\sz}{spec-$z$}
+\newcommand{\Sz}{Spec-$z$}
+\newcommand{\pz}{photo-$z$}
+\newcommand{\Pz}{Photo-$z$}
 \newcommand{\pzpdf}{\pz PDF}
 % could change to posterior
 \newcommand{\Pzpdf}{\Pz PDF}
@@ -62,8 +61,9 @@
 \newcommand{\zpdf}{redshift posterior}
 % could change to implicit posterior
 \newcommand{\pzip}{\pz implicit posterior}
-\newcommand{\Nz}{$N(z)$~}
-\newcommand{\stack}{$\hat{N}(z)$~}
+\newcommand{\nz}{$n(z)$}
+\newcommand{\Nz}{$N(z)$}
+\newcommand{\stack}{$\hat{n}(z)$}
 \newcommand{\ntot}{\ensuremath{N_{\mathrm{tot}}}}
 \newcommand{\bvec}[1]{\ensuremath{\boldsymbol{#1}}}
 % could change to \vec
@@ -102,8 +102,6 @@ We conclude by propagating these effects to constraints in the space of cosmolog
 \keywords{cosmology: cosmological parameters --- galaxies: statistics --- gravitational lensing: weak --- methods: data analysis --- methods: statistical}
 
 \maketitle
-
-\aim{Some of the figures refer to left/right but are shown as top/bottom \textemdash I'm still working through a LaTeX bug.}
 
 \section{Introduction}
 \label{sec:introduction}
@@ -347,131 +345,131 @@ With these definitions, we obtain the desired expression for $\pr{\ndphi \gvn \{
 \pr{\ndphi \gvn \{\data_{j}\}} \propto \pr{\ndphi} \integral{\prod_{j=1}^{J} \frac{\pr{z \gvn \data_{j}, \ndphi^{*}} \pr{z \gvn \ndphi}}{\pr{z \gvn \ndphi^{*}}}}{z},
 \end{equation}
 the heart of \Chippr.
-The derivation is provided below in \Sect{app:math}.
+The derivation is provided in Appendix~{app:math}.
 
-\subsubsection{Derivation}
-\label{app:math}
-
-\aim{This was originally envisioned as an appendix, and my default plan is to move it back to one.}
-
-%We begin by parametrizing $N(z)$ in terms of $\vec{\theta}$, comprising some set of hyperparameters that define the form $N(z)$ may take in whatever basis we choose.  
-%We define a function $f_{\vec{\theta}}(z)=N(z)$ that transforms these hyperparameters into the redshift distribution function $N(z)$.  
-%Because 
-%\begin{equation}
-%\eqlabel{eq:definition}
-%N(z) \propto p(z \gvn \vec{\theta}),
-%\end{equation}
-%we may discontinue discussion of $N(z)$ in favor of the likelihood $p(z|\vec{\theta})$.
-
-In this paper, we work exclusively with log-probabilities.  
-What we wish to estimate is then the full log-posterior probability distribution (hereafter the full log-posterior) of the hyperparameters $\ndphi$ given the catalog of photometry $\{\data_{j}\}$.
-
-By Bayes' Rule, the full log-posterior
-\begin{equation}
-\label{eqn:basicbayes}
-\ln[\pr{\ndphi \gvn \{\data_{j}\}}] = \ln[\pr{\{\data_{j}\} \gvn \ndphi}] + \ln[\pr{\ndphi}] - \ln[\pr{\{\data_{j}\}}]
-\end{equation}
-may be expressed in terms of the full log-likelihood probability distribution (hereafter the full log-likelihood) $\ln[\pr{\{\data_{j}\} \gvn \ndphi}]$ by way of a hyperprior log-probability distribution (hereafter the hyperprior) $\ln[\pr{\ndphi}]$ over the hyperparameters and the log-evidence probability of the data $\ln[\pr{\{\data_{j}\}}]$.
-However, the evidence is rarely known, so we probe the full log-posterior modulo an unknown constant of proportionality.
-
-The full log-likelihood may be expanded in terms of a marginalization over the redshifts as parameters, as in 
-\begin{equation}
-\label{eqn:marginalize}
-\ln[\pr{\{\data_{j}\} \gvn \ndphi}] = \ln\left[\integral{\pr{\{\data_{j}\} \gvn \{z_{j}\}} \pr{\{z_{j}\} \gvn \ndphi}}{\{z_{j}\}}\right].
-\end{equation}
-
-We shall make two assumptions of independence in order to make the problem tractable; their limitations are be discussed below.  
-First, we take $\ln[\pr{\{\data_{j}\} \gvn \{z_{j}\}}]$ to be the sum of $J$ individual log-likelihood distribution functions $\ln[\pr{\data_{j} \gvn z_{j}}]$, as in 
-\begin{equation}
-\label{eqn:indiedat}
-\ln[\pr{\{\data_{j}\} \gvn \{z_{j}\}}] = \sum_{j=1}^{J}\ \ln[\pr{\data_{j} \gvn z_{j}}],
-\end{equation}
-a result of the definition of probabilistic independence encoded by the box in \Fig{fig:pgm}.
-Second, we shall assume the true redshifts $\{z_{j}\}$ are $J$ independent draws from the true $\pr{z \gvn \ndphi}$.  
-Additionally, $J$ itself is a Poisson random variable.  
-The combination of these assumptions is given by 
-\begin{equation}
-\label{eqn:indie}
-\ln[\pr{\{z_{j}\} \gvn \ndphi}] = -\integral{f(z; \ndphi)}{z} + \sum_{j=1}^{J}\ \ln[\pr{z_{j} \gvn \ndphi}].
-\end{equation}
-%It is important to note that the integral $\integral{n(z)}{z} N(z)\ dz$ is not constrained to equal the variable defining the Poisson distribution but instead $J$ by \Eq{eq:definition}, which can be thought of as another parameter.  
-The derivation differs when $J$ is not known, say, when we want to learn about a distribution in nature rather than a distribution specific to data in hand, but for a photometric galaxy catalog where the desired quantity is $n(z)$ for the galaxies entering a larger cosmology calculation, it is a fixed quantity.
-A detailed discussion of this matter may be found in \citet{foreman-mackey_exoplanet_2014}.  
-Applying Bayes' Rule, we may combine terms to obtain 
-\begin{align}
-\begin{split}
-\label{eqn:posterior}
-\ln[\pr{\ndphi \gvn \{\data_{j}\}}] & \propto \ln[\pr{\ndphi}] - \integral{f(z; \ndphi)}{z}\\
-& + \sum_{j=1}^{J}\ln\left[\integral{\pr{\data_{j} \gvn z} \pr{z \gvn \ndphi}}{z}\right].
-\end{split}
-\end{align}
-
-%\Eq{eq:posterior} contains two quantities that merit further discussion, the prior distribution $p(\vec{\theta})$ discussed further in \Sect{sec:exp} and the photo-$z$ log-likelihoods $\ln[p(\vec{d}_{j}|z_{j})]$ that have not been mentioned since \Eq{eq:marginalize}.  
-%Though photo-$z$ log-likelihoods would be desirable for use in these equations, they are not generally the product of either empirical and data-driven methods for obtaining photo-$z$ probability distributions.  
-%Though probabilistic photo-$z$s are typically reported as generic probability distributions $p(z_{j})$, the methods that produce them may be understood to always yield posteriors, probability distributions conditioned on the data we believe to be true.  
-%If they were not based in this assumption, they would require a sum over an infinite space of possible datasets.
-
-Since we only have access to implicit \pz\ posteriors, we must be able to write the full log-posterior in terms of implicit \pz\ log-posteriors rather than the log-likelihoods of \Eq{eqn:posterior}.
-To do so, we will need an explicit statement of this implicit prior $\ndphi^{*}$ for whatever method is chosen to produce the implicit \pz\ posteriors.  
-
-To perform the necessary transformation from likelihoods to posteriors, we follow the reasoning of \citet{foreman-mackey_exoplanet_2014}.  
-Let us consider the probability of the parameters conditioned on the data and an interim prior and rewrite the problematic likelihood of \Eq{eqn:posterior} as 
-\begin{align}
-\label{eqn:trick}
-\begin{split}
-\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\\
- & - \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}].
- \end{split}
-\end{align}
-
-Once the implicit prior $\ndphi^{*}$ is explicitly introduced, we may expand the last term in \Eq{eqn:trick} according to Bayes' Rule to get 
-\begin{align}
-\begin{split}
-\label{eqn:expand}
-\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\\
-& + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}] \\
-& - \ln[\pr{\data_{j} \gvn z, \ndphi^{*}}].
-\end{split}
-\end{align}
-Because there is no direct dependence of the data upon the hyperparameters, we may again expand the term $\ln[\pr{\data_{j} \gvn z, \ndphi^{*}}]$ to obtain 
-\begin{align}
-\begin{split}
-\label{eqn:indterm}
-\ln[\pr{\vec{d}_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] \\
-& + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}]\\
-& - \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{\data_{j} \gvn z}] .
-\end{split}
-\end{align}
-Canceling the undesirable terms for the inaccessible likelihood $\ln[\pr{\data_{j} \gvn z}]$ and trivial $\ln[\pr{\data_{j} \gvn \ndphi^{*}}]$ yields
-\begin{equation}
-\label{eqn:cancel}
-\ln[\pr{\data_{j} \gvn z}] = \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]  - \ln[\pr{z \gvn \ndphi^{*}}].
-\end{equation}
-We put this all together to get the full log-posterior probability distribution of 
-\begin{align}
-\begin{split}
-\label{eqn:final}
-\ln[\pr{\ndphi \gvn \{\data_{j}\}}] \propto & \ln[\pr{\ndphi}] + \ln \left[\integral{\exp \left[\sum_{j=1}^{J} \right.\right.\\
-& \left.\left.\left(\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{z \gvn \ndphi}]\right.\right.\right.\\
-& \left.\left.\left. - \ln[\pr{z \gvn \ndphi^{*}}] \right)\right]}{z}\right] ,
-\end{split}
-\end{align}
-\aim{TODO: fix the trailing parentheses/brackets.}
-
-The argument of the integral in the log-posterior of \Eq{eqn:final} depends solely on knowable quantities (and those we must explicitly assume) and can be calculated for a given sample of \pz\ log-posteriors $\{\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\}$ and the implicit prior $\pr{z \gvn \ndphi^{*}}$ with which they were obtained, noting the relation of 
-\begin{equation}
-\label{eqn:params}
-\pr{z \gvn \ndphi} = \frac{f(z; \ndphi)}{\integral{f(z; \ndphi)}{z}}.
-\end{equation}
-Since we cannot know constant of proportionality, we sample the desired full log-posterior $\ln[\pr{\ndphi \gvn \{\data_{j}\}}]$ using Monte Carlo-Markov chain (MCMC) methods.  
-The method outlined here is valid regardless of how the implicit \pz\ log-posteriors are obtained so the many approaches to producing \pzpdf s will not be rehashed; though the matter is outside the scope of this paper, reviews of various methods have been presented in the literature \citep{sheldon_photometric_2012, ball_robust_2008, carrasco_kind_tpz:_2013, carrasco_kind_exhausting_2014}, and will be briefly reviewed in \aim{cite PZDC1 paper here}.
+%\subsubsection{Derivation}
+%\label{app:math}
 %
+%\aim{This was originally envisioned as an appendix, and my default plan is to move it back to one.}
+%
+%%We begin by parametrizing $N(z)$ in terms of $\vec{\theta}$, comprising some set of hyperparameters that define the form $N(z)$ may take in whatever basis we choose.  
+%%We define a function $f_{\vec{\theta}}(z)=N(z)$ that transforms these hyperparameters into the redshift distribution function $N(z)$.  
+%%Because 
+%%\begin{equation}
+%%\eqlabel{eq:definition}
+%%N(z) \propto p(z \gvn \vec{\theta}),
+%%\end{equation}
+%%we may discontinue discussion of $N(z)$ in favor of the likelihood $p(z|\vec{\theta})$.
+%
+%In this paper, we work exclusively with log-probabilities.  
+%What we wish to estimate is then the full log-posterior probability distribution (hereafter the full log-posterior) of the hyperparameters $\ndphi$ given the catalog of photometry $\{\data_{j}\}$.
+%
+%By Bayes' Rule, the full log-posterior
+%\begin{equation}
+%\label{eqn:basicbayes}
+%\ln[\pr{\ndphi \gvn \{\data_{j}\}}] = \ln[\pr{\{\data_{j}\} \gvn \ndphi}] + \ln[\pr{\ndphi}] - \ln[\pr{\{\data_{j}\}}]
+%\end{equation}
+%may be expressed in terms of the full log-likelihood probability distribution (hereafter the full log-likelihood) $\ln[\pr{\{\data_{j}\} \gvn \ndphi}]$ by way of a hyperprior log-probability distribution (hereafter the hyperprior) $\ln[\pr{\ndphi}]$ over the hyperparameters and the log-evidence probability of the data $\ln[\pr{\{\data_{j}\}}]$.
+%However, the evidence is rarely known, so we probe the full log-posterior modulo an unknown constant of proportionality.
+%
+%The full log-likelihood may be expanded in terms of a marginalization over the redshifts as parameters, as in 
+%\begin{equation}
+%\label{eqn:marginalize}
+%\ln[\pr{\{\data_{j}\} \gvn \ndphi}] = \ln\left[\integral{\pr{\{\data_{j}\} \gvn \{z_{j}\}} \pr{\{z_{j}\} \gvn \ndphi}}{\{z_{j}\}}\right].
+%\end{equation}
+%
+%We shall make two assumptions of independence in order to make the problem tractable; their limitations are be discussed below.  
+%First, we take $\ln[\pr{\{\data_{j}\} \gvn \{z_{j}\}}]$ to be the sum of $J$ individual log-likelihood distribution functions $\ln[\pr{\data_{j} \gvn z_{j}}]$, as in 
+%\begin{equation}
+%\label{eqn:indiedat}
+%\ln[\pr{\{\data_{j}\} \gvn \{z_{j}\}}] = \sum_{j=1}^{J}\ \ln[\pr{\data_{j} \gvn z_{j}}],
+%\end{equation}
+%a result of the definition of probabilistic independence encoded by the box in \Fig{fig:pgm}.
+%Second, we shall assume the true redshifts $\{z_{j}\}$ are $J$ independent draws from the true $\pr{z \gvn \ndphi}$.  
+%Additionally, $J$ itself is a Poisson random variable.  
+%The combination of these assumptions is given by 
+%\begin{equation}
+%\label{eqn:indie}
+%\ln[\pr{\{z_{j}\} \gvn \ndphi}] = -\integral{f(z; \ndphi)}{z} + \sum_{j=1}^{J}\ \ln[\pr{z_{j} \gvn \ndphi}].
+%\end{equation}
+%%It is important to note that the integral $\integral{n(z)}{z} N(z)\ dz$ is not constrained to equal the variable defining the Poisson distribution but instead $J$ by \Eq{eq:definition}, which can be thought of as another parameter.  
+%The derivation differs when $J$ is not known, say, when we want to learn about a distribution in nature rather than a distribution specific to data in hand, but for a photometric galaxy catalog where the desired quantity is $n(z)$ for the galaxies entering a larger cosmology calculation, it is a fixed quantity.
+%A detailed discussion of this matter may be found in \citet{foreman-mackey_exoplanet_2014}.  
+%Applying Bayes' Rule, we may combine terms to obtain 
 %\begin{align}
 %\begin{split}
-%\eqlabel{eqn:fullpost}
-%\ln[\pr{\ndphi \gvn \{\data_{j}\}}] & \propto \ln[\pr{\ndphi}] + \ln \left[\integral{\exp \left[\sum_{j=1}^{J} \left(\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{z \gvn \ndphi}] - \ln[\pr{z \gvn \ndphi^{*}}]\right)\right]}{z}\right] ,
+%\label{eqn:posterior}
+%\ln[\pr{\ndphi \gvn \{\data_{j}\}}] & \propto \ln[\pr{\ndphi}] - \integral{f(z; \ndphi)}{z}\\
+%& + \sum_{j=1}^{J}\ln\left[\integral{\pr{\data_{j} \gvn z} \pr{z \gvn \ndphi}}{z}\right].
 %\end{split}
 %\end{align}
+%
+%%\Eq{eq:posterior} contains two quantities that merit further discussion, the prior distribution $p(\vec{\theta})$ discussed further in \Sect{sec:exp} and the photo-$z$ log-likelihoods $\ln[p(\vec{d}_{j}|z_{j})]$ that have not been mentioned since \Eq{eq:marginalize}.  
+%%Though photo-$z$ log-likelihoods would be desirable for use in these equations, they are not generally the product of either empirical and data-driven methods for obtaining photo-$z$ probability distributions.  
+%%Though probabilistic photo-$z$s are typically reported as generic probability distributions $p(z_{j})$, the methods that produce them may be understood to always yield posteriors, probability distributions conditioned on the data we believe to be true.  
+%%If they were not based in this assumption, they would require a sum over an infinite space of possible datasets.
+%
+%Since we only have access to implicit \pz\ posteriors, we must be able to write the full log-posterior in terms of implicit \pz\ log-posteriors rather than the log-likelihoods of \Eq{eqn:posterior}.
+%To do so, we will need an explicit statement of this implicit prior $\ndphi^{*}$ for whatever method is chosen to produce the implicit \pz\ posteriors.  
+%
+%To perform the necessary transformation from likelihoods to posteriors, we follow the reasoning of \citet{foreman-mackey_exoplanet_2014}.  
+%Let us consider the probability of the parameters conditioned on the data and an interim prior and rewrite the problematic likelihood of \Eq{eqn:posterior} as 
+%\begin{align}
+%\label{eqn:trick}
+%\begin{split}
+%\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\\
+% & - \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}].
+% \end{split}
+%\end{align}
+%
+%Once the implicit prior $\ndphi^{*}$ is explicitly introduced, we may expand the last term in \Eq{eqn:trick} according to Bayes' Rule to get 
+%\begin{align}
+%\begin{split}
+%\label{eqn:expand}
+%\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\\
+%& + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}] \\
+%& - \ln[\pr{\data_{j} \gvn z, \ndphi^{*}}].
+%\end{split}
+%\end{align}
+%Because there is no direct dependence of the data upon the hyperparameters, we may again expand the term $\ln[\pr{\data_{j} \gvn z, \ndphi^{*}}]$ to obtain 
+%\begin{align}
+%\begin{split}
+%\label{eqn:indterm}
+%\ln[\pr{\vec{d}_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] \\
+%& + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}]\\
+%& - \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{\data_{j} \gvn z}] .
+%\end{split}
+%\end{align}
+%Canceling the undesirable terms for the inaccessible likelihood $\ln[\pr{\data_{j} \gvn z}]$ and trivial $\ln[\pr{\data_{j} \gvn \ndphi^{*}}]$ yields
+%\begin{equation}
+%\label{eqn:cancel}
+%\ln[\pr{\data_{j} \gvn z}] = \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]  - \ln[\pr{z \gvn \ndphi^{*}}].
+%\end{equation}
+%We put this all together to get the full log-posterior probability distribution of 
+%\begin{align}
+%\begin{split}
+%\label{eqn:final}
+%\ln[\pr{\ndphi \gvn \{\data_{j}\}}] \propto & \ln[\pr{\ndphi}] + \ln \left[\integral{\exp \left[\sum_{j=1}^{J} \right.\right.\\
+%& \left.\left.\left(\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{z \gvn \ndphi}]\right.\right.\right.\\
+%& \left.\left.\left. - \ln[\pr{z \gvn \ndphi^{*}}] \right)\right]}{z}\right] ,
+%\end{split}
+%\end{align}
+%\aim{TODO: fix the trailing parentheses/brackets.}
+%
+%The argument of the integral in the log-posterior of \Eq{eqn:final} depends solely on knowable quantities (and those we must explicitly assume) and can be calculated for a given sample of \pz\ log-posteriors $\{\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\}$ and the implicit prior $\pr{z \gvn \ndphi^{*}}$ with which they were obtained, noting the relation of 
+%\begin{equation}
+%\label{eqn:params}
+%\pr{z \gvn \ndphi} = \frac{f(z; \ndphi)}{\integral{f(z; \ndphi)}{z}}.
+%\end{equation}
+%Since we cannot know constant of proportionality, we sample the desired full log-posterior $\ln[\pr{\ndphi \gvn \{\data_{j}\}}]$ using Monte Carlo-Markov chain (MCMC) methods.  
+%The method outlined here is valid regardless of how the implicit \pz\ log-posteriors are obtained so the many approaches to producing \pzpdf s will not be rehashed; though the matter is outside the scope of this paper, reviews of various methods have been presented in the literature \citep{sheldon_photometric_2012, ball_robust_2008, carrasco_kind_tpz:_2013, carrasco_kind_exhausting_2014}, and will be briefly reviewed in \aim{cite PZDC1 paper here}.
+%%
+%%\begin{align}
+%%\begin{split}
+%%\eqlabel{eqn:fullpost}
+%%\ln[\pr{\ndphi \gvn \{\data_{j}\}}] & \propto \ln[\pr{\ndphi}] + \ln \left[\integral{\exp \left[\sum_{j=1}^{J} \left(\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{z \gvn \ndphi}] - \ln[\pr{z \gvn \ndphi^{*}}]\right)\right]}{z}\right] ,
+%%\end{split}
+%%\end{align}
 
 \subsubsection{Model Limitations}
 \label{sec:limitations}
@@ -528,35 +526,35 @@ Though previous versions used \texttt{HDF5} for the primary I/O format due to it
 The resulting output is a set of $I$ ordered \texttt{hickle} files enumerated by $\rho$ containing the state information after each sub-run.  
 The state information includes $\frac{I_{0}}{s}$ actual samples $\ndphi_{i}$ for a pre-specified chain thinning factor $s$ and their full posterior probabilities $\pr{\ndphi_{i} \gvn \{\data_{j}\}}$ as well as the autocorrelation times and acceptance fractions calculated for each element of $\ndphi$ over the entire sub-run.  
 
-\subsubsection{Convergence Criteria}
-\label{sec:acorr}
-
-\aim{This was originally envisioned as an appendix, and my default plan is to move it back to one.}
-
-In addition to qualitative visual inspection of the chains, two quantities that probe the convergence of the sampler are used in this study, the autocorrelation time and the Gelman-Rubin convergence criterion.  
-%\Fig{fig:chains} shows the %evolution of the values of one parameter of one walker over the course of all %iterations of the sampler.
-
-%\begin{figure}
-%%\includegraphics[width=0.5\textwidth]{figs/null/chain0.pdf}
-%\caption{This figure shows the evolution of one walker's parameter values for 
-%one element of the parameter vector $\vec{\theta}$ as a function of iteration 
-%number, demonstrating the completion of the burn-in phase.}
-%\label{fig:chains}
-%\end{figure}
-
-The autocorrelation time is effectively a measure of the efficiency of the method and can be described as the expected number of iterations necessary to accept a new sample independent of the current accepted sample.  
-A sampler that converges faster will have a smaller autocorrelation time, and smaller autocorrelation times are preferable because it means fewer iterations are wasted on non-independent samples when independent samples are desired.  
-See \citet{foreman-mackey_emcee_2013} for a more complete exploration of the autocorrelation time.  
-In all tests discussed here, autocorrelation times across walkers and parameters were approximately 20, meaning two samples 20 or more iterations apart were independent, a satisfactory level of efficiency.  
-Low autocorrelation times are a necessary but not always sufficient convergence condition, as the autocorrelation times calculated for tests in this paper were constant across all sub-runs, even those that were obviously burning in.  
-
-The Gelman-Rubin statistic
-\begin{equation}
-\label{eqn:gr}
-R_{k} = \sqrt{\frac{(1 - \frac{2}{I_{0}}) w_{k} + \frac{2}{I_{0}} b_{k}}{w_{k}}},
-\end{equation}
-a weighted sum of the mean $w_{k}$ of the variances within individual walkers' chains and the variance $b_{k}$ between chains of different walkers $m$, is calculated over each sub-run $i$ to determine the duration of the burn-in period.  
-Convergence is achieved when the statistic approaches unity.  
+%\subsubsection{Convergence Criteria}
+%\label{sec:acorr}
+%
+%\aim{This was originally envisioned as an appendix, and my default plan is to move it back to one.}
+%
+%In addition to qualitative visual inspection of the chains, two quantities that probe the convergence of the sampler are used in this study, the autocorrelation time and the Gelman-Rubin convergence criterion.  
+%%\Fig{fig:chains} shows the %evolution of the values of one parameter of one walker over the course of all %iterations of the sampler.
+%
+%%\begin{figure}
+%%%\includegraphics[width=0.5\textwidth]{figs/null/chain0.pdf}
+%%\caption{This figure shows the evolution of one walker's parameter values for 
+%%one element of the parameter vector $\vec{\theta}$ as a function of iteration 
+%%number, demonstrating the completion of the burn-in phase.}
+%%\label{fig:chains}
+%%\end{figure}
+%
+%The autocorrelation time is effectively a measure of the efficiency of the method and can be described as the expected number of iterations necessary to accept a new sample independent of the current accepted sample.  
+%A sampler that converges faster will have a smaller autocorrelation time, and smaller autocorrelation times are preferable because it means fewer iterations are wasted on non-independent samples when independent samples are desired.  
+%See \citet{foreman-mackey_emcee_2013} for a more complete exploration of the autocorrelation time.  
+%In all tests discussed here, autocorrelation times across walkers and parameters were approximately 20, meaning two samples 20 or more iterations apart were independent, a satisfactory level of efficiency.  
+%Low autocorrelation times are a necessary but not always sufficient convergence condition, as the autocorrelation times calculated for tests in this paper were constant across all sub-runs, even those that were obviously burning in.  
+%
+%The Gelman-Rubin statistic
+%\begin{equation}
+%\label{eqn:gr}
+%R_{k} = \sqrt{\frac{(1 - \frac{2}{I_{0}}) w_{k} + \frac{2}{I_{0}} b_{k}}{w_{k}}},
+%\end{equation}
+%a weighted sum of the mean $w_{k}$ of the variances within individual walkers' chains and the variance $b_{k}$ between chains of different walkers $m$, is calculated over each sub-run $i$ to determine the duration of the burn-in period.  
+%Convergence is achieved when the statistic approaches unity.  
 
 \subsection{Comparison with Alternative Approaches}
 \label{sec:sheldon}
@@ -1022,33 +1020,164 @@ We emphasize to those who produce \pzpdf s from data that it is essential to rel
 The technique herein developed is applicable with minimal modification to other one-point statistics of redshift to which we will apply this method in the future, such as the redshift-dependent luminosity function and weak lensing mean distance ratio.  
 Future work will also include the extension of this fully probabilistic approach to higher-order statistics of redshift such as the two-point correlation function.
 
-%%\section*{Appendices}
-%%
-%%\begin{appendices}
-%%
-%%%\section{Mathematical derivation}
-%%%\label{app:math}
-%%%
-%%%\section{Mock data generation}
-%%%\label{app:data}
-%%%
-%%%\textul{Plots: flow chart of forward model}
-%%%
-%%%\begin{figure*}
-%%%	\begin{center}
-%%%		\includegraphics[width=0.75\textwidth]{fig/flowchart.png}
-%%%		\caption{In appendix?}
-%%%		\label{fig:flowchart}
-%%%	\end{center}
-%%%\end{figure*}
-%%
-%%
-%%\end{appendices}
+\appendix
+%\renewcommand{\thesection}{\Alph{section}}
+%\renewcommand{\thesubsection}{\Alph{subsection}}
+
+\section{Derivation}
+\label{app:math}
+
+%We begin by parametrizing $N(z)$ in terms of $\vec{\theta}$, comprising some set of hyperparameters that define the form $N(z)$ may take in whatever basis we choose.  
+%We define a function $f_{\vec{\theta}}(z)=N(z)$ that transforms these hyperparameters into the redshift distribution function $N(z)$.  
+%Because 
+%\begin{equation}
+%\eqlabel{eq:definition}
+%N(z) \propto p(z \gvn \vec{\theta}),
+%\end{equation}
+%we may discontinue discussion of $N(z)$ in favor of the likelihood $p(z|\vec{\theta})$.
+
+In this paper, we work exclusively with log-probabilities.  
+What we wish to estimate is then the full log-posterior probability distribution (hereafter the full log-posterior) of the hyperparameters $\ndphi$ given the catalog of photometry $\{\data_{j}\}$.
+
+By Bayes' Rule, the full log-posterior
+\begin{equation}
+\label{eqn:basicbayes}
+\ln[\pr{\ndphi \gvn \{\data_{j}\}}] = \ln[\pr{\{\data_{j}\} \gvn \ndphi}] + \ln[\pr{\ndphi}] - \ln[\pr{\{\data_{j}\}}]
+\end{equation}
+may be expressed in terms of the full log-likelihood probability distribution (hereafter the full log-likelihood) $\ln[\pr{\{\data_{j}\} \gvn \ndphi}]$ by way of a hyperprior log-probability distribution (hereafter the hyperprior) $\ln[\pr{\ndphi}]$ over the hyperparameters and the log-evidence probability of the data $\ln[\pr{\{\data_{j}\}}]$.
+However, the evidence is rarely known, so we probe the full log-posterior modulo an unknown constant of proportionality.
+
+The full log-likelihood may be expanded in terms of a marginalization over the redshifts as parameters, as in 
+\begin{equation}
+\label{eqn:marginalize}
+\ln[\pr{\{\data_{j}\} \gvn \ndphi}] = \ln\left[\integral{\pr{\{\data_{j}\} \gvn \{z_{j}\}} \pr{\{z_{j}\} \gvn \ndphi}}{\{z_{j}\}}\right].
+\end{equation}
+
+We shall make two assumptions of independence in order to make the problem tractable; their limitations are be discussed below.  
+First, we take $\ln[\pr{\{\data_{j}\} \gvn \{z_{j}\}}]$ to be the sum of $J$ individual log-likelihood distribution functions $\ln[\pr{\data_{j} \gvn z_{j}}]$, as in 
+\begin{equation}
+\label{eqn:indiedat}
+\ln[\pr{\{\data_{j}\} \gvn \{z_{j}\}}] = \sum_{j=1}^{J}\ \ln[\pr{\data_{j} \gvn z_{j}}],
+\end{equation}
+a result of the definition of probabilistic independence encoded by the box in \Fig{fig:pgm}.
+Second, we shall assume the true redshifts $\{z_{j}\}$ are $J$ independent draws from the true $\pr{z \gvn \ndphi}$.  
+Additionally, $J$ itself is a Poisson random variable.  
+The combination of these assumptions is given by 
+\begin{equation}
+\label{eqn:indie}
+\ln[\pr{\{z_{j}\} \gvn \ndphi}] = -\integral{f(z; \ndphi)}{z} + \sum_{j=1}^{J}\ \ln[\pr{z_{j} \gvn \ndphi}].
+\end{equation}
+%It is important to note that the integral $\integral{n(z)}{z} N(z)\ dz$ is not constrained to equal the variable defining the Poisson distribution but instead $J$ by \Eq{eq:definition}, which can be thought of as another parameter.  
+The derivation differs when $J$ is not known, say, when we want to learn about a distribution in nature rather than a distribution specific to data in hand, but for a photometric galaxy catalog where the desired quantity is $n(z)$ for the galaxies entering a larger cosmology calculation, it is a fixed quantity.
+A detailed discussion of this matter may be found in \citet{foreman-mackey_exoplanet_2014}.  
+Applying Bayes' Rule, we may combine terms to obtain 
+\begin{align}
+\begin{split}
+\label{eqn:posterior}
+\ln[\pr{\ndphi \gvn \{\data_{j}\}}] & \propto \ln[\pr{\ndphi}] - \integral{f(z; \ndphi)}{z}\\
+& + \sum_{j=1}^{J}\ln\left[\integral{\pr{\data_{j} \gvn z} \pr{z \gvn \ndphi}}{z}\right].
+\end{split}
+\end{align}
+
+%\Eq{eq:posterior} contains two quantities that merit further discussion, the prior distribution $p(\vec{\theta})$ discussed further in \Sect{sec:exp} and the photo-$z$ log-likelihoods $\ln[p(\vec{d}_{j}|z_{j})]$ that have not been mentioned since \Eq{eq:marginalize}.  
+%Though photo-$z$ log-likelihoods would be desirable for use in these equations, they are not generally the product of either empirical and data-driven methods for obtaining photo-$z$ probability distributions.  
+%Though probabilistic photo-$z$s are typically reported as generic probability distributions $p(z_{j})$, the methods that produce them may be understood to always yield posteriors, probability distributions conditioned on the data we believe to be true.  
+%If they were not based in this assumption, they would require a sum over an infinite space of possible datasets.
+
+Since we only have access to implicit \pz\ posteriors, we must be able to write the full log-posterior in terms of implicit \pz\ log-posteriors rather than the log-likelihoods of \Eq{eqn:posterior}.
+To do so, we will need an explicit statement of this implicit prior $\ndphi^{*}$ for whatever method is chosen to produce the implicit \pz\ posteriors.  
+
+To perform the necessary transformation from likelihoods to posteriors, we follow the reasoning of \citet{foreman-mackey_exoplanet_2014}.  
+Let us consider the probability of the parameters conditioned on the data and an interim prior and rewrite the problematic likelihood of \Eq{eqn:posterior} as 
+\begin{align}
+\label{eqn:trick}
+\begin{split}
+\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\\
+& - \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}].
+\end{split}
+\end{align}
+
+Once the implicit prior $\ndphi^{*}$ is explicitly introduced, we may expand the last term in \Eq{eqn:trick} according to Bayes' Rule to get 
+\begin{align}
+\begin{split}
+\label{eqn:expand}
+\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\\
+& + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}] \\
+& - \ln[\pr{\data_{j} \gvn z, \ndphi^{*}}].
+\end{split}
+\end{align}
+Because there is no direct dependence of the data upon the hyperparameters, we may again expand the term $\ln[\pr{\data_{j} \gvn z, \ndphi^{*}}]$ to obtain 
+\begin{align}
+\begin{split}
+\label{eqn:indterm}
+\ln[\pr{\vec{d}_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] \\
+& + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}]\\
+& - \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{\data_{j} \gvn z}] .
+\end{split}
+\end{align}
+Canceling the undesirable terms for the inaccessible likelihood $\ln[\pr{\data_{j} \gvn z}]$ and trivial $\ln[\pr{\data_{j} \gvn \ndphi^{*}}]$ yields
+\begin{equation}
+\label{eqn:cancel}
+\ln[\pr{\data_{j} \gvn z}] = \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]  - \ln[\pr{z \gvn \ndphi^{*}}].
+\end{equation}
+We put this all together to get the full log-posterior probability distribution of 
+\begin{align}
+\begin{split}
+\label{eqn:final}
+\ln[\pr{\ndphi \gvn \{\data_{j}\}}] \propto & \ln[\pr{\ndphi}] + \ln \left[\integral{\exp \left[\sum_{j=1}^{J} \right.\right.\\
+	& \left.\left.\left(\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{z \gvn \ndphi}]\right.\right.\right.\\
+	& \left.\left.\left. - \ln[\pr{z \gvn \ndphi^{*}}] \right)\right]}{z}\right] ,
+\end{split}
+\end{align}
+\aim{TODO: fix the trailing parentheses/brackets.}
+
+The argument of the integral in the log-posterior of \Eq{eqn:final} depends solely on knowable quantities (and those we must explicitly assume) and can be calculated for a given sample of \pz\ log-posteriors $\{\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\}$ and the implicit prior $\pr{z \gvn \ndphi^{*}}$ with which they were obtained, noting the relation of 
+\begin{equation}
+\label{eqn:params}
+\pr{z \gvn \ndphi} = \frac{f(z; \ndphi)}{\integral{f(z; \ndphi)}{z}}.
+\end{equation}
+Since we cannot know constant of proportionality, we sample the desired full log-posterior $\ln[\pr{\ndphi \gvn \{\data_{j}\}}]$ using Monte Carlo-Markov chain (MCMC) methods.  
+The method outlined here is valid regardless of how the implicit \pz\ log-posteriors are obtained so the many approaches to producing \pzpdf s will not be rehashed; though the matter is outside the scope of this paper, reviews of various methods have been presented in the literature \citep{sheldon_photometric_2012, ball_robust_2008, carrasco_kind_tpz:_2013, carrasco_kind_exhausting_2014}, and will be briefly reviewed in \aim{cite PZDC1 paper here}.
+%
+%\begin{align}
+%\begin{split}
+%\eqlabel{eqn:fullpost}
+%\ln[\pr{\ndphi \gvn \{\data_{j}\}}] & \propto \ln[\pr{\ndphi}] + \ln \left[\integral{\exp \left[\sum_{j=1}^{J} \left(\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{z \gvn \ndphi}] - \ln[\pr{z \gvn \ndphi^{*}}]\right)\right]}{z}\right] ,
+%\end{split}
+%\end{align}
+
+\section{Convergence Criteria}
+\label{app:acorr}
+
+In addition to qualitative visual inspection of the chains, two quantities that probe the convergence of the sampler are used in this study, the autocorrelation time and the Gelman-Rubin convergence criterion.  
+%\Fig{fig:chains} shows the %evolution of the values of one parameter of one walker over the course of all %iterations of the sampler.
+
+%\begin{figure}
+%%\includegraphics[width=0.5\textwidth]{figs/null/chain0.pdf}
+%\caption{This figure shows the evolution of one walker's parameter values for 
+%one element of the parameter vector $\vec{\theta}$ as a function of iteration 
+%number, demonstrating the completion of the burn-in phase.}
+%\label{fig:chains}
+%\end{figure}
+
+The autocorrelation time is effectively a measure of the efficiency of the method and can be described as the expected number of iterations necessary to accept a new sample independent of the current accepted sample.  
+A sampler that converges faster will have a smaller autocorrelation time, and smaller autocorrelation times are preferable because it means fewer iterations are wasted on non-independent samples when independent samples are desired.  
+See \citet{foreman-mackey_emcee_2013} for a more complete exploration of the autocorrelation time.  
+In all tests discussed here, autocorrelation times across walkers and parameters were approximately 20, meaning two samples 20 or more iterations apart were independent, a satisfactory level of efficiency.  
+Low autocorrelation times are a necessary but not always sufficient convergence condition, as the autocorrelation times calculated for tests in this paper were constant across all sub-runs, even those that were obviously burning in.  
+
+The Gelman-Rubin statistic
+\begin{equation}
+\label{eqn:gr}
+R_{k} = \sqrt{\frac{(1 - \frac{2}{I_{0}}) w_{k} + \frac{2}{I_{0}} b_{k}}{w_{k}}},
+\end{equation}
+a weighted sum of the mean $w_{k}$ of the variances within individual walkers' chains and the variance $b_{k}$ between chains of different walkers $m$, is calculated over each sub-run $i$ to determine the duration of the burn-in period.  
+Convergence is achieved when the statistic approaches unity.  
 
 \begin{acknowledgements}
 AIM was supported by National Science Foundation grant AST-1517237 and the U.S. Department of Energy, Office of Science, Office of Workforce Development for Teachers and Scientists, Office of Science Graduate Student Research (SCGSR) program, administered by the Oak Ridge Institute for Science and Education for the DOE under contract number DE‐SC0014664.
 The authors thank Phil Marshall for advice on relevant examples, Elisabeth Krause for assistance with the \cosmolike code, Mohammadjavad Vakili for statistical insights, Geoffrey Ryan for programming advice, and Boris Leistedt for other helpful comments in the development of \Chippr.
-% send to DFM for comments
+\aim{TODO: Send draft around to Foreman-Mackey, Leistedt, others for feedback.}
 This work was completed with generous nutritional support from the Center for Computational Astrophysics.
 \end{acknowledgements}
 
