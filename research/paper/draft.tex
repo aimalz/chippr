@@ -21,6 +21,7 @@
 
 \newcommand{\todo}[3]{{\color{#2}\emph{#1}: #3}}
 \newcommand{\aim}[1]{\todo{AIM}{red}{#1}}
+\newcommand{\dwh}[1]{\todo{Attn. Hogg:}{blue}{#1}}
 \newcommand{\myemail}{aimalz@nyu.edu}
 \newcommand{\mathul}[1]{\underline{#1}}
 \newcommand{\Sect}[1]{Section~\ref{#1}}
@@ -54,9 +55,9 @@
 \newcommand{\Sz}{Spec-$z$}
 \newcommand{\pz}{photo-$z$}
 \newcommand{\Pz}{Photo-$z$}
-\newcommand{\pzpdf}{\pz PDF}
+\newcommand{\pzpdf}{\pz\ PDF}
 % could change to posterior
-\newcommand{\Pzpdf}{\Pz PDF}
+\newcommand{\Pzpdf}{\Pz\ PDF}
 % could change to posterior
 \newcommand{\zpdf}{redshift posterior}
 % could change to implicit posterior
@@ -89,14 +90,13 @@
 \begin{abstract}
 A trustworthy estimate of the redshift distribution \nz\ is crucial for using weak gravitational lensing and large-scale structure of galaxy catalogs to study cosmology.
 Spectroscopic redshifts for the dim and numerous galaxies of weak-lensing surveys are expected to be unavailable, making photometric redshifts (photo-$z$s) the next-best alternative.
-The nontrivial systematics affecting photo-$z$ estimation have motivated the weak-lensing community to favor photo-$z$ probability density functions (PDFs) as a more comprehensive alternative to photo-$z$ point estimates.
+The nontrivial systematics affecting photo-$z$ estimation have motivated the weak-lensing community to favor photo-$z$ posterior probability density functions (PDFs) as a more comprehensive alternative to photo-$z$ point estimates.
 However, analytic methods for utilizing these new data products in cosmological inference are still evolving.
 The ubiquitous methodology known as stacking produces a systematically biased estimator of $n(z)$ that worsens with decreasing signal-to-noise, the very regime where photo-$z$ PDFs are most necessary.
-We introduce a mathematically rigorous probabilistic graphical model (PGM) of $n(z)$ for hierarchical inference, which is provably the only self-consistent way to combine photo-$z$ PDFs to produce an estimator of $n(z)$.
-Our Cosmological Hierarchical Inference with Probabilistic Photometric Redshifts (\Chippr) model yields a more accurate characterization of $n(z)$ by correctly propagating the redshift uncertainty information beyond the best-fit estimator produced by traditional procedures.
-The CHIPPR approach is applicable to any one-point statistic of any random variable.
-We conclude by propagating these effects to constraints in the space of cosmological parameters, .
-\aim{be clear that rigor comes at a cost, chippr makes explicit the requirements that the pzpdfs be posteriors under a known prior (which would be required by any justifiable method), be honest that we're not ready for prime time}
+We introduce a statistically rigorous probabilistic graphical model (PGM) of $n(z)$ for hierarchical inference, which is provably the only self-consistent way to combine photo-$z$ PDFs to produce an estimator of $n(z)$.
+Our Cosmological Hierarchical Inference with Probabilistic Photometric Redshifts (\Chippr) model yields a more accurate characterization of $n(z)$ by correctly propagating the redshift uncertainty information beyond the best-fit estimator of $n(z)$ produced by traditional procedures.
+Using the publicly available \texttt{chippr} prototype code, we propagate these effects to constraints in the space of cosmological parameters, noting, however, that the mathematically justifiable approach incurs computational expense.
+The CHIPPR approach is applicable to any one-point statistic of any random variable, provided the prior probability distribution used to produce the posteriors is known.
 \end{abstract}
 
 \keywords{cosmology: cosmological parameters --- galaxies: statistics --- gravitational lensing: weak --- methods: data analysis --- methods: statistical}
@@ -106,17 +106,17 @@ We conclude by propagating these effects to constraints in the space of cosmolog
 \section{Introduction}
 \label{sec:introduction}
 
-Photometric redshift (\pz) estimation has been a staple of studies of galaxy evolution, large-scale structure, and cosmology since its conception decades ago \citep{baum_photoelectric_1962}.  
+Photometric redshift (\pz) estimation has been a staple of studies of galaxy evolution, large-scale structure, and cosmology since its conception half a century ago \citep{baum_photoelectric_1962}.  
 An extremely coarse spectrum in the form of photometry in a handful of broadband filters can be an effective substitute for the time- and photon-intensive process of obtaining a spectroscopic redshift (\sz), a procedure that may only be applied to relatively bright galaxies.  
 Once the photometric colors are calibrated against either a library of spectral energy distribution (SED) templates or a data set of spectra for galaxies with known redshifts, a correspondence between photometric colors and redshifts may be constructed, forming a trustworthy basis for \pz\ estimation or testing.
 
 Calculations of correlation functions of cosmic shears and galaxy positions that constrain the cosmological parameters require large numbers of high-confidence redshifts of surveyed galaxies.  
-Many more \pz s may be obtained in the time it would take to observe a smaller number of \sz s, and \pz s may be measured for galaxies too dim for accurate \sz\ confirmation, permitting the compilation of large catalogs of galaxy redshifts spanning a broad range of redshifts and luminosities.  
+Many more \pz s may be obtained in the time it would take to observe a smaller number of \sz s, and \pz s may be measured for galaxies too dim for accurate \sz\ confirmation, permitting the compilation of large catalogs of galaxies spanning a broad range of redshifts and luminosities.  
 \Pz s have thus enabled the era of precision cosmology, heralded by weak gravitational lensing tomography and baryon acoustic oscillation peak measurements.  
 
-However, \pz s are susceptible to inaccuracy and imprecision via a number of effects, particularly their inherent noisiness due to the coarseness of photometric filters, catastrophic errors in which galaxies of one type at one redshift are mistaken for galaxies of another type at a different redshift, and systematics introduced by observational techniques, data reduction processes, and training or template set limitations.  
+However, \pz s are susceptible to inaccuracy and imprecision via a number of effects, particularly their inherent noisiness due to the coarseness of photometric filters, catastrophic errors in which galaxies of one SED at one redshift are mistaken for galaxies of another SED at a different redshift, and systematics introduced by observational techniques, data reduction processes, and training or template set limitations.  
 Figure~\ref{fig:pedagogical_scatter} illustrates the relationship between photometry and redshift generically by showing ``data'' in one dimension for visualization purposes, suggesting that a special nonlinear projection of the photometry could more-or-less yield a one-to-one relationship with true redshifts.
-This plot looks very much like the traditional $z_{\mathrm{spec}}$ versus $z_{\mathrm{phot}}$ plots of \pz\ point estimates and was indeed adapted from one such plot in \citet{jain_whole_2015}, because \pz\ point estimates effectively are a special nonlinear projection of the data.
+The similarity to traditional $z_{\mathrm{spec}}$ versus $z_{\mathrm{phot}}$ plots of \pz\ point estimates is no coincidence, as \pz\ point estimates effectively are indeed one such special nonlinear projection of the data.
 
 \begin{figure}
 	\begin{center}
@@ -133,7 +133,10 @@ This plot looks very much like the traditional $z_{\mathrm{spec}}$ versus $z_{\m
 There are several varieties of generally non-Gaussian deviation from a perfect correspondence between redshift and data in Figure~\ref{fig:pedagogical_scatter}, represented by a $y = x$ diagonal line.
 There is scatter about the diagonal due to the coarseness of the photometric filters, with larger scatter perpendicular to the diagonal due to the specific wavelengths where highly identifiable spectral features pass between the filters, as well as higher scatter at high redshifts due to larger photometric errors on fainter galaxies.
 There are populations of outliers, far from the diagonal, comprised of galaxies for which the redshift estimate is catastrophically distinct from the true redshift, showing that outliers are not uniformly distributed nor restricted to long tails away from a Gaussian scatter.
-And, though hardly perceptible in the plot, there is a systematic bias, wherein the average of the points would not lie on the diagonal but would be offset by a small amount, suggested by the trend of points to lie below the diagonal at high redshift.
+And, though hardly perceptible in the plot, there is a systematic bias, wherein the average of the points would not lie on the diagonal but would be offset by a small bias, suggested by the trend of high redshift points to lie below the diagonal.
+
+Once propagated through the calculations of correlation functions of cosmic shear and galaxy positions, \pz\ errors are not insignificant contributors to the total uncertainties reported on cosmological parameters.
+As progress has been made on the influence of other sources of systematic error, the uncertainties associated with \pz s have come to dominate the error budget of cosmological parameter estimates made by current surveys such as \des\ \citep{hoyle_dark_2017}, \project{HSC} \citep{tanaka_photometric_2018}, and \project{KiDS} \citep{hildebrandt_kids-450:_2017}.
 Based on the goals of a photometric galaxy survey, limits can be placed on the tolerance to these effects.
 For example, the Science Requirements Document \citep{mandelbaum_weak_2017} states \lsst's requirements for the main cosmological sample, reproduced in Table~\ref{tab:lsstsrd}.
 
@@ -146,73 +149,53 @@ For example, the Science Requirements Document \citep{mandelbaum_weak_2017} stat
 			$3 \sigma$ catastrophic outlier rate & $< 10\%$\\
 			Bias & $< 0.003 (1 + z)$\\
 		\end{tabular}
-	\label{tab:lsstsrd}
+		\label{tab:lsstsrd}
 	\end{center}
 \end{table}
-
-Once propagated through the calculations of correlation functions of cosmic shear and galaxy positions, \pz\ errors are not insignificant contributors to the total uncertainties reported on cosmological parameters.
-As progress has been made on the influence of other sources of systematic error, the uncertainties associated with \pz s have come to dominate the error budget of cosmological parameter estimates made by current surveys such as \des\ \citep{hoyle_dark_2017}, \project{HSC} \citep{tanaka_photometric_2018}, and \project{KiDS} \citep{hildebrandt_kids-450:_2017}.
 
 Much effort has been dedicated to improving \pz s, though they are still most commonly obtained by a maximum likelihood estimator (MLE) based on libraries of galaxy SED templates, with conservative approaches to error estimation.
 This approach tends to lead to catastrophic outliers like the horizontally oriented population of \Fig{fig:pedagogical_scatter}, due to the presence of galaxies whose SEDs are not represented by the template library.
 Data-driven approaches tend to result in catastrophic outliers like the vertically oriented population of \Fig{fig:pedagogical_scatter}, due to training sets that are incomplete in redshift coverage.
-Recent advances have focused on identifying and removing catastrophic outliers when using \pz s for 
-inference \citep{gorecki_new_2014}.  
 The approaches of using a training set versus a template library are related to one another by \citet{budavari_unified_2009}.
-Sophisticated Bayesian techniques and cutting-edge machine learning methods have been employed to improve precision \citep{carliles_random_2010} and accuracy \citep{sadeh_annz2:_2016}. 
+Sophisticated Bayesian techniques and machine learning methods have been employed to improve precision \citep{carliles_random_2010} and accuracy \citep{sadeh_annz2:_2016}, while other advances have focused on identifying and removing catastrophic outliers when using \pz s for inference \citep{gorecki_new_2014}. 
 
-An alternative to point estimation of \pz s is redshift probability distribution function (PDF) estimation that reports the probability $\pr{z}$ over all possible redshifts for every galaxy rather than an MLE (with or without presumed Gaussian error bars) \citep{koo_photometric_1999}.  
-This option is favorable because it contains more potentially useful information about the uncertainty on each galaxy's redshift, incorporating notions of precision, accuracy, and systematic errors.
+An alternative to point estimation of \pz s is redshift probability distribution function (PDF) estimation that reports the probability of all possible redshifts for every galaxy, commonly written as $\pr{z}$, rather than an MLE (with or without presumed Gaussian error bars) \citep{koo_photometric_1999}.  
+This option is favorable because it contains more potentially useful information about the uncertainty on each galaxy's redshift, incorporating our understanding of precision, accuracy, and systematic error.
 However, denoting \pzpdf s as ``$\pr{z}$'' is an abuse of notation, as it does not adequately convey what information is being used to constrain the redshift $z$; \pzpdf s are \textit{posterior} PDFs, conditioned on the photometric data and prior knowledge.
 In terms of \Fig{fig:pedagogical_scatter}, \pzpdf s are horizontal cuts, probabilities of redshift conditioned on a specific value of data, i.e. posteriors, which constrain redshifts, whereas vertical cuts through this space are probabilities of data conditioned on a specific redshift, i.e. likelihoods, from which data is actually drawn.
 
 \Pzpdf s have been produced by completed surveys \citep{hildebrandt_cfhtlens:_2012, sheldon_photometric_2012} and will be produced by ongoing and upcoming surveys \citep{abell_lsst_2009, carrasco_kind_exhausting_2014, bonnett_redshift_2016, masters_mapping_2015}.  
-\Pzpdf s are not without their own weaknesses, however, including the resources necessary to calculate and record them for large galaxy surveys \citep{carrasco_kind_sparse_2014} and the divergent results of each method used to derive them \citep{hildebrandt_phat:_2010, dahlen_critical_2013, sanchez_clustering_2013, bonnett_redshift_2016, tanaka_photometric_2018}.  
-The most important of these issues, however, is that use of them in the literature is inconsistent at best and incorrect at worst.  
-The most common application of \pzpdf s is their use in estimating \Nz, the distribution of redshifts of a sample of galaxies, a quantity essential to the calculation of the power spectra of weak gravitational lensing and large-scale structure that are used to constrain the parameters of cosmological models \citet{mandelbaum_precision_2008, sheldon_photometric_2012, bonnett_redshift_2016}.
-%\aim{Provide equations/citations for the use of \Nz\ in cosmology.}
+\Pzpdf s are not without their own shortcomings, however, including the resources necessary to calculate and record them for large galaxy surveys \citep{carrasco_kind_sparse_2014, malz_approximating_2018} and the divergent results of each method used to derive them \citep[ and reviewed in Schmidt, Malz \& Soo, et al. (in prep)]{hildebrandt_phat:_2010, dahlen_critical_2013, sanchez_clustering_2013, bonnett_redshift_2016, tanaka_photometric_2018}.  
+The most concerning weakness of \pzpdf s, however, is their usage in the literature, which is at best inconsistent and at worst incorrect.  
+The most prevalent application of \pzpdf s is their use in estimating the \textit{redshift distribution function \Nz}, or, interchangably, its normalized cousin the \textit{redshift density function \nz}, a quantity essential to the calculation of the power spectra of weak gravitational lensing and large-scale structure that are used to constrain the parameters of cosmological models \citep{mandelbaum_precision_2008, hildebrandt_cfhtlens:_2012, sheldon_photometric_2012, benjamin_cfhtlens_2013, kelly_weighing_2014, bonnett_using_2015,  masters_mapping_2015, viironen_high_2015, asorey_galaxy_2016, bonnett_redshift_2016, leistedt_hierarchical_2016}, as well as to validate survey selection functions used in generation of realistic, multi-purpose mock catalogs \citep{norberg_2df_2002}.  
 
-If the true redshifts $\{z_{i}^{\dagger}\}$ of galaxies $i$ were known, then the redshift PDFs would be delta functions $\{\delta(z, z_{i}^{\dagger})\}$ centered at the true redshift, and the redshift distribution could be effectively approximated by a histogram or other interpolation of the delta functions $\{\delta(z, z_{i}^{\dagger})\}$.
-When \pzpdf s are available instead of true redshifts, the simplest approach reduces them to point estimates $\{\hat{z}_{i}\}$ of redshift by using $\delta(z, \hat{z}_{i})$ in place of $\delta(z, z_{i}^{\dagger})$.
-Though it is most common for $\hat{z}_{i}$ to be the mode (maximum) of the \pzpdf, there are other, more principled point estimate reduction procedures \citep{tanaka_photometric_2018}.
+\aim{TODO:
+	Motivate how well we need to know \Nz\ and why it matters.
+	Provide equations/citations for the use of \Nz\ in cosmology.
+	New paragraph here: Say what precision is needed for \Nz\ for future weak lensing surveys. 
+	Say what precision the mass function is needed (in, say cluster studies) for precision cosmology.}
 
-To circumvent the reduction of uncertainty information due to point estimation, however, it has grown to be more common to calculate the mathematically inconsistent but conceptually simple \textit{stacked estimator} of the redshift density function \citep{lima_estimating_2008}, 
+If the true redshifts $\{z_{j}^{\dagger}\}$ of galaxies $j$ are known, then the redshift PDFs are delta functions $\{\delta(z, z_{j}^{\dagger})\}$ centered at the true redshift, and the redshift distribution is effectively approximated by a histogram or other interpolation of the delta functions $\{\delta(z, z_{j}^{\dagger})\}$.
+When \pzpdf s are available instead of true redshifts, the simplest approach reduces them to point estimates $\{\hat{z}_{i}\}$ of redshift by using $\delta(z, \hat{z}_{j})$ in place of $\delta(z, z_{j}^{\dagger})$.
+Though it is most common for $\hat{z}_{j}$ to be the maximum or \textit{mode} of the \pzpdf, there are other, more principled point estimate reduction procedures \citep{tanaka_photometric_2018}.
+
+However, any procedure that reduces \pzpdf s to point estimates loses information about the uncertainty on redshift.
+To circumvent this loss, it has grown to be more common to calculate the conceptually simple but mathematically inconsistent \citep{hogg_data_2012} \textit{stacked estimator} $\hat{n}(z)$ of the redshift density function \citep{lima_estimating_2008}
 \begin{align}
 \label{eqn:stack}
-\hat{n}(z) &= \frac{1}{\ntot} \sum_{i = 0}^{\ntot} \pr{z}_{i}
+\hat{n}(z) &= \frac{1}{J} \sum_{j = 0}^{J} \pr{z}_{j}
 \end{align}
-for a sample of $\ntot$ galaxies $i$, or, equivalently, the redshift distribution function $\hat{N}(z) = \ntot \hat{n}(z)$.
-Much of this thesis centers around the problems with this logically invalid yet pervasive quantity.
+for a sample of $J$ galaxies $j$, or, equivalently, the redshift distribution function $\hat{N}(z) = J \hat{n}(z)$, by effectively averaging the \pzpdf s.
 
-\aim{TODO: Pull in content from global intro of thesis.}
-
-Though their potential to improve estimates of physical parameters is tremendous, \pzpdf s have been applied only to a limited extent.  
-They have been used to form selection criteria of samples from galaxy surveys without propagation 
-through the calculations of physical parameters \citep{van_breukelen_reliable_2009, viironen_high_2015}.  
-Probability cuts on Bayesian quantities are not uncommon \citep{leung_bayesian_2017, dipompeo_quasar_2015}, but that procedure does not fully take advantage of all information contained in a probability distribution for parameter inference.  
+%Though their potential to improve estimates of physical parameters is tremendous, \pzpdf s have been applied only to a limited extent.  
+%They have been used to form selection criteria of samples from galaxy surveys without propagation 
+%through the calculations of physical parameters \citep{van_breukelen_reliable_2009, viironen_high_2015}.  
+%Probability cuts on Bayesian quantities are not uncommon \citep{leung_bayesian_2017, dipompeo_quasar_2015}, but that procedure does not fully take advantage of all information contained in a probability distribution for parameter inference.  
 
 Despite the growing prevalence of \pzpdf\ production, no implementation of inference using \pzpdf s has yet been presented with a mathematically consistent methodology.  
-We present and validate a hierarchical Bayesian technique for the use of \pzpdf\ in inference of arbitrary statistics relevant to cosmology, large-scale structure, and galaxy evolution.  
-For simplicity, we consider only one-point statistics, though future work will extend this methodology to higher-order statistics.
-
-The \textit{redshift distribution function \Nz}, or, almost interchangably, its normalized cousin the \textit{redshift density function \nz}, serves as an ideal statistic upon which to demonstrate this novel approach.  
-\Nz\ is necessary for calculations of two-point correlation functions of weak gravitational lensing and counting statistics that are used to probe dark energy \citep{masters_mapping_2015}.  
-The observed \Nz\ also been used to validate survey selection functions usnfenjed in generation of realistic, multi-purpose mock catalogs \citep{norberg_2df_2002}.  
-Additionally, \Nz\ has been the subject of inference using \pzpdf s before \citep{sheldon_photometric_2012, hildebrandt_cfhtlens:_2012, kelly_weighing_2014, benjamin_cfhtlens_2013, bonnett_using_2015, viironen_high_2015, asorey_galaxy_2016, leistedt_hierarchical_2016}, so comparisons to the literature may easily be made. 
-
-The prevailing way to estimate \nz\ for a sample of galaxies $j$ is to ``stack'' \pzpdf s according to Equation~\ref{eqn:stack}.
-The stacked estimator of the redshift density function is effectively an average of the \pzpdf\ catalog and, as we show in this paper, not in general mathematically valid.
-Stacking is nonetheless considered the preferred method for obtaining \Nz\ from a \pzpdf\ catalog \citep{sheldon_photometric_2012, kelly_weighing_2014, benjamin_cfhtlens_2013, bonnett_using_2015, viironen_high_2015, asorey_galaxy_2016}.  
-However, it must be noted here that Equation~\ref{eqn:stack} 
-is not in general mathematically valid.  
-(See \citet{hogg_data_2012} for a complete discussion.)  
-
-%\aim{Motivate how well we need to know \Nz\ and why it matters.
-%	New paragraph here: Say what precision is needed for \Nz\ for future weak lensing surveys. 
-%	Say what precision the mass function is needed (in, say cluster studies) for precision cosmology.}
-
+This paper challenges the logically invalid yet pervasive analysis procedure of stacking \pzpdf s by presenting and validating a hierarchical Bayesian technique for the use of \pzpdf s\ in the inference of \nz, yielding a method applicable to arbitrary one-point statistics relevant to cosmology, large-scale structure, and galaxy evolution; future work will extend this methodology to higher-order statistics.
 We aim to develop a clear methodology guiding the use of \pzpdf s in inference so they may be utilized effectively by the cosmology community.
-Though others have approached the problem before \citep{leistedt_hierarchical_2016}, the method presented here differs in that it makes use of any existing catalog of \pzpdf s, rather than requiring a simultaneous derivation of the \pzpdf s and the redshift distribution, making it preferable to ongoing surveys that may be resistant to restructuring their analysis pipelines.
+Though others have approached the problem before \citep{leistedt_hierarchical_2016}, the method presented here differs in that it makes use of any existing catalog of \pzpdf s, rather than requiring a simultaneous derivation of the \pzpdf s and the redshift distribution, making it preferable to ongoing surveys for which there may be inertia preventing a complete restructuring of the analysis pipeline.
 
 In Section~\ref{sec:meth}, we present the \Chippr\ model and \chippr\ implementation for characterizing the full posterior probability landscape of \Nz\ using \pzpdf s. 
 In Section~\ref{sec:alldata}, we describe the experimental design for testing the fully probabilistic approach to mock and real datasets, the results of which are found in Section~\ref{sec:results}.
@@ -226,8 +209,7 @@ Each galaxy $j$ has a redshift $z_{j}$ that we would like to learn; redshift is 
 The distribution of the ensemble of redshifts $\{z_{j}\}$ may be described by the hyperparameters defining the redshift distribution function \nz\ that we would like to quantify.  
 This situation may be considered to be a probabilistic generative model, illustrated by the directed acyclic graph of \Fig{fig:pgm}.  
 
-The redshift distribution function \nz\ is the number of galaxies per unit redshift, effectively defining the evolution in the number of galaxies \citep{menard_clustering-based_2013}.  
-% \aim{also selection function}
+The redshift distribution function \nz\ is the number of galaxies per unit redshift, effectively defining the evolution in the number of galaxies convolved with the selection function of the sample \citep{menard_clustering-based_2013}.  
 In the following sections, we present and compare methods for estimating \nz\ from \pzpdf s.  
 \Sect{sec:prob} contains the mathematical derivation of a probabilistic model for $n(z)$ dependent on photo-$z$ probability distribution functions, and \Sect{sec:sheldon} contrasts the probabilistic model with alternative methods.
 
@@ -289,8 +271,6 @@ This description of the physical system corresponds to a forward model by which 
 \subsection{Probabilistic Model}
 \label{sec:prob}
 
-\aim{TODO: fix implicit posterior vs. implicit-weighted posterior}
-
 A forward model such as that of \Sect{sec:forward} corresponds to a probabilistic graphical model (PGM), represented by a directed acyclic graph (DAG) as in \Fig{fig:pgm}.
 A DAG conveys the causal relationships between physical parameters and, like a Feynman diagram in the context of particle physics, is a shorthand for mathematical relationships between variables.
 The photometric data $\data_{j}$ of a galaxy is drawn from some function of its redshift $z_{j}$, independent of other galaxies' data and redshift.
@@ -303,7 +283,7 @@ Because the parameters $\ndphi$ that we seek are causally separated from the dat
 	\begin{center}
 		\includegraphics[width=0.15\textwidth]{figures/chippr/pgm.png}
 		\caption{The directed acyclic graph of the CHIPPR model, where circles indicate random variables and arrows indicate causal relationships.
-			The redshift distribution function parameterized by hyperparameters $\ndphi$ exists independent of the survey of $J$ galaxies, indicated as a box.  
+			The redshift distribution \nz\ parameterized by hyperparameters $\ndphi$ exists independent of the survey of $J$ galaxies, indicated as a box.  
 			The redshifts $\{z_{j}\}$ of all galaxies in the survey are latent variables independently drawn from the redshift distribution, which is a function of $\ndphi$. 
 			The photometric data $\data_{j}$ for each galaxy is drawn from a function of its redshift $z_{j}$ and observed, indicated by a shaded circle.}
 		\label{fig:pgm}
@@ -311,15 +291,18 @@ Because the parameters $\ndphi$ that we seek are causally separated from the dat
 \end{figure}
 
 The problem facing cosmologists is to determine the true value of $\ndphi$ from observing the photometry $\{\data_{j}\}$ of a large sample of $J$ galaxies $j$.
-To self-consistently propagate the uncertainty in the redshifts, however, it is more appropriate to estimate the posterior $\pr{\ndphi \gvn \{\data_{j}\}}$ over all possible values of $\ndphi$ conditioned on all the observed data $\{\data_{j}\}$ available in a generic catalog.
-In order to use the DAG of \Fig{fig:pgm} to derive an expression for $\pr{\ndphi \gvn \{\data_{j}\}}$ in terms of \pzpdf s, we must introduce two more concepts, confusingly named the implicit prior and the prior probability density.
+To self-consistently propagate the uncertainty in the inference of redshift, however, it is more appropriate to estimate the posterior $\pr{\ndphi \gvn \{\data_{j}\}}$ over all possible values of $\ndphi$ conditioned on all the observed data $\{\data_{j}\}$ available in a generic catalog.
+In order to use the DAG of \Fig{fig:pgm} to derive an expression for $\pr{\ndphi \gvn \{\data_{j}\}}$ in terms of \pzpdf s, we must introduce two more concepts, confusingly named the \textit{implicit prior} and the \textit{prior probability density (prior PDF)}, elaborated upon below.
 
-When we constrain the redshift of a galaxy using its observed photometric data $\data_{j}$, we are effectively estimating a posterior $\pr{z \gvn \data_{j}}$.
+\dwh{When we constrain the redshift of a galaxy using its observed photometric data $\data_{j}$, we are effectively estimating a posterior $\pr{z \gvn \data_{j}}$, the probability of an unknown quantity conditioned on the quantity we have in hand, i.e the data.
 However, to do this, we must have a model for the general relationship between redshifts and photometry, whether empirical, as is the case for machine learning \pzpdf\ methods, or analytic, as is the case for template-based \pzpdf\ methods.
-Such a relationship is defined in the space of probability density over redshift, so it must be able to be parameterized by the same functional form $f(z; \ndphi)$ as \nz .
-It is thus natural to write it as $\pr{z \gvn \ndphi^{*}}$, where $\ndphi^{*}$ is the parameters for this relationship under some generic \pzpdf\ method.
-We call $\pr{z \gvn \ndphi^{*}}$ the \textit{implicit prior}, as it is rarely explicitly known nor chosen by the researcher; for template-based methods where it can be chosen to be ``realistic,'' it may be appropriate to call it an \textit{interim prior}.
-Because the implicit prior is unavoidable, the \pzpdf s reported by any method are really \textit{implicit-weighted posteriors} $\pr{z \gvn \data, \ndphi^{*}}$.
+Such a relationship $\pr{\data, z}$ is defined in the multidimensional space of probability density over redshift and photometry.
+If we were to marginalize over the photometry in $\pr{\data, z}$, we would obtain a one-dimensional PDF $\pr{z \gvn \ndphi^{*}}$ over redshift, which can by definition be parameterized by the same functional form as \nz, for some $\ndphi^{*}$ specific to the estimation procedure that may or may not bear any relation to the hyperparameters $\ndphi^{\dagger}$ of the true \nz.
+Rather, $\ndphi^{*}$ is a consequence of generative model for how photometry results from redshift, including the influence of intrinsic galaxy spectra and instrumental effects. 
+We call $\pr{z \gvn \ndphi^{*}}$ the \textit{implicit prior}, as it is rarely explicitly known nor chosen by the researcher\footnote{For template-based methods, the implicit prior is often an explicitly known input to the algorithm, engineered as an initial guess for the true $\ndphi$, with an aim for a realistic choice guided by an earlier spectroscopic survey.  
+(See \citet{benitez_bayesian_2000} for more detail.)
+It may thus be more appropriate to call it an \textit{interim prior}, but we will use the former term throughout this paper for generality.}
+Because the implicit prior is unavoidable and almost inherently not uninformative, the \pzpdf s reported by any method must be \textit{implicit posteriors} $\pr{z \gvn \data, \ndphi^{*}}$ weighted by the implicit prior.}
 
 %Posteriors differ from likelihoods by way of a prior distribution, so we cannot simply assume that the available data products are \pz\ posteriors $\pr{z \gvn \data_{j}}$.  
 %Rather, we have a catalog of implicit-prior weighted \pz\ posteriors $\pr{z \gvn \data_{j}, \ndphi^{*}}$.  
@@ -327,155 +310,22 @@ Because the implicit prior is unavoidable, the \pzpdf s reported by any method a
 %If it is implicit, it may not be representable in the parametrization we have chosen, and furthermore it may not be known at all; a method that produces interim photo-$z$ posteriors of this kind is not suitable for inference.  
 %However, so long as the implicit prior is known, hierarchical inference is possible. 
 
-The implicit prior $\ndphi^{*}$ may be thought of as an initial guess for the parameters contained in $\ndphi$, inspired by the generative model for photometry from the redshift distribution functions and including some parameters defining intrinsic galaxy spectra and instrumental effects. 
-(See \citet{benitez_bayesian_2000} for more detail.)  
-For statistical purposes, we would like any interim prior to be uninformative, but this is rarely achievable.  
-In the case of estimating \nz\ photometrically, it is common to use $\ndphi^{*}$ corresponding to \nz\ derived from some different, spectroscopically confirmed sample or from a cosmological simulation.
-
-The prior probability density $\pr{\ndphi}$ is a more familiar concept in astronomy; to progress, we will have to choose a prior probability density over all possible parameters $\ndphi$.
+The prior probability density $\pr{\ndphi}$ is a more familiar concept in astronomy; to progress, we will have to choose a prior probability density over all possible values of the hyperparameters $\ndphi$.
 This prior need not be excessively proscriptive; for example, it may be chosen to enforce smoothness at physically motivated scales in redshift without imposing any particular region as over- or under-dense.
 
-\aim{TODO: Clarify what we want to compute ($\pr{\ndphi \gvn\ \data}$), what we're given ($\{\pr{z \gvn \data, \ndphi^{*}}\}$).}
-\aim{TODO: Give answer here, say this is correct, move derivation to appendix.}
-\aim{TODO: Give human-readable description of ratios, explain that \Chippr\ replaces implicit prior with sampled model, converting posterior into likelihood.}
-
-With these definitions, we obtain the desired expression for $\pr{\ndphi \gvn \{\data_{j}\}}$,
+\dwh{With inputs of the \pzip\ catalog $\{\pr{z \gvn \data, \ndphi^{*}}\}$, the implicit prior $\pr{z \gvn \ndphi^{*}}$, and the prior PDF $\pr{\ndphi}$, we thus aim to obtain the posterior probability $\pr{\ndphi \gvn \{\data_{j}\}}$ of the redshift density function given all the photometric data.
+By performing the derivation of Appendix~\ref{app:math}, we arrive at the desired expression
 \begin{equation}
 \label{eqn:fullpost}
 \pr{\ndphi \gvn \{\data_{j}\}} \propto \pr{\ndphi} \integral{\prod_{j=1}^{J} \frac{\pr{z \gvn \data_{j}, \ndphi^{*}} \pr{z \gvn \ndphi}}{\pr{z \gvn \ndphi^{*}}}}{z},
 \end{equation}
-the heart of \Chippr.
-The derivation is provided in Appendix~{app:math}.
-
-%\subsubsection{Derivation}
-%\label{app:math}
-%
-%\aim{This was originally envisioned as an appendix, and my default plan is to move it back to one.}
-%
-%%We begin by parametrizing $N(z)$ in terms of $\vec{\theta}$, comprising some set of hyperparameters that define the form $N(z)$ may take in whatever basis we choose.  
-%%We define a function $f_{\vec{\theta}}(z)=N(z)$ that transforms these hyperparameters into the redshift distribution function $N(z)$.  
-%%Because 
-%%\begin{equation}
-%%\eqlabel{eq:definition}
-%%N(z) \propto p(z \gvn \vec{\theta}),
-%%\end{equation}
-%%we may discontinue discussion of $N(z)$ in favor of the likelihood $p(z|\vec{\theta})$.
-%
-%In this paper, we work exclusively with log-probabilities.  
-%What we wish to estimate is then the full log-posterior probability distribution (hereafter the full log-posterior) of the hyperparameters $\ndphi$ given the catalog of photometry $\{\data_{j}\}$.
-%
-%By Bayes' Rule, the full log-posterior
-%\begin{equation}
-%\label{eqn:basicbayes}
-%\ln[\pr{\ndphi \gvn \{\data_{j}\}}] = \ln[\pr{\{\data_{j}\} \gvn \ndphi}] + \ln[\pr{\ndphi}] - \ln[\pr{\{\data_{j}\}}]
-%\end{equation}
-%may be expressed in terms of the full log-likelihood probability distribution (hereafter the full log-likelihood) $\ln[\pr{\{\data_{j}\} \gvn \ndphi}]$ by way of a hyperprior log-probability distribution (hereafter the hyperprior) $\ln[\pr{\ndphi}]$ over the hyperparameters and the log-evidence probability of the data $\ln[\pr{\{\data_{j}\}}]$.
-%However, the evidence is rarely known, so we probe the full log-posterior modulo an unknown constant of proportionality.
-%
-%The full log-likelihood may be expanded in terms of a marginalization over the redshifts as parameters, as in 
-%\begin{equation}
-%\label{eqn:marginalize}
-%\ln[\pr{\{\data_{j}\} \gvn \ndphi}] = \ln\left[\integral{\pr{\{\data_{j}\} \gvn \{z_{j}\}} \pr{\{z_{j}\} \gvn \ndphi}}{\{z_{j}\}}\right].
-%\end{equation}
-%
-%We shall make two assumptions of independence in order to make the problem tractable; their limitations are be discussed below.  
-%First, we take $\ln[\pr{\{\data_{j}\} \gvn \{z_{j}\}}]$ to be the sum of $J$ individual log-likelihood distribution functions $\ln[\pr{\data_{j} \gvn z_{j}}]$, as in 
-%\begin{equation}
-%\label{eqn:indiedat}
-%\ln[\pr{\{\data_{j}\} \gvn \{z_{j}\}}] = \sum_{j=1}^{J}\ \ln[\pr{\data_{j} \gvn z_{j}}],
-%\end{equation}
-%a result of the definition of probabilistic independence encoded by the box in \Fig{fig:pgm}.
-%Second, we shall assume the true redshifts $\{z_{j}\}$ are $J$ independent draws from the true $\pr{z \gvn \ndphi}$.  
-%Additionally, $J$ itself is a Poisson random variable.  
-%The combination of these assumptions is given by 
-%\begin{equation}
-%\label{eqn:indie}
-%\ln[\pr{\{z_{j}\} \gvn \ndphi}] = -\integral{f(z; \ndphi)}{z} + \sum_{j=1}^{J}\ \ln[\pr{z_{j} \gvn \ndphi}].
-%\end{equation}
-%%It is important to note that the integral $\integral{n(z)}{z} N(z)\ dz$ is not constrained to equal the variable defining the Poisson distribution but instead $J$ by \Eq{eq:definition}, which can be thought of as another parameter.  
-%The derivation differs when $J$ is not known, say, when we want to learn about a distribution in nature rather than a distribution specific to data in hand, but for a photometric galaxy catalog where the desired quantity is $n(z)$ for the galaxies entering a larger cosmology calculation, it is a fixed quantity.
-%A detailed discussion of this matter may be found in \citet{foreman-mackey_exoplanet_2014}.  
-%Applying Bayes' Rule, we may combine terms to obtain 
-%\begin{align}
-%\begin{split}
-%\label{eqn:posterior}
-%\ln[\pr{\ndphi \gvn \{\data_{j}\}}] & \propto \ln[\pr{\ndphi}] - \integral{f(z; \ndphi)}{z}\\
-%& + \sum_{j=1}^{J}\ln\left[\integral{\pr{\data_{j} \gvn z} \pr{z \gvn \ndphi}}{z}\right].
-%\end{split}
-%\end{align}
-%
-%%\Eq{eq:posterior} contains two quantities that merit further discussion, the prior distribution $p(\vec{\theta})$ discussed further in \Sect{sec:exp} and the photo-$z$ log-likelihoods $\ln[p(\vec{d}_{j}|z_{j})]$ that have not been mentioned since \Eq{eq:marginalize}.  
-%%Though photo-$z$ log-likelihoods would be desirable for use in these equations, they are not generally the product of either empirical and data-driven methods for obtaining photo-$z$ probability distributions.  
-%%Though probabilistic photo-$z$s are typically reported as generic probability distributions $p(z_{j})$, the methods that produce them may be understood to always yield posteriors, probability distributions conditioned on the data we believe to be true.  
-%%If they were not based in this assumption, they would require a sum over an infinite space of possible datasets.
-%
-%Since we only have access to implicit \pz\ posteriors, we must be able to write the full log-posterior in terms of implicit \pz\ log-posteriors rather than the log-likelihoods of \Eq{eqn:posterior}.
-%To do so, we will need an explicit statement of this implicit prior $\ndphi^{*}$ for whatever method is chosen to produce the implicit \pz\ posteriors.  
-%
-%To perform the necessary transformation from likelihoods to posteriors, we follow the reasoning of \citet{foreman-mackey_exoplanet_2014}.  
-%Let us consider the probability of the parameters conditioned on the data and an interim prior and rewrite the problematic likelihood of \Eq{eqn:posterior} as 
-%\begin{align}
-%\label{eqn:trick}
-%\begin{split}
-%\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\\
-% & - \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}].
-% \end{split}
-%\end{align}
-%
-%Once the implicit prior $\ndphi^{*}$ is explicitly introduced, we may expand the last term in \Eq{eqn:trick} according to Bayes' Rule to get 
-%\begin{align}
-%\begin{split}
-%\label{eqn:expand}
-%\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\\
-%& + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}] \\
-%& - \ln[\pr{\data_{j} \gvn z, \ndphi^{*}}].
-%\end{split}
-%\end{align}
-%Because there is no direct dependence of the data upon the hyperparameters, we may again expand the term $\ln[\pr{\data_{j} \gvn z, \ndphi^{*}}]$ to obtain 
-%\begin{align}
-%\begin{split}
-%\label{eqn:indterm}
-%\ln[\pr{\vec{d}_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] \\
-%& + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}]\\
-%& - \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{\data_{j} \gvn z}] .
-%\end{split}
-%\end{align}
-%Canceling the undesirable terms for the inaccessible likelihood $\ln[\pr{\data_{j} \gvn z}]$ and trivial $\ln[\pr{\data_{j} \gvn \ndphi^{*}}]$ yields
-%\begin{equation}
-%\label{eqn:cancel}
-%\ln[\pr{\data_{j} \gvn z}] = \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]  - \ln[\pr{z \gvn \ndphi^{*}}].
-%\end{equation}
-%We put this all together to get the full log-posterior probability distribution of 
-%\begin{align}
-%\begin{split}
-%\label{eqn:final}
-%\ln[\pr{\ndphi \gvn \{\data_{j}\}}] \propto & \ln[\pr{\ndphi}] + \ln \left[\integral{\exp \left[\sum_{j=1}^{J} \right.\right.\\
-%& \left.\left.\left(\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{z \gvn \ndphi}]\right.\right.\right.\\
-%& \left.\left.\left. - \ln[\pr{z \gvn \ndphi^{*}}] \right)\right]}{z}\right] ,
-%\end{split}
-%\end{align}
-%\aim{TODO: fix the trailing parentheses/brackets.}
-%
-%The argument of the integral in the log-posterior of \Eq{eqn:final} depends solely on knowable quantities (and those we must explicitly assume) and can be calculated for a given sample of \pz\ log-posteriors $\{\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\}$ and the implicit prior $\pr{z \gvn \ndphi^{*}}$ with which they were obtained, noting the relation of 
-%\begin{equation}
-%\label{eqn:params}
-%\pr{z \gvn \ndphi} = \frac{f(z; \ndphi)}{\integral{f(z; \ndphi)}{z}}.
-%\end{equation}
-%Since we cannot know constant of proportionality, we sample the desired full log-posterior $\ln[\pr{\ndphi \gvn \{\data_{j}\}}]$ using Monte Carlo-Markov chain (MCMC) methods.  
-%The method outlined here is valid regardless of how the implicit \pz\ log-posteriors are obtained so the many approaches to producing \pzpdf s will not be rehashed; though the matter is outside the scope of this paper, reviews of various methods have been presented in the literature \citep{sheldon_photometric_2012, ball_robust_2008, carrasco_kind_tpz:_2013, carrasco_kind_exhausting_2014}, and will be briefly reviewed in \aim{cite PZDC1 paper here}.
-%%
-%%\begin{align}
-%%\begin{split}
-%%\eqlabel{eqn:fullpost}
-%%\ln[\pr{\ndphi \gvn \{\data_{j}\}}] & \propto \ln[\pr{\ndphi}] + \ln \left[\integral{\exp \left[\sum_{j=1}^{J} \left(\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{z \gvn \ndphi}] - \ln[\pr{z \gvn \ndphi^{*}}]\right)\right]}{z}\right] ,
-%%\end{split}
-%%\end{align}
+which is the very heart of \Chippr.
+This in effect replaces the implicit prior with the sampled model hyperparameters, thereby converting the \pzip s into likelihoods in order to obtain unbiased posteriors.}
 
 \subsubsection{Model Limitations}
 \label{sec:limitations}
 
 Finally, we explicitly review the assumptions made by this approach, which are as follows:
-
 \begin{enumerate}
 	\item Photometric measurements of galaxies are statistically independent Poisson draws from the set of all galaxies such that \Eq{eqn:indiedat} and \Eq{eqn:indie} hold.
 	\item We take the reported \pzip s to be accurate, free of model misspecification; draws thereof must not be inconsistent with the distribution of photometry and redshifts.
@@ -493,7 +343,7 @@ Third, the hyperprior may be quite arbitrary and poorly motivated if the underly
 
 We implement the \Chippr\ model in code in order to perform tests of its validity and to compare its performance to that of traditional alternatives.
 In \Sect{sec:mcmc}, we describe the publicly available \chippr\ library.
-In \Sect{sec:acorr}, we outline how \chippr\ can be used to sample the full log-posterior distribution $\ln[\pr{\ndphi \gvn \{\data_{j}\}}]$.
+In \Sect{app:acorr}, we outline how \chippr\ can be used to sample the full log-posterior distribution $\ln[\pr{\ndphi \gvn \{\data_{j}\}}]$.
 
 \subsubsection{Code}
 \label{sec:mcmc}
@@ -520,41 +370,11 @@ The \emcee \citep{foreman-mackey_emcee_2013} implementation of ensemble sampling
 At each iteration $i$ and for each walker, a proposal distribution $\hat{\ndphi}_{i}$ is drawn from the log-prior distribution and evaluated for acceptance to or rejection from the full log-posterior distribution.
 
 Two threshold conditions are defined, one designating all previous samples to be ignored as as products of a burn-in phase and another indicating when a sufficient number of post-burn samples have been accepted.  
-In this case, the first threshold (described in \Sect{sec:acorr}) is defined in terms of sub-runs of $10^{3}$ accepted samples, and the second is defined as an accumulation of $10^{4}$ samples.
+In this case, the first threshold (described in \Sect{app:acorr}) is defined in terms of sub-runs of $10^{3}$ accepted samples, and the second is defined as an accumulation of $10^{4}$ samples.
 
 Though previous versions used \texttt{HDF5} for the primary I/O format due to its efficiency for large quantities of data, it was abandoned in favor of \texttt{pickle} in the working release due to the instability of the \python\ implementation of the format on high-performance computing systems.  
 The resulting output is a set of $I$ ordered \texttt{hickle} files enumerated by $\rho$ containing the state information after each sub-run.  
 The state information includes $\frac{I_{0}}{s}$ actual samples $\ndphi_{i}$ for a pre-specified chain thinning factor $s$ and their full posterior probabilities $\pr{\ndphi_{i} \gvn \{\data_{j}\}}$ as well as the autocorrelation times and acceptance fractions calculated for each element of $\ndphi$ over the entire sub-run.  
-
-%\subsubsection{Convergence Criteria}
-%\label{sec:acorr}
-%
-%\aim{This was originally envisioned as an appendix, and my default plan is to move it back to one.}
-%
-%In addition to qualitative visual inspection of the chains, two quantities that probe the convergence of the sampler are used in this study, the autocorrelation time and the Gelman-Rubin convergence criterion.  
-%%\Fig{fig:chains} shows the %evolution of the values of one parameter of one walker over the course of all %iterations of the sampler.
-%
-%%\begin{figure}
-%%%\includegraphics[width=0.5\textwidth]{figs/null/chain0.pdf}
-%%\caption{This figure shows the evolution of one walker's parameter values for 
-%%one element of the parameter vector $\vec{\theta}$ as a function of iteration 
-%%number, demonstrating the completion of the burn-in phase.}
-%%\label{fig:chains}
-%%\end{figure}
-%
-%The autocorrelation time is effectively a measure of the efficiency of the method and can be described as the expected number of iterations necessary to accept a new sample independent of the current accepted sample.  
-%A sampler that converges faster will have a smaller autocorrelation time, and smaller autocorrelation times are preferable because it means fewer iterations are wasted on non-independent samples when independent samples are desired.  
-%See \citet{foreman-mackey_emcee_2013} for a more complete exploration of the autocorrelation time.  
-%In all tests discussed here, autocorrelation times across walkers and parameters were approximately 20, meaning two samples 20 or more iterations apart were independent, a satisfactory level of efficiency.  
-%Low autocorrelation times are a necessary but not always sufficient convergence condition, as the autocorrelation times calculated for tests in this paper were constant across all sub-runs, even those that were obviously burning in.  
-%
-%The Gelman-Rubin statistic
-%\begin{equation}
-%\label{eqn:gr}
-%R_{k} = \sqrt{\frac{(1 - \frac{2}{I_{0}}) w_{k} + \frac{2}{I_{0}} b_{k}}{w_{k}}},
-%\end{equation}
-%a weighted sum of the mean $w_{k}$ of the variances within individual walkers' chains and the variance $b_{k}$ between chains of different walkers $m$, is calculated over each sub-run $i$ to determine the duration of the burn-in period.  
-%Convergence is achieved when the statistic approaches unity.  
 
 \subsection{Comparison with Alternative Approaches}
 \label{sec:sheldon}
@@ -574,7 +394,7 @@ These two approaches have been compared to one another by \citet{hildebrandt_cfh
 
 Point estimation converts the implicit photo-$z$ posteriors $\pr{z \gvn \data_{j}, \ndphi^{*}}$ into delta functions with all probability at a single estimated redshift.  
 Some variants of point estimation choose this single redshift to be that of maximum a posteriori probability $\mathrm{mode}[\pr{z \gvn \data_{j}, \ndphi^{*}}]$ or the expected value of redshift $\langle z \rangle = \integral{z \pr{z \gvn \data_{j}, \ndphi^{*}}}{z}$.
-\aim{cite tanaka 2018 here} directs attention to deriving an optimal point estimate reduction of a \pzpdf, but since the purpose of this paper is to compare against the most established alternative estimators of \nz, its use will be postponed until a future study.
+\citet{tanaka_photometric_2018} directs attention to deriving an optimal point estimate reduction of a \pzpdf, but since the purpose of this paper is to compare against the most established alternative estimators of \nz, its use will be postponed until a future study.
 Stacking these modified \pzpdf s leads to the marginalized maximum a posteriori (MMAP) estimator and the marginalized expected value (MExp) estimator, though only the former is included in this study since the latter has fallen out of favor in recent years\footnote{And for good reason!  Consider a bimodal \pzpdf; its expected value may very well fall in a region of very low probability, yielding a less probable point estimate than the point at which either peak achieves its maximum.}.
 
 It is worth discussing the relationship between point estimation and stacking.  
@@ -618,16 +438,24 @@ In simulated tests, $\ndphi^{\dagger}$ is the true value and $\ndphi'$ is that p
 \label{sec:alldata}
 
 We compare the results of \Chippr\ to those of stacking and the histogram of \pzpdf\ maxima (modes) on mock data in the form of catalogs of emulated \pzpdf s generated via the forward model discussed in \Sect{sec:forward}.
-\Fig{fig:flowchart} illustrates the implementation of this forward model used in this paper.
+\dwh{\Fig{fig:flowchart} illustrates the implementation of the forward model, defined by the much simpler \Fig{fig:pgm}, used for validating the method presented here.
+The irony of a simple model and complex validation procedure is not lost on the authors.}
+
+\dwh{\Fig{fig:flowchart} outlines the four phases of the generative model, which uses a total of three inputs.
+The experimental design requires our choice of true values $\phi^{\dagger}$ of the hyperparameters governing \nz, a \pz\ model $\pr{z, \data}$ defining the space of redshift and photometry, and prior values $\phi^{*}$ of the hyperparameters of \nz.
+In the first phase, we sample $J = 10^{4}$ redshifts $z_{j}^{\dagger} \sim \pr{z \gvn \phi^{\dagger}}$.
+In the second phase, we evaluate the \pz\ model at those redshifts, yielding a set of $J$ likelihoods $\pr{\data \gvn z_{j}^{\dagger}}$, from which we then sample data $\data_{j}^{\dagger} \sim \pr{\data \gvn z_{j}^{\dagger}}$ for each galaxy.
+In the third phase, we evaluate the \pz\ model at that data to obtain $J$ posteriors $\pr{z \gvn \data_{j}^{\dagger}}$.
+In the fourth phase, we convolve the posteriors with the chosen prior $\pr{z \gvn \phi^{*}}$, yielding implicit posteriors $\pr{z \gvn \data_{j}^{\dagger}, \phi^{*}}$.}
 
 \begin{figure*}
 	\begin{center}
 		\includegraphics[width=0.9\textwidth]{figures/chippr/flowchart.png}
-		\caption{\aim{Check that all names and formulae are defined in the text and the same way as in diagram, say the whole thing in words in the text as well.
-			Explain that this is the forward model of the validation, not of CHIPPR! contrast this with Fig. 1 (joke about simple model and complex validation?)}
+		\caption{
 			A flow chart illustrating the forward model used to generate mock data in the validation of \Chippr, as described in \Sect{sec:forward}.
 			Ovals indicate a quantity that must be chosen in order to generate the data, rectangles indicate an operation we perform, and rounded rectangles indicate a quantity created by the forward model.
-			Arrows indicate the inputs and outputs of each operation performed to simulate mock \pzpdf\ catalogs.}
+			Arrows indicate the inputs and outputs of each operation performed to simulate mock \pzpdf\ catalogs.
+			}
 		\label{fig:flowchart}
 	\end{center}
 \end{figure*}
@@ -645,8 +473,6 @@ Tests including all three effects at the tolerance levels of \lsst\ (see Table~\
 are presented in \Sect{sec:results}.
 \Fig{fig:mega_scatter} illustrates these three effects individually at twice the tolerance of \lsst\ for demonstrative purposes, hearkening back to Figure~\ref{fig:pedagogical_scatter}.
 We also test nontrivial implicit priors in \Sect{sec:interim}, which ought to be a priority for the \pz\ community.
-
-\aim{TODO: add in the plot from thesis intro}
 
 \begin{figure*}
 	\begin{center}
@@ -802,6 +628,7 @@ Regardless, for completeness, a test at ten times the bias of the \lsst\ require
 	\includegraphics[width=0.45\textwidth]{figures/chippr/thesis_neghivarbias_mega_scatter.png}
 	\includegraphics[width=0.45\textwidth]{figures/chippr/thesis_neghivarbias_log_estimators.png}
 	\caption{
+		\aim{TODO: Add watermark of "mock data" in UL corner, same for "results of inference" on other kind of plot.}
 		Left: Examples of \pzpdf s with ten times the bias of the \lsst\ requirements, including samples from the probability space of true and observed redshift (black points), \pzpdf s (colored curves), and the true redshifts of the example \pzpdf s (black vertical lines), with marginal histograms (gray) for each dimension with the true redshift distribution (blue curve) and implicit prior (red curve) in the insets.
 		Right: The results of \Chippr\ (samples in light blue, optimization in dark blue) and the alternative approaches (the stacked estimator in red, the histogram of modes in yellow) on \pzpdf s with uniformly distributed catastrophic outliers, with the true redshift density (black curve) and implicit prior (gray curve).
 		The impact of bias at even ten times the level of the \lsst\ requirements is almost imperceptible on all estimators, though the \Chippr\ \mmle\ minimizes the information loss regardless.
@@ -861,7 +688,7 @@ The alternatives, on the other hand, are biased by the implicit prior except whe
 	\end{center}
 \end{figure*}
 
-%\aim{Move \Sect{sec:violations} here?}
+\aim{Move \Sect{sec:violations} here?}
 
 The main implication of the response of \nz\ estimates to a nontrivial implicit prior is that the implicit prior must be accounted for when using \pzpdf\ catalogs.
 
@@ -874,13 +701,10 @@ Now, we stress-test \Chippr\ by investigating two realistically complex cases, o
 \subsection{LSST Requirements}
 \label{sec:lsstdemo}
 
-\aim{TODO: clarify the scope: the "binned" samples are already determined by some observational property but redshift distributions are probabilistic as follows.}
-
 It is of interest to explore the impact of incorrectly estimated \nz\ on the cosmological inference to answer the question of how wrong we will be in our understanding of the universe if we incorrectly constrain \nz.
-To test the impact of these uncertainties, we simulate mock data with all three effects with which \lsst\ is concerned at the levels of Table~\ref{tab:lsstsrd} 
-and propagated the results of \Chippr\ and the other estimators to a Fisher matrix forecast using \cosmolike\ \citep{krause_cosmolike_2017}, a publicly available cosmological forecasting code.
-Though redshift tomography is non-physical, as redshift is a continuous random variable, and binning in estimated redshift introduces poorly understood systematic error, we perform this analysis as an example of how it affects the current standard in how cosmological parameters are constrained by galaxy surveys, rather than how we think they ought to be constrained.
-% \aim{don't introduce anti-tomography rant here, kind of controversial and should be explored where it has its own space}
+To test the impact of these uncertainties, we simulate mock data with all three effects with which \lsst\ is concerned at the levels of Table~\ref{tab:lsstsrd} and propagate the results of \Chippr\ and the other estimators to a Fisher matrix forecast using \cosmolike\ \citep{krause_cosmolike_2017}, a publicly available cosmological forecasting code.
+%Though redshift tomography is non-physical, as redshift is a continuous random variable, and binning in estimated redshift introduces poorly understood systematic error, we perform this analysis as an example of how it affects the current standard in how cosmological parameters are constrained by galaxy surveys, rather than how we think they ought to be constrained.
+%\aim{Don't introduce anti-tomography rant here, kind of controversial and should be explored where it has its own space.}
 
 \begin{figure}
 	\begin{center}
@@ -892,8 +716,12 @@ Though redshift tomography is non-physical, as redshift is a continuous random v
 	\end{center}
 \end{figure}
 
-We consider a set of tomographically binned \nz\ and cosmological parameter covariance matrices used for \desc\ forecasting, for which the true \nz\ in each pre-defined bin is already provided in the form of an evaluation of a function on a fine grid of $350$ redshifts $0.0101 < z < 3.5001$.
-First, we bin them down to a piecewise constant parameterization with a manageable $35$ parameters for \chippr's sampling capabilities.
+\dwh{We consider as ground truth a set of known \nz\ corresponding to each of four hypothetical samples of galaxies and the corresponding cosmological parameter covariance matrix.
+The \nz\ of each galaxy subsample emulates that anticipated of galaxies binned by a redshift point estimate, as is common in tomographic redshift analyses, though our experimental procedure is agnostic to how the samples are identified.
+The cosmological parameter covariance matrices are those used for \desc\ forecasting with the ground truth \nz\ in the same four bins.}
+The true \nz\ in each pre-defined bin is already provided in the form of an evaluation of a function on a fine grid of $350$ redshifts $0.0101 < z < 3.5001$.
+
+First, we bin them down to a piecewise constant parameterization with a manageable $35$ hyperparameters for \chippr's sampling capabilities.
 Next, we draw $10^{4}$ true redshifts from the binned true \nz\ for each tomographic bin.
 The original, binned, and drawn \nz\ are shown in \Fig{fig:tomobins}.
 We emulate \pzpdf s for the $10^{4}$ true redshifts drawn from the true \nz\ in each bin using the procedure of \Fig{fig:flowchart} with all three effects of Table~\ref{tab:lsstsrd}
@@ -912,9 +740,10 @@ Illustrations of this process are provided in \Fig{fig:per-bin-scatter}.
 		\label{fig:per-bin-scatter}
 	\end{center}
 \end{figure*}
- \aim{TODO: Ask Elisabeth how to get the bias here}
 
-We then make a point estimate of \nz\ using \Chippr\ as well as the alternative methods on the \pzpdf\ catalog for each tomographic bin, shown in \Fig{fig:per-bin-ests}, because \cosmolike\ produces cosmology constraints from a single \nz\ result, rather than samples from the full posterior probability density of possible \nz.
+\aim{Is the distinction between binned samples determined by some observational property and probabilistic redshift distributions sufficiently clear?}
+
+We then make a point estimate of \nz\ using \chippr's \mmle\ optimization option as well as the alternative methods on the \pzpdf\ catalog for each tomographic bin, shown in \Fig{fig:per-bin-ests}, because \cosmolike\ produces cosmology constraints from a single \nz\ result, rather than samples from the full posterior probability density of possible \nz.
 Note that \Fig{fig:per-bin-ests} is shown in linear rather than log probability units, unlike all other plots in this paper, to better show the behavior at low probability.
 The excessive breadth of the alternative estimators can be seen quite plainly.
 
@@ -938,22 +767,22 @@ Though there are also slight differences in the angle of the error ellipses, mos
 The stacked estimator is significantly worse than the \Chippr\ \mmle\ for all parameters except $\Omega_{b}$ and $H_{0}$.
 Stacking, however, outperforms the histogram of modes for all parameters except $\Omega_{m}$ and $S_{8}$, for which their constraints are quite similar.
 Though the true values of the parameters themselves were not accessible with the Fisher matrix-based framework, we calculate the seven-dimensional KLD for the three \nz\ estimators relative to the constraints derived from the true \nz, showing that \Chippr\ preserves information $200-800$ times better than the alternatives, with the histogram of modes doing about four times better than stacking.
+\aim{TODO: Ask Elisabeth how to get the bias here}
 
 \begin{figure*}
 	\begin{center}
 		\includegraphics[width=0.94\textwidth]{figures/chippr/final_plot.png}
 		\caption{
+			\aim{Are the contours any easier to see now?}
 			The result of propagating the estimators of \nz\ by stacking (red), the histogram of modes (yellow), \Chippr\ (blue), and the true \nz\ (black) of \Fig{fig:per-bin-ests} to a subset of cosmological parameters.
 			For all parameters considered, \Chippr\ yields contours no broader than those corresponding to the true \nz, whereas for most parameters, stacking and the histogram of modes yield broader contours.
-			\aim{Are the contours any easier to see now?}
 		}
 		\label{fig:cornerplot}
 	\end{center}
 \end{figure*}
 
-\aim{Hogg says ``I think it would be good to talk a little quantitatively about where people need to know N(z) and other one-point statistics, and how much they will get various things wrong if they don't know these correctly. 
-	And situate that discussion within the current context of cosmological parameter estimation and precision cosmology.''
-	Did I successfully answer the question?}
+\aim{Does this discussion adequately quantify how good \Nz\ has to be and how wrong we'll be if we estimate it wrong?
+	Suggestions for how to better establish context would be appreciated.}
 
 \subsection{Violations of the model}
 \label{sec:violations}
@@ -966,11 +795,12 @@ If we naively used the \pzpdf\ catalog produced by a generic machine learning co
 
 \begin{figure}
 	\begin{center}
-		\includegraphics[width=0.45\textwidth]{figures/chippr/misspecified_mega_scatter.png}\\
+		\includegraphics[width=0.45\textwidth]{figures/chippr/misspecified_mega_scatter.png}
 		\includegraphics[width=0.45\textwidth]{figures/chippr/misspecified_log_estimators.png}
 		\caption{
-			Left: Examples of \pzpdf s with systematics at the level of the \lsst\ requirements with a machine learning-like implicit prior, including samples from the probability space of true and observed redshift (black points), \pzpdf s (colored curves), and the true redshifts of the example \pzpdf s (black vertical lines), with marginal histograms (gray) for each dimension with the true redshift distribution (blue curve) and implicit prior (red curve) in the insets.
-			Right: The results of \Chippr\ (samples in light blue, optimization in dark blue) and the alternative approaches (the stacked estimator in red, the histogram of modes in yellow) on \pzpdf s with uniformly distributed catastrophic outliers, with the true redshift density (black curve) and the uniform implicit prior given to \chippr\ (gray curve).
+			\aim{TODO: same size axis labels on left and right, watermark with test conditions and ``mock data'' vs ``results of inference''}
+			Top: Examples of \pzpdf s with systematics at the level of the \lsst\ requirements with a machine learning-like implicit prior, including samples from the probability space of true and observed redshift (black points), \pzpdf s (colored curves), and the true redshifts of the example \pzpdf s (black vertical lines), with marginal histograms (gray) for each dimension with the true redshift distribution (blue curve) and implicit prior (red curve) in the insets.
+			Bottom: The results of \Chippr\ (samples in light blue, optimization in dark blue) and the alternative approaches (the stacked estimator in red, the histogram of modes in yellow) on \pzpdf s with uniformly distributed catastrophic outliers, with the true redshift density (black curve) and the uniform implicit prior given to \chippr\ (gray curve).
 			When the incorrect implicit prior is provided to \chippr, even Bayesian inference cannot recover the true \nz.
 		}
 		\label{fig:mischaracterized}
@@ -986,13 +816,6 @@ It is thus crucial that \pzpdf\ methods always characterize and provide the impl
 \section{Conclusion}
 \label{sec:con}
 
-\aim{TODO: new paragraph for what can go wrong, call to community for what to do about it, what aspects of implicit prior are knowable and not knowable?
-	 if testable how so? outside the scope of paper, data producers be warned!
-	 a likelihood is better -- give us that if you can!
-	focus on methods that acknowledge probabilistic structure of problem}
-
-\aim{claim: implications for tomographic binning are severe}
-
 This study derives and demonstrates a mathematically consistent inference of a one-point statistic, the redshift density function \nz, based on an arbitrary catalog of \pzpdf s.  
 The fully Bayesian method, based in the fundamental laws of probability, begins with a probabilistic graphical model corresponding to equations for the full posterior distribution over the parameters for \nz.  
 The method is validated on mock data and tested in the regime of \lsst\ with promising results, outperforming the traditional stacking estimator at the level of \nz\ as well as in terms of constraining power on the cosmological parameters.
@@ -1003,6 +826,28 @@ Not only is this the only mathematically correct approach to the problem, it als
 %\aim{Refer to quantitative results on KLD of \Nz\ and cosmological parameter space.}
 %The results of those tests is summarized below and in \Tab{tab:kld}, where lower values indicate a closer match between the true $N(z)$ and the estimator.  
 %Tests were also performed on subsets of BOSS DR10 data with results consistent with those of simulations.
+
+\Chippr\ outperforms traditional estimators of \nz\ under the canonical \pz\ systematics of intrinsic scatter, catastrophic outliers, and bias.
+\Chippr\ is also robust to nontrivial implicit priors corresponding to the specifics of the architecture of the method by which \pzpdf s are obtained.
+However, \Chippr\ absolutely requires that the implicit prior is accurately known; using an implicit prior other than that which contributed to the production of the \pzpdf\ catalog results in catastrophically incorrect inference of \nz.
+It is therefore imperative that those developing codes to obtain \pzpdf s provide a way to isolate the implicit prior and that those publishing \pzpdf\ catalogs provide the implicit prior to users.
+
+This mandate is easier said than done, both for template fitting and machine learning approaches.
+While the implicit prior is often an explicit input to model-based routines, it may be defined in a space of redshift and SED templates.
+In this case, it may not be possible to apply \Chippr\ without marginalizing over additional variables $\psi$ for the SEDs.
+In other words, obtaining the implicit prior from a template fitting code may be challenging or even require consideration of higher-dimensional PDFs such as $\pr{z, \mathrm{SED} \gvn \psi^{*}}$.
+
+The situation appears more dire for data-driven techniques, whose training sets may not straightforwardly translate into an implicit prior.
+For example, some training set galaxies may contribute to the \pzpdf s more than others, resulting in different effective weights when factoring into, say, a histogram of training set redshifts as the implicit prior.
+Additionally, the weights may be stochastic, depending on the random seed used to initialize non-deterministic methods, precluding reproducibility.
+It is thus unclear whether the implicit prior can be meaningfully obtained from such methods at all.
+
+\aim{TODO: new paragraph for what can go wrong, call to community for what to do about it, what aspects of implicit prior are knowable and not knowable?
+	if testable how so? outside the scope of paper, data producers be warned!
+	a likelihood is better -- give us that if you can!
+	focus on methods that acknowledge probabilistic structure of problem}
+
+\aim{claim: implications for tomographic binning are severe}
 
 The following conclusions and recommendations can be made with confidence:
 
@@ -1074,8 +919,7 @@ Applying Bayes' Rule, we may combine terms to obtain
 \begin{align}
 \begin{split}
 \label{eqn:posterior}
-\ln[\pr{\ndphi \gvn \{\data_{j}\}}] & \propto \ln[\pr{\ndphi}] - \integral{f(z; \ndphi)}{z}\\
-& + \sum_{j=1}^{J}\ln\left[\integral{\pr{\data_{j} \gvn z} \pr{z \gvn \ndphi}}{z}\right].
+\ln[\pr{\ndphi \gvn \{\data_{j}\}}] & \propto \ln[\pr{\ndphi}] - \integral{f(z; \ndphi)}{z} + \sum_{j=1}^{J}\ln\left[\integral{\pr{\data_{j} \gvn z} \pr{z \gvn \ndphi}}{z}\right].
 \end{split}
 \end{align}
 
@@ -1092,8 +936,7 @@ Let us consider the probability of the parameters conditioned on the data and an
 \begin{align}
 \label{eqn:trick}
 \begin{split}
-\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\\
-& - \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}].
+\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] - \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}].
 \end{split}
 \end{align}
 
@@ -1101,18 +944,14 @@ Once the implicit prior $\ndphi^{*}$ is explicitly introduced, we may expand the
 \begin{align}
 \begin{split}
 \label{eqn:expand}
-\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\\
-& + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}] \\
-& - \ln[\pr{\data_{j} \gvn z, \ndphi^{*}}].
+\ln[\pr{\data_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}] - \ln[\pr{\data_{j} \gvn z, \ndphi^{*}}].
 \end{split}
 \end{align}
 Because there is no direct dependence of the data upon the hyperparameters, we may again expand the term $\ln[\pr{\data_{j} \gvn z, \ndphi^{*}}]$ to obtain 
 \begin{align}
 \begin{split}
 \label{eqn:indterm}
-\ln[\pr{\vec{d}_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] \\
-& + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}]\\
-& - \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{\data_{j} \gvn z}] .
+\ln[\pr{\vec{d}_{j} \gvn z}] = & \ln[\pr{\data_{j} \gvn z}] + \ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{z \gvn \ndphi^{*}}]- \ln[\pr{\data_{j} \gvn \ndphi^{*}}] - \ln[\pr{\data_{j} \gvn z}] .
 \end{split}
 \end{align}
 Canceling the undesirable terms for the inaccessible likelihood $\ln[\pr{\data_{j} \gvn z}]$ and trivial $\ln[\pr{\data_{j} \gvn \ndphi^{*}}]$ yields
@@ -1124,12 +963,9 @@ We put this all together to get the full log-posterior probability distribution 
 \begin{align}
 \begin{split}
 \label{eqn:final}
-\ln[\pr{\ndphi \gvn \{\data_{j}\}}] \propto & \ln[\pr{\ndphi}] + \ln \left[\integral{\exp \left[\sum_{j=1}^{J} \right.\right.\\
-	& \left.\left.\left(\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{z \gvn \ndphi}]\right.\right.\right.\\
-	& \left.\left.\left. - \ln[\pr{z \gvn \ndphi^{*}}] \right)\right]}{z}\right] ,
+\ln[\pr{\ndphi \gvn \{\data_{j}\}}] \propto & \ln[\pr{\ndphi}] + \ln \left[\integral{\exp \left[\sum_{j=1}^{J} \left(\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}] + \ln[\pr{z \gvn \ndphi}] - \ln[\pr{z \gvn \ndphi^{*}}] \right)\right]}{z}\right] ,
 \end{split}
 \end{align}
-\aim{TODO: fix the trailing parentheses/brackets.}
 
 The argument of the integral in the log-posterior of \Eq{eqn:final} depends solely on knowable quantities (and those we must explicitly assume) and can be calculated for a given sample of \pz\ log-posteriors $\{\ln[\pr{z \gvn \data_{j}, \ndphi^{*}}]\}$ and the implicit prior $\pr{z \gvn \ndphi^{*}}$ with which they were obtained, noting the relation of 
 \begin{equation}
@@ -1137,7 +973,7 @@ The argument of the integral in the log-posterior of \Eq{eqn:final} depends sole
 \pr{z \gvn \ndphi} = \frac{f(z; \ndphi)}{\integral{f(z; \ndphi)}{z}}.
 \end{equation}
 Since we cannot know constant of proportionality, we sample the desired full log-posterior $\ln[\pr{\ndphi \gvn \{\data_{j}\}}]$ using Monte Carlo-Markov chain (MCMC) methods.  
-The method outlined here is valid regardless of how the implicit \pz\ log-posteriors are obtained so the many approaches to producing \pzpdf s will not be rehashed; though the matter is outside the scope of this paper, reviews of various methods have been presented in the literature \citep{sheldon_photometric_2012, ball_robust_2008, carrasco_kind_tpz:_2013, carrasco_kind_exhausting_2014}, and will be briefly reviewed in \aim{cite PZDC1 paper here}.
+The method outlined here is valid regardless of how the implicit \pz\ log-posteriors are obtained so the many approaches to producing \pzpdf s will not be rehashed; though the matter is outside the scope of this paper, reviews of various methods have been presented in the literature \citep{sheldon_photometric_2012, ball_robust_2008, carrasco_kind_tpz:_2013, carrasco_kind_exhausting_2014}, and will be briefly reviewed in Schmidt, Malz \& Soo, et al. (in prep).
 %
 %\begin{align}
 %\begin{split}
