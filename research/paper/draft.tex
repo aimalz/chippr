@@ -827,7 +827,7 @@ Not only is this the only mathematically correct approach to the problem, it als
 %The results of those tests is summarized below and in \Tab{tab:kld}, where lower values indicate a closer match between the true $N(z)$ and the estimator.  
 %Tests were also performed on subsets of BOSS DR10 data with results consistent with those of simulations.
 
-\Chippr\ outperforms traditional estimators of \nz\ under the canonical \pz\ systematics of intrinsic scatter, catastrophic outliers, and bias.
+\dwh{\Chippr\ outperforms traditional estimators of \nz\ under the canonical \pz\ systematics of intrinsic scatter, catastrophic outliers, and bias.
 \Chippr\ is also robust to nontrivial implicit priors corresponding to the specifics of the architecture of the method by which \pzpdf s are obtained.
 However, \Chippr\ absolutely requires that the implicit prior is accurately known; using an implicit prior other than that which contributed to the production of the \pzpdf\ catalog results in catastrophically incorrect inference of \nz.
 It is therefore imperative that those developing codes to obtain \pzpdf s provide a way to isolate the implicit prior and that those publishing \pzpdf\ catalogs provide the implicit prior to users.
@@ -842,12 +842,16 @@ For example, some training set galaxies may contribute to the \pzpdf s more than
 Additionally, the weights may be stochastic, depending on the random seed used to initialize non-deterministic methods, precluding reproducibility.
 It is thus unclear whether the implicit prior can be meaningfully obtained from such methods at all.
 
-\aim{TODO: new paragraph for what can go wrong, call to community for what to do about it, what aspects of implicit prior are knowable and not knowable?
-	if testable how so? outside the scope of paper, data producers be warned!
-	a likelihood is better -- give us that if you can!
-	focus on methods that acknowledge probabilistic structure of problem}
+%\aim{TODO: new paragraph for what can go wrong, call to community for what to do about it, what aspects of implicit prior are knowable and not knowable?
+%	if testable how so? outside the scope of paper, data producers be warned!
+%	a likelihood is better -- give us that if you can!
+%	focus on methods that acknowledge probabilistic structure of problem}
 
-\aim{claim: implications for tomographic binning are severe}
+A thorough investigation of the degree to which the implicit prior can be meaningfully obtained is outside this paper but should be a priority for all consumers of \pzpdf s.
+As an alternative, however, we must point out that if likelihoods were available rather than posteriors, the trouble with the implicit prior would be avoided altogether.
+We thus encourage the community of those making \pzpdf s to consider developing such methods so that the resulting data products may be correctly used in scientific inference more generically.}
+
+\aim{TODO: claim that implications for tomographic binning are severe, if that can be motivated by Section~\ref{sec:lsstdemo}.}
 
 The following conclusions and recommendations can be made with confidence:
 
@@ -871,6 +875,8 @@ Future work will also include the extension of this fully probabilistic approach
 
 \section{Derivation}
 \label{app:math}
+
+\aim{TODO: make notation consistent with the rest of the paper.}
 
 %We begin by parametrizing $N(z)$ in terms of $\vec{\theta}$, comprising some set of hyperparameters that define the form $N(z)$ may take in whatever basis we choose.  
 %We define a function $f_{\vec{\theta}}(z)=N(z)$ that transforms these hyperparameters into the redshift distribution function $N(z)$.  
