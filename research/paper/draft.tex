@@ -22,31 +22,34 @@
 \newcommand{\todo}[3]{{\color{#2}\emph{#1}: #3}}
 \newcommand{\aim}[1]{\todo{AIM}{red}{#1}}
 \newcommand{\dwh}[1]{\todo{Attn. Hogg:}{blue}{#1}}
+
 \newcommand{\myemail}{aimalz@nyu.edu}
 \newcommand{\mathul}[1]{\underline{#1}}
+
 \newcommand{\Sect}[1]{Section~\ref{#1}}
 \newcommand{\Eq}[1]{Equation~\ref{#1}}
 \newcommand{\Fig}[1]{Figure~\ref{#1}}
 \newcommand{\Tab}[1]{Table~\ref{#1}}
+
 \newcommand{\project}[1]{{\textsc{#1}}}
 \newcommand{\lsst}{\project{LSST}}
 \newcommand{\desc}{\lsst-\project{DESC}}
 \newcommand{\sdss}{\project{SDSS}}
 \newcommand{\boss}{\project{BOSS}}
 \newcommand{\des}{\project{DES}}
-\newcommand{\Chippr}{\project{CHIPPR}}
-\newcommand{\repo}[1]{{\texttt{#1}}~}
+\newcommand{\Chippr}{\project{CHIPPR}}% maybe change this to algorithm/italics
+
+\newcommand{\repo}[1]{{\texttt{#1}}}
 \newcommand{\qp}{\repo{qp}}
 \newcommand{\chippr}{\repo{chippr}}
 \newcommand{\cosmolike}{\repo{CosmoLike}}
 \newcommand{\emcee}{\repo{emcee}}
-\newcommand{\github}{\href{https://github.com}{GitHub}}
-\newcommand{\python}{\textit{Python}}
-\newcommand{\data}{\ensuremath{\vec{d}}}
-% could change to bold
+\newcommand{\github}{\href{https://github.com}{GitHub}}% maybe remove link and use code font
+\newcommand{\python}{\textit{Python}}% establish code font?
+
+\newcommand{\data}{\ensuremath{\vec{d}}}% could change to bold
 \newcommand{\like}{\mathscr{L}}
-\newcommand{\pr}[1]{\ensuremath{\mathrm{p}(#1)}}
-% could change to Prob or Pr 
+\newcommand{\pr}[1]{\ensuremath{\mathrm{p}(#1)}}% could change to Prob or Pr 
 \newcommand{\expect}[1]{\left<#1\right>}
 \newcommand{\normal}[2]{\mathcal{N} (#1, #2)}
 \newcommand{\gvn}{\mid}% could use | or \vert
@@ -55,37 +58,32 @@
 \newcommand{\Sz}{Spec-$z$}
 \newcommand{\pz}{photo-$z$}
 \newcommand{\Pz}{Photo-$z$}
-\newcommand{\pzpdf}{\pz\ PDF}
-% could change to posterior
-\newcommand{\Pzpdf}{\Pz\ PDF}
-% could change to posterior
-\newcommand{\zpdf}{redshift posterior}
-% could change to implicit posterior
+\newcommand{\pzpdf}{\pz\ PDF}% could change to posterior
+\newcommand{\Pzpdf}{\Pz\ PDF}% could change to posterior
+\newcommand{\zpdf}{redshift posterior}% could change to implicit posterior
 \newcommand{\pzip}{\pz implicit posterior}
 \newcommand{\nz}{$n(z)$}
 \newcommand{\Nz}{$N(z)$}
 \newcommand{\stack}{$\hat{n}(z)$}
 \newcommand{\ntot}{\ensuremath{N_{\mathrm{tot}}}}
-\newcommand{\bvec}[1]{\ensuremath{\boldsymbol{#1}}}
-% could change to \vec
+\newcommand{\bvec}[1]{\ensuremath{\boldsymbol{#1}}}% could change to \vec
 \newcommand{\ndphi}{\bvec{\phi}}
-\newcommand{\mmle}{marginalized maximum likelihood estimate}
-% really marginalized maximum a posteriori estimate, may still change this
-
+\newcommand{\mmle}{marginalized maximum likelihood estimate}% really marginalized maximum a posteriori estimate, may still change this
 
 \begin{document}
 %\linenumbers
 
 \title{How to obtain the redshift distribution from probabilistic redshift estimates}
 
-\author{Alex I. Malz\altaffilmark{1}}
-\author{David W. Hogg\altaffilmark{1,2,3,4}}
+\author{Alex I. Malz\altaffilmark{1,2}}
+\author{David W. Hogg\altaffilmark{2,3,4,5}}
 \email{aimalz@nyu.edu}
 
-\altaffiltext{1}{Center for Cosmology and Particle Physics, Department of Physics, New York University, 726 Broadway, 9th floor, New York, NY 10003, USA}
-\altaffiltext{2}{Simons Center for Computational Astrophysics, 162 Fifth Avenue, 7th floor, New York, NY 10010, USA}
-\altaffiltext{3}{Center for Data Science, New York University, 60 Fifth Avenue, 7th floor, New York, NY 10003, USA}
-\altaffiltext{4}{Max-Planck-Institut f\"ur Astronomie, K\"onigstuhl 17, D-69117 Heidelberg, Germany}
+\altaffiltext{1}{German Centre of Cosmological Lensing, Ruhr-Universit\"{a}t, Universit\"{a}tsstra{\ss}e 150, 44801 Bochum, Germany}
+\altaffiltext{2}{Center for Cosmology and Particle Physics, Department of Physics, New York University, 726 Broadway, 9th floor, New York, NY 10003, USA}
+\altaffiltext{3}{Simons Center for Computational Astrophysics, 162 Fifth Avenue, 7th floor, New York, NY 10010, USA}
+\altaffiltext{4}{Center for Data Science, New York University, 60 Fifth Avenue, 7th floor, New York, NY 10003, USA}
+\altaffiltext{5}{Max-Planck-Institut f\"ur Astronomie, K\"onigstuhl 17, D-69117 Heidelberg, Germany}
 
 \begin{abstract}
 A trustworthy estimate of the redshift distribution \nz\ is crucial for using weak gravitational lensing and large-scale structure of galaxy catalogs to study cosmology.
@@ -135,7 +133,7 @@ There is scatter about the diagonal due to the coarseness of the photometric fil
 There are populations of outliers, far from the diagonal, comprised of galaxies for which the redshift estimate is catastrophically distinct from the true redshift, showing that outliers are not uniformly distributed nor restricted to long tails away from a Gaussian scatter.
 And, though hardly perceptible in the plot, there is a systematic bias, wherein the average of the points would not lie on the diagonal but would be offset by a small bias, suggested by the trend of high redshift points to lie below the diagonal.
 
-Once propagated through the calculations of correlation functions of cosmic shear and galaxy positions, \pz\ errors are not insignificant contributors to the total uncertainties reported on cosmological parameters.
+Once propagated through the calculations of correlation functions of cosmic shear and galaxy positions, \pz\ errors are a dominant contributor to the total uncertainties reported on cosmological parameters \citep{abruzzo_impact_2019}.
 As progress has been made on the influence of other sources of systematic error, the uncertainties associated with \pz s have come to dominate the error budget of cosmological parameter estimates made by current surveys such as \des\ \citep{hoyle_dark_2017}, \project{HSC} \citep{tanaka_photometric_2018}, and \project{KiDS} \citep{hildebrandt_kids-450:_2017}.
 Based on the goals of a photometric galaxy survey, limits can be placed on the tolerance to these effects.
 For example, the Science Requirements Document \citep{mandelbaum_weak_2017} states \lsst's requirements for the main cosmological sample, reproduced in Table~\ref{tab:lsstsrd}.
@@ -167,7 +165,20 @@ In terms of \Fig{fig:pedagogical_scatter}, \pzpdf s are horizontal cuts, probabi
 \Pzpdf s have been produced by completed surveys \citep{hildebrandt_cfhtlens:_2012, sheldon_photometric_2012} and will be produced by ongoing and upcoming surveys \citep{abell_lsst_2009, carrasco_kind_exhausting_2014, bonnett_redshift_2016, masters_mapping_2015}.  
 \Pzpdf s are not without their own shortcomings, however, including the resources necessary to calculate and record them for large galaxy surveys \citep{carrasco_kind_sparse_2014, malz_approximating_2018} and the divergent results of each method used to derive them \citep[ and reviewed in Schmidt, Malz \& Soo, et al. (in prep)]{hildebrandt_phat:_2010, dahlen_critical_2013, sanchez_clustering_2013, bonnett_redshift_2016, tanaka_photometric_2018}.  
 The most concerning weakness of \pzpdf s, however, is their usage in the literature, which is at best inconsistent and at worst incorrect.  
-The most prevalent application of \pzpdf s is their use in estimating the \textit{redshift distribution function \Nz}, or, interchangably, its normalized cousin the \textit{redshift density function \nz}, a quantity essential to the calculation of the power spectra of weak gravitational lensing and large-scale structure that are used to constrain the parameters of cosmological models \citep{mandelbaum_precision_2008, hildebrandt_cfhtlens:_2012, sheldon_photometric_2012, benjamin_cfhtlens_2013, kelly_weighing_2014, bonnett_using_2015,  masters_mapping_2015, viironen_high_2015, asorey_galaxy_2016, bonnett_redshift_2016, leistedt_hierarchical_2016}, as well as to validate survey selection functions used in generation of realistic, multi-purpose mock catalogs \citep{norberg_2df_2002}.  
+
+If the true redshifts $\{z_{j}^{\dagger}\}$ of galaxies $j$ are known, then the redshift PDFs are delta functions $\{\delta(z, z_{j}^{\dagger})\}$ centered at the true redshift, and the redshift distribution is effectively approximated by a histogram or other interpolation of the delta functions $\{\delta(z, z_{j}^{\dagger})\}$.
+When \pzpdf s are available instead of true redshifts, the simplest approach reduces them to point estimates $\{\hat{z}_{i}\}$ of redshift by using $\delta(z, \hat{z}_{j})$ in place of $\delta(z, z_{j}^{\dagger})$.
+Though it is most common for $\hat{z}_{j}$ to be the maximum or \textit{mode} of the \pzpdf, there are other, more principled point estimate reduction procedures \citep{tanaka_photometric_2018}.
+However, any procedure that reduces \pzpdf s to point estimates discards valuable information about the uncertainty on redshift.
+
+Though their potential to improve estimates of physical parameters is tremendous, \pzpdf s have been applied only to a limited extent.  
+They have been used to form selection criteria of samples from galaxy surveys without propagation through the calculations of physical parameters \citep{van_breukelen_reliable_2009, viironen_high_2015}.  
+Probability cuts on Bayesian quantities are not uncommon \citep{leung_bayesian_2017, dipompeo_quasar_2015}, but that procedure does not fully take advantage of all information contained in a probability distribution for parameter inference.  
+
+The most prevalent application of \pzpdf s that preserves their information content is the estimation of the \textit{redshift distribution function \Nz}, or, interchangably, its normalized cousin the \textit{redshift density function \nz}.
+The redshift distribution is a key input to the traditional calculation of the power spectra of weak gravitational lensing and large-scale structure that are used to constrain the parameters of cosmological models \citep{mandelbaum_precision_2008, hildebrandt_cfhtlens:_2012, sheldon_photometric_2012, benjamin_cfhtlens_2013, kelly_weighing_2014, bonnett_using_2015,  masters_mapping_2015, viironen_high_2015, asorey_galaxy_2016, bonnett_redshift_2016, yang_calibrating_2018}, as well as to validate survey selection functions used in generation of realistic, multi-purpose mock catalogs \citep{norberg_2df_2002}.
+Even with \pz s adhering to the \lsst\ requirements of \Tab{tab:lsstsrd}, the accuracy and precision to which \nz\ must be known limit the degree to which constraints on the cosmological parameters can advance \citep{abruzzo_impact_2019}.
+
 
 \aim{TODO:
 	Motivate how well we need to know \Nz\ and why it matters.
@@ -175,27 +186,18 @@ The most prevalent application of \pzpdf s is their use in estimating the \texti
 	New paragraph here: Say what precision is needed for \Nz\ for future weak lensing surveys. 
 	Say what precision the mass function is needed (in, say cluster studies) for precision cosmology.}
 
-If the true redshifts $\{z_{j}^{\dagger}\}$ of galaxies $j$ are known, then the redshift PDFs are delta functions $\{\delta(z, z_{j}^{\dagger})\}$ centered at the true redshift, and the redshift distribution is effectively approximated by a histogram or other interpolation of the delta functions $\{\delta(z, z_{j}^{\dagger})\}$.
-When \pzpdf s are available instead of true redshifts, the simplest approach reduces them to point estimates $\{\hat{z}_{i}\}$ of redshift by using $\delta(z, \hat{z}_{j})$ in place of $\delta(z, z_{j}^{\dagger})$.
-Though it is most common for $\hat{z}_{j}$ to be the maximum or \textit{mode} of the \pzpdf, there are other, more principled point estimate reduction procedures \citep{tanaka_photometric_2018}.
-
-However, any procedure that reduces \pzpdf s to point estimates loses information about the uncertainty on redshift.
-To circumvent this loss, it has grown to be more common to calculate the conceptually simple but mathematically inconsistent \citep{hogg_data_2012} \textit{stacked estimator} $\hat{n}(z)$ of the redshift density function \citep{lima_estimating_2008}
+Though it is traditional to estimate \nz\ from \pz\ point estimates \citep{abruzzo_impact_2019}, there is a great deal of literature employing \pzpdf s.
+To circumvent this loss, it has become to be more common to calculate the conceptually simple but mathematically inconsistent \citep{hogg_data_2012} \textit{stacked estimator} $\hat{n}(z)$ of the redshift density function \citep{lima_estimating_2008}
 \begin{align}
 \label{eqn:stack}
 \hat{n}(z) &= \frac{1}{J} \sum_{j = 0}^{J} \pr{z}_{j}
 \end{align}
 for a sample of $J$ galaxies $j$, or, equivalently, the redshift distribution function $\hat{N}(z) = J \hat{n}(z)$, by effectively averaging the \pzpdf s.
 
-%Though their potential to improve estimates of physical parameters is tremendous, \pzpdf s have been applied only to a limited extent.  
-%They have been used to form selection criteria of samples from galaxy surveys without propagation 
-%through the calculations of physical parameters \citep{van_breukelen_reliable_2009, viironen_high_2015}.  
-%Probability cuts on Bayesian quantities are not uncommon \citep{leung_bayesian_2017, dipompeo_quasar_2015}, but that procedure does not fully take advantage of all information contained in a probability distribution for parameter inference.  
-
 Despite the growing prevalence of \pzpdf\ production, no implementation of inference using \pzpdf s has yet been presented with a mathematically consistent methodology.  
 This paper challenges the logically invalid yet pervasive analysis procedure of stacking \pzpdf s by presenting and validating a hierarchical Bayesian technique for the use of \pzpdf s\ in the inference of \nz, yielding a method applicable to arbitrary one-point statistics relevant to cosmology, large-scale structure, and galaxy evolution; future work will extend this methodology to higher-order statistics.
 We aim to develop a clear methodology guiding the use of \pzpdf s in inference so they may be utilized effectively by the cosmology community.
-Though others have approached the problem before \citep{leistedt_hierarchical_2016}, the method presented here differs in that it makes use of any existing catalog of \pzpdf s, rather than requiring a simultaneous derivation of the \pzpdf s and the redshift distribution, making it preferable to ongoing surveys for which there may be inertia preventing a complete restructuring of the analysis pipeline.
+Though others have approached the problem before \citep{leistedt_hierarchical_2016, leistedt_hierarchical_2018}, the method presented here differs in that it makes use of any existing catalog of \pzpdf s, rather than requiring a simultaneous derivation of the \pzpdf s and the redshift distribution, making it preferable to ongoing surveys for which there may be inertia preventing a complete restructuring of the analysis pipeline.
 
 In Section~\ref{sec:meth}, we present the \Chippr\ model and \chippr\ implementation for characterizing the full posterior probability landscape of \Nz\ using \pzpdf s. 
 In Section~\ref{sec:alldata}, we describe the experimental design for testing the fully probabilistic approach to mock and real datasets, the results of which are found in Section~\ref{sec:results}.
@@ -504,7 +506,7 @@ We adapt the full log-posterior of \Eq{eqn:final} to the chosen binning of redsh
 %		Samples (colored lines) of $\pr{z \gvn \ndphi}$ where each $\ndphi$ is drawn from the hyperprior distribution $\pr{\ndphi}$ given in \Eq{eqn:priorcov}.}
 %	\figlabel{fig:prior}
 %\end{figure}
- \aim{TODO: Add back the figure of prior samples?}
+\aim{TODO: Add back the figure of prior samples?}
 
 The sampler is initialized with $W=100$ walkers each with a value chosen from a Gaussian distribution of identity covariance around a sample from the hyperprior distribution.  
 
@@ -650,7 +652,7 @@ Template-fitting codes have an explicit prior input formed by redshifting a smal
 %This is just as problematic as using a biased spectroscopically derived $N(z)$ as the interim prior because the sum of redshift distributions for two or more surveys does not reflect our beliefs about the true distribution for a single survey even though it provides support over the same redshift range.  
 %To simulate this case, we choose an interim prior with more weight at high and low redshifts than for mid-range redshifts.  
 Machine learning approaches tend to be trained on previously observed data sets that are biased towards low redshift, which biases the implicit prior towards low redshift.
-% \aim{referenceh chapter 3 for complication of algorithm}
+% \aim{reference chapter 3 for complication of algorithm}
 Some efforts have been made to modify an observationally informed implicit prior so that it is more representative of the photometric data for which redshifts are desired \citep{sheldon_photometric_2012}, but, unless it is equal to the true \nz, it will propagate to the results of traditional \nz\ estimation methods.  
 %Because low-redshift galaxies are more likely to be bright enough to be observed by such a survey, $N(z)$ determined from that sample may be heavily biased to low redshift galaxies.  
 %By contrast, the galaxies that were unobserved in such a survey are more likely be dimmer, making them more likely to be at higher redshifts.  
@@ -823,7 +825,7 @@ Not only is this the only mathematically correct approach to the problem, it als
 
 %In the tests on simulated data performed here, the full posterior distribution over the hyperparameters defining $N(z)$ derived by this method is consistent with the true redshift distribution function, making the mean of sampled values an excellent point estimator of $N(z)$.  
 %The information contained in the full posterior distribution's shape convey the traditional error bar information without having to explicitly propagate any error estimates.  
-%\aim{Refer to quantitative results on KLD of \Nz\ and cosmological parameter space.}
+\aim{TODO: Refer to quantitative results on KLD of \Nz\ and cosmological parameter space.}
 %The results of those tests is summarized below and in \Tab{tab:kld}, where lower values indicate a closer match between the true $N(z)$ and the estimator.  
 %Tests were also performed on subsets of BOSS DR10 data with results consistent with those of simulations.
 
@@ -842,10 +844,10 @@ For example, some training set galaxies may contribute to the \pzpdf s more than
 Additionally, the weights may be stochastic, depending on the random seed used to initialize non-deterministic methods, precluding reproducibility.
 It is thus unclear whether the implicit prior can be meaningfully obtained from such methods at all.
 
-%\aim{TODO: new paragraph for what can go wrong, call to community for what to do about it, what aspects of implicit prior are knowable and not knowable?
-%	if testable how so? outside the scope of paper, data producers be warned!
-%	a likelihood is better -- give us that if you can!
-%	focus on methods that acknowledge probabilistic structure of problem}
+\aim{TODO: new paragraph for what can go wrong, call to community for what to do about it, what aspects of implicit prior are knowable and not knowable?
+	if testable how so? outside the scope of paper, data producers be warned!
+	a likelihood is better -- give us that if you can!
+	focus on methods that acknowledge probabilistic structure of problem}
 
 A thorough investigation of the degree to which the implicit prior can be meaningfully obtained is outside this paper but should be a priority for all consumers of \pzpdf s.
 As an alternative, however, we must point out that if likelihoods were available rather than posteriors, the trouble with the implicit prior would be avoided altogether.
@@ -1024,6 +1026,6 @@ This work was completed with generous nutritional support from the Center for Co
 \end{acknowledgements}
 
 \bibliographystyle{apj}
-\bibliography{thesis}
+\bibliography{draft}
 
 \end{document}
