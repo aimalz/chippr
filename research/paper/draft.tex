@@ -16,7 +16,7 @@
 \tikzstyle{data} = [circle, text centered, draw=black, line width=2pt]
 \tikzstyle{arrow} = [thick,->,>=stealth]
 
-\usepackage{soul}
+%\usepackage{soul}
 \usepackage[title]{appendix}
 
 \newcommand{\todo}[3]{{\color{#2}\emph{#1}: #3}}
@@ -122,7 +122,7 @@ The similarity to traditional $z_{\mathrm{spec}}$ versus $z_{\mathrm{phot}}$ plo
 		\caption{
 			A generic probability space (darker in areas of higher probability density) of redshift ($x$-axis) and data ($y$-axis), where the data is projected into a single dimension, with vertical cuts and marginals (cyan) indicating the construction of likelihoods and horizontal cuts and marginals (magenta) indicating the construction of posteriors.
 			The data (black points) used to generate the contours were extracted from \citet{jain_whole_2015} using WebPlotDigitizer \citep{rohatgi_webplotdigitizer_2019}, with the ideal redshift estimation provided for reference (red diagonal).
-			\aim{Choose better colors?}
+			\aim{TODO: Use the colors from the rest of the paper.}
 		}
 		\label{fig:pedagogical_scatter}
 	\end{center}
@@ -279,7 +279,7 @@ The photometric data $\data_{j}$ of a galaxy is drawn from some function of its 
 Both data and redshift are random variables, but data is the one that we observe and redshift is not directly observable.
 In this problem, we don't care about further constraining the redshifts of individual galaxies, only the redshift distribution, so we consider redshift to be a \textit{latent variable}.
 Because the parameters $\ndphi$ that we seek are causally separated from the data by the latent variable of redshift, we call them \textit{hyperparameters}.
-\aim{Am I adequately explaining the distinction between hyperparameters and parameters?}
+\dwh{Am I adequately explaining the distinction between hyperparameters and parameters?}
 
 \begin{figure}
 	\begin{center}
@@ -457,6 +457,7 @@ In the fourth phase, we convolve the posteriors with the chosen prior $\pr{z \gv
 			A flow chart illustrating the forward model used to generate mock data in the validation of \Chippr, as described in \Sect{sec:forward}.
 			Ovals indicate a quantity that must be chosen in order to generate the data, rectangles indicate an operation we perform, and rounded rectangles indicate a quantity created by the forward model.
 			Arrows indicate the inputs and outputs of each operation performed to simulate mock \pzpdf\ catalogs.
+			\aim{How to make this more attractive?}
 			}
 		\label{fig:flowchart}
 	\end{center}
@@ -640,7 +641,7 @@ Regardless, for completeness, a test at ten times the bias of the \lsst\ require
 \end{figure}
 
 As expected based on consistency with the forward model, \Chippr\ is completely resistant to bias, and the alternative estimators are only weakly affected, with information loss two and four times greater than that of the \Chippr\ \mmle\ for the histogram of modes and stacked estimator respectively.
-\aim{I'm not sure I effectively explained why \Chippr\ is expected to be unaffected by bias of this form.}
+\dwh{Did I effectively explain why \Chippr\ is expected to be unaffected by bias of this form?}
 
 \subsection{Implicit prior}
 \label{sec:interim}
@@ -769,7 +770,10 @@ Though there are also slight differences in the angle of the error ellipses, mos
 The stacked estimator is significantly worse than the \Chippr\ \mmle\ for all parameters except $\Omega_{b}$ and $H_{0}$.
 Stacking, however, outperforms the histogram of modes for all parameters except $\Omega_{m}$ and $S_{8}$, for which their constraints are quite similar.
 Though the true values of the parameters themselves were not accessible with the Fisher matrix-based framework, we calculate the seven-dimensional KLD for the three \nz\ estimators relative to the constraints derived from the true \nz, showing that \Chippr\ preserves information $200-800$ times better than the alternatives, with the histogram of modes doing about four times better than stacking.
-\aim{TODO: Ask Elisabeth how to get the bias here}
+\aim{TODO: Ask Elisabeth how to get the bias here.}
+\dwh{So a Fisher matrix analysis inherently can't provide the bias.
+Because we have no data, only posteriors conditioned on hypothetical data, this isn't possible.
+Do you think it's sufficient to provide the bias on the moments of \nz, since that's what everyone uses anyway?}
 
 \begin{figure*}
 	\begin{center}
