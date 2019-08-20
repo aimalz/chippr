@@ -185,22 +185,16 @@ Regardless of how it is done, any procedure that reduces \pzpdf s to point estim
 \Pzpdf s have also been used to form selection criteria of samples from galaxy surveys without propagation through the calculations of physical parameters \citep{van_breukelen_reliable_2009, viironen_high_2015}.  
 Probability cuts on Bayesian quantities are not uncommon \citep{leung_bayesian_2017, dipompeo_quasar_2015}, but that procedure does not fully take advantage of all information contained in a probability distribution for parameter inference.
 
-% n(z) as an application of photo-z PDFs
+\aim{TODO: Provide equations/citations for the use of \Nz\ in cosmology, why it matters.}
 The most prevalent application of \pzpdf s that preserves their information content is the estimation of the \textit{redshift distribution function \Nz}, or, interchangably, its normalized cousin the \textit{redshift density function \nz}.
+\nz\ is used to calculate the redshift calibration bias $b_{z}$ between the true and observed critical surface densities in galaxy-galaxy lensing \citep{mandelbaum_precision_2008}, the geometric lens efficiency $g_{k}(\chi)$ in tomographic weak lensing by large-scale structure \citep{benjamin_cfhtlens_2013}, and \aim{\dots}
 
-% Provide equations/citations for the use of \Nz\ in cosmology.
-The redshift distribution is a key input to the traditional calculation of the power spectra of weak gravitational lensing and large-scale structure that are used to constrain the parameters of cosmological models \citep{mandelbaum_precision_2008, hildebrandt_cfhtlens:_2012, sheldon_photometric_2012, benjamin_cfhtlens_2013, kelly_weighing_2014, bonnett_using_2015,  masters_mapping_2015, viironen_high_2015, asorey_galaxy_2016, bonnett_redshift_2016, yang_calibrating_2018}, as well as to validate survey selection functions used in generation of realistic, multi-purpose mock catalogs \citep{norberg_2df_2002}.
+The redshift distribution is a key input to the traditional calculation of the power spectra of weak gravitational lensing and large-scale structure that are used to constrain the parameters of cosmological models \citep{bonnett_using_2015,  masters_mapping_2015, viironen_high_2015, asorey_galaxy_2016, bonnett_redshift_2016, yang_calibrating_2018}.
+\Nz\ may also be used to validate survey selection functions used in generation of realistic, multi-purpose mock catalogs \citep{norberg_2df_2002}.
 
-% Motivate how well we need to know \Nz\ and why it matters.
-% New paragraph here: Say what precision is needed for \Nz\ for future weak lensing surveys. 
-% Say what precision the mass function is needed (in, say cluster studies) for precision cosmology.
+% New paragraph here: Say what precision is needed for \Nz\ for future weak lensing surveys, motivate how well we need to know \Nz. 
 Even with \pz s adhering to the \lsst\ requirements of \Tab{tab:lsstsrd}, the degree to which constraints on the cosmological parameters can advance is limited by the accuracy and precision to which \nz\ is known \citep{abruzzo_impact_2019}.
-
-\aim{TODO:
-	Motivate how well we need to know \Nz\ and why it matters.
-	Provide equations/citations for the use of \Nz\ in cosmology.
-	New paragraph here: Say what precision is needed for \Nz\ for future weak lensing surveys. 
-	Say what precision the mass function is needed (in, say cluster studies) for precision cosmology.}
+% Say what precision the mass function is needed (in, say cluster studies) for precision cosmology.
 
 % how people get n(z) from photo-z PDFs
 Though it is traditional to estimate \nz\ from \pz\ point estimates \citep{abruzzo_impact_2019}, there is a great deal of literature employing \pzpdf s.
@@ -210,6 +204,7 @@ To circumvent this loss, it has become to be more common to calculate the concep
 \hat{n}(z) &= \frac{1}{J} \sum_{j = 0}^{J} \pr{z}_{j}
 \end{align}
 for a sample of $J$ galaxies $j$, or, equivalently, the redshift distribution function $\hat{N}(z) = J \hat{n}(z)$, by effectively averaging the \pzpdf s.
+This summation procedure has been used extensively \citep{mandelbaum_precision_2008, benjamin_cfhtlens_2013, kelly_weighing_2014}\aim{\dots}
 
 % what this paper is about
 Despite the growing prevalence of \pzpdf\ production, no implementation of inference using \pzpdf s has yet been presented with a mathematically consistent methodology.  
