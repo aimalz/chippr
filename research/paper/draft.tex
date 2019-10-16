@@ -127,8 +127,6 @@ The similarity to traditional $z_{\mathrm{spec}}$ versus $z_{\mathrm{phot}}$ plo
 		\caption{
 			A generic probability space (darker in areas of higher probability density) of redshift ($x$-axis) and data ($y$-axis), where the data is projected into a single dimension, with vertical cuts and marginals (cyan) indicating the construction of likelihoods and horizontal cuts and marginals (magenta) indicating the construction of posteriors.
 			The data (black points) used to generate the contours were extracted from \citet{jain_whole_2015} using WebPlotDigitizer \citep{rohatgi_webplotdigitizer_2019}, with the ideal redshift estimation provided for reference (red diagonal).
-			\aim{TODO: Use the colors from the rest of the paper.  
-			Fix backwards quotes on y axis label.}
 		}
 		\label{fig:pedagogical_scatter}
 	\end{center}
@@ -470,14 +468,12 @@ In the fourth phase, we convolve the posteriors with the chosen prior $\pr{z \gv
 
 \begin{figure*}
 	\begin{center}
-		\includegraphics[width=0.9\textwidth]{figures/chippr/flowchart.png}
+		\includegraphics[width=0.9\textwidth]{figures/chippr/flowchart.pdf}
 		\caption{
 			\que{How to make this more attractive?}
 			A flow chart illustrating the forward model used to generate mock data in the validation of \Chippr, as described in \Sect{sec:forward}.
 			Ovals indicate a quantity that must be chosen in order to generate the data, rectangles indicate an operation we perform, and rounded rectangles indicate a quantity created by the forward model.
 			Arrows indicate the inputs and outputs of each operation performed to simulate mock \pzpdf\ catalogs.
-			\aim{TODO: Remove extra ``j'' in ``Convolve'' step.
-			Also, make a high-res or vector graphics version.}
 			}
 		\label{fig:flowchart}
 	\end{center}
@@ -751,7 +747,6 @@ To test the impact of these uncertainties, we simulate mock data with all three 
 		\includegraphics[width=0.45\textwidth]{figures/chippr/cosmolike_inputs.png}
 		\caption{
 			The \lsst-like tomographic binning and true redshift distribution, where the truth (solid) is a PDF evaluated on a fine grid of $350$ redshifts $0.0101 < z < 3.5001$, and the binned (dashed) and drawn (dotted) \nz\ are piecewise constant functions evaluated in $35$ evenly spaced bins, for four different tomographic bins (colors).
-			\aim{TODO: Give figure a title.}
 		}
 		\label{fig:tomobins}
 	\end{center}
