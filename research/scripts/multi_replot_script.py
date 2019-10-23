@@ -67,14 +67,15 @@ def just_plot(given_key):
     true_vals = np.array(alldata).T
     bin_mids = (data['bin_ends'][1:] + data['bin_ends'][:-1]) / 2.
     catalog_plots.plot_obs_scatter(true_vals.T, np.exp(data['log_interim_posteriors']), bin_mids, plot_loc=os.path.join(test_dir, 'plots'))
-    catalog_plots.plot_mega_scatter(true_vals.T, np.exp(data['log_interim_posteriors']), bin_mids, data['bin_ends'], plot_loc=os.path.join(test_dir, 'plots'), prepend=test_name+'-')
 
     prior = set_up_prior(data)
     n_bins = len(data['log_interim_prior'])
     n_ivals = 2 * n_bins
     initial_values = prior.sample(n_ivals)
 
-    true_nz = np.log(np.histogram(true_vals[0], bins=data['bin_ends'], normed=True)[0])
+    true_nz = np.log(np.histogram(true_vals[0], bins=data['bin_ends'], density=True)[0])
+    catalog_plots.plot_mega_scatter(true_vals.T, np.exp(data['log_interim_posteriors']), bin_mids, data['bin_ends'], truth=(bin_mids, np.exp(true_nz)), plot_loc=os.path.join(test_dir, 'plots'), prepend=test_name+'-', int_pr=(bin_mids, np.exp(data['log_interim_prior'])))
+
     # print(true_nz)
     true_nz = chippr.discrete(data['bin_ends'], true_nz)
     nz = log_z_dens(data, prior, truth=true_nz, loc=test_dir, prepend=test_name, vb=True)
