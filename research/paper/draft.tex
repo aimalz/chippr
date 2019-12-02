@@ -60,9 +60,10 @@
 \newcommand{\Sz}{Spec-$z$}
 \newcommand{\pz}{photo-$z$}
 \newcommand{\Pz}{Photo-$z$}
-\newcommand{\pzpdf}{\pz\ PDF}% could change to posterior
-\newcommand{\Pzpdf}{\Pz\ PDF}% could change to posterior
-\newcommand{\zpdf}{redshift posterior}% could change to implicit posterior
+\newcommand{\zpdf}{\pz\ PDF}% could change to posterior
+\newcommand{\Zpdf}{\Pz\ PDF}% could change to posterior
+\newcommand{\pzpdf}{\pz\ posterior PDF}% could change to implicit posterior
+\newcommand{\Pzpdf}{\Pz\ posterior PDF}% could change to implicit posterior
 \newcommand{\pzip}{\pz\ implicit posterior}
 \newcommand{\nz}{$n(z)$}
 \newcommand{\Nz}{$N(z)$}
@@ -89,14 +90,15 @@
 
 \begin{abstract}
 A trustworthy estimate of the redshift distribution \nz\ is crucial for using weak gravitational lensing and large-scale structure of galaxy catalogs to study cosmology.
-Spectroscopic redshifts for the dim and numerous galaxies of weak-lensing surveys are expected to be unavailable, making photometric redshifts (photo-$z$s) the next-best alternative.
+Spectroscopic redshifts for the dim and numerous galaxies of next-generation weak-lensing surveys are expected to be unavailable, making photometric redshifts (photo-$z$s) the next-best alternative.
 The nontrivial systematics affecting photo-$z$ estimation have motivated the weak-lensing community to favor photo-$z$ posterior probability density functions (PDFs) as a more comprehensive alternative to photo-$z$ point estimates.
 However, analytic methods for utilizing these new data products in cosmological inference are still evolving.
 The ubiquitous methodology known as stacking produces a systematically biased estimator of $n(z)$ that worsens with decreasing signal-to-noise, the very regime where photo-$z$ PDFs are most necessary.
-We introduce a statistically rigorous probabilistic graphical model (PGM) of $n(z)$ for hierarchical inference, which is provably the only self-consistent way to combine photo-$z$ PDFs to produce an estimator of $n(z)$.
-Our Cosmological Hierarchical Inference with Probabilistic Photometric Redshifts (\Chippr) model yields a more accurate characterization of $n(z)$ by correctly propagating the redshift uncertainty information beyond the best-fit estimator of $n(z)$ produced by traditional procedures.
-Using the publicly available \texttt{chippr} prototype code, we propagate these effects to constraints in the space of cosmological parameters, noting, however, that the mathematically justifiable approach incurs computational expense.
-The CHIPPR approach is applicable to any one-point statistic of any random variable, provided the prior probability distribution used to produce the posteriors is known.
+We introduce a statistically rigorous probabilistic graphical model of \dwh{redshift-dependent photometry} for hierarchical inference, which is provably the only self-consistent way to combine photo-$z$ PDFs to produce an estimator of $n(z)$.
+Our Cosmological Hierarchical Inference with Probabilistic Photometric Redshifts (\textsc{CHIPPR}) model yields a more accurate characterization of $n(z)$ by correctly propagating the redshift uncertainty information beyond the best-fit estimator of $n(z)$ produced by traditional procedures.
+We present the \texttt{chippr} prototype code and use it to propagate these effects to constraints in the space of cosmological parameters, noting, however, that the mathematically justifiable approach incurs computational expense.
+The \textsc{CHIPPR} approach is applicable to any one-point statistic of any random variable, provided the prior probability density used to produce the posteriors is explicitly known; if the prior is implicit, as may be the case for popular photo-$z$ techniques, then the resulting posterior PDFs cannot be used for scientific inference.
+We therefore recommend that the photo-$z$ community direct attention to the development of methodologies that enable the recovery of photo-$z$ likelihoods \dwh{with support over all redshifts}, either directly or via a known prior probability density.
 \end{abstract}
 
 \keywords{cosmology: cosmological parameters --- galaxies: statistics --- gravitational lensing: weak --- methods: data analysis --- methods: statistical}
@@ -117,7 +119,7 @@ Many more \pz s may be obtained in the time it would take to observe a smaller n
 \Pz s have thus enabled the era of precision cosmology, heralded by weak gravitational lensing tomography and baryon acoustic oscillation peak measurements.  
 
 % what's wrong with photo-zs?
-However, \pz s are susceptible to inaccuracy and imprecision via a number of effects, particularly their inherent noisiness due to the coarseness of photometric filters, catastrophic errors in which galaxies of one SED at one redshift are mistaken for galaxies of another SED at a different redshift, and systematics introduced by observational techniques, data reduction processes, and training or template set limitations.  
+However, \pz s are susceptible to inaccuracy and imprecision \dwh{for a number of reasons}, particularly their inherent noisiness resulting from the coarseness of photometric filters, catastrophic errors in which galaxies of one SED at one redshift are mistaken for galaxies of another SED at a different redshift, and systematics introduced by observational techniques, data reduction processes, and training or template set limitations.  
 Figure~\ref{fig:pedagogical_scatter} illustrates the relationship between photometry and redshift generically by showing ``data'' in one dimension for visualization purposes, suggesting that a special nonlinear projection of the photometry could more-or-less yield a one-to-one relationship with true redshifts.
 The similarity to traditional $z_{\mathrm{spec}}$ versus $z_{\mathrm{phot}}$ plots of \pz\ point estimates is no coincidence, as \pz\ point estimates effectively are indeed one such special nonlinear projection of the data.
 
@@ -133,10 +135,10 @@ The similarity to traditional $z_{\mathrm{spec}}$ versus $z_{\mathrm{phot}}$ plo
 \end{figure}
 
 % how do we interpret photo-z imperfections?
-There are several varieties of generally non-Gaussian deviation from a perfect correspondence between redshift and data in Figure~\ref{fig:pedagogical_scatter}, represented by a $y = x$ diagonal line.
-There is scatter about the diagonal due to the coarseness of the photometric filters, with larger scatter perpendicular to the diagonal due to the specific wavelengths where highly identifiable spectral features pass between the filters, as well as higher scatter at high redshifts due to larger photometric errors on fainter galaxies.
+There are several varieties of generally non-Gaussian deviation from a \dwh{trivial relationship} between redshift and data in Figure~\ref{fig:pedagogical_scatter}, represented by a $y = x$ diagonal line.
+The coarseness of the photometric filters causes scatter about the diagonal, with larger scatter perpendicular to the diagonal at redshifts where highly identifiable spectral features pass between the filters, as well as higher scatter at high redshifts where faint galaxies with large photometric errors are more abundant.
 There are populations of outliers, far from the diagonal, comprised of galaxies for which the redshift estimate is catastrophically distinct from the true redshift, showing that outliers are not uniformly distributed nor restricted to long tails away from a Gaussian scatter.
-And, though hardly perceptible in the plot, there is a systematic bias, wherein the average of the points would not lie on the diagonal but would be offset by a small bias, suggested by the trend of high redshift points to lie below the diagonal.
+And, though hardly perceptible in the plot, there is a systematic bias, wherein the average of the points would not lie on the diagonal but would be offset by a small bias, suggested by the trend of high-redshift points to lie below the diagonal.
 
 % how much do these imperfections matter?
 Once propagated through the calculations of correlation functions of cosmic shear and galaxy positions, \pz\ errors are a dominant contributor to the total uncertainties reported on cosmological parameters \citep{abruzzo_impact_2019}.
@@ -160,16 +162,16 @@ For example, the Science Requirements Document \citep{mandelbaum_weak_2017} stat
 
 % how can we improve photo-zs?
 Much effort has been dedicated to improving \pz s, though they are still most commonly obtained by a maximum likelihood estimator (MLE) based on libraries of galaxy SED templates, with conservative approaches to error estimation.
-This approach tends to lead to catastrophic outliers like the horizontally oriented population of \Fig{fig:pedagogical_scatter}, due to the presence of galaxies whose SEDs are not represented by the template library.
-Data-driven approaches tend to result in catastrophic outliers like the vertically oriented population of \Fig{fig:pedagogical_scatter}, due to training sets that are incomplete in redshift coverage.
+The presence of galaxies whose SEDs are not represented by the template library tends to lead to catastrophic outliers distributed like the horizontally oriented population of \Fig{fig:pedagogical_scatter}.
+For data-driven approaches, training sets that are incomplete in redshift coverage tend to result in catastrophic outliers like the vertically oriented population of \Fig{fig:pedagogical_scatter}.
 The approaches of using a training set versus a template library are related to one another by \citet{budavari_unified_2009}.
 Sophisticated Bayesian techniques and machine learning methods have been employed to improve precision \citep{carliles_random_2010} and accuracy \citep{sadeh_annz2:_2016}, while other advances have focused on identifying and removing catastrophic outliers when using \pz s for inference \citep{gorecki_new_2014}. 
 
 % PDFs are a better way to improve photo-zs
-An alternative to point estimation of \pz s is redshift probability distribution function (PDF) estimation that reports the probability of all possible redshifts for every galaxy, commonly written as $\pr{z}$, rather than an MLE (with or without presumed Gaussian error bars) \citep{koo_photometric_1999}.  
+\dwh{The probability density function (PDF) in redshift space for each galaxy, commonly written as $\pr{z}$, is an alternative to the MLE (with or without presumed Gaussian error bars) \citep{koo_photometric_1999}.}
 This option is favorable because it contains more potentially useful information about the uncertainty on each galaxy's redshift, incorporating our understanding of precision, accuracy, and systematic error.
-However, denoting \pzpdf s as ``$\pr{z}$'' is an abuse of notation, as it does not adequately convey what information is being used to constrain the redshift $z$; \pzpdf s are \textit{posterior} PDFs, conditioned on the photometric data and prior knowledge.
-In terms of \Fig{fig:pedagogical_scatter}, \pzpdf s are horizontal cuts, probabilities of redshift conditioned on a specific value of data, i.e. posteriors, which constrain redshifts, whereas vertical cuts through this space are probabilities of data conditioned on a specific redshift, i.e. likelihoods, from which data is actually drawn.
+However, denoting \zpdf s as ``$\pr{z}$'' is an abuse of notation, as it does not adequately convey what information is being used to constrain the redshift $z$; \zpdf s are \textit{posterior} PDFs, conditioned on the photometric data and prior knowledge.
+In terms of \Fig{fig:pedagogical_scatter}, \zpdf s are horizontal cuts, probabilities of redshift conditioned on a specific value of data, i.e. posteriors $\pr{z \gvn \data}$, which constrain redshifts, whereas vertical cuts through this space are probabilities of data conditioned on a specific redshift, i.e. likelihoods $\pr{\data \gvn z}$, from which photometric data is actually drawn.
 
 % photo-z PDFs are established
 \Pzpdf s have been produced by completed surveys \citep{hildebrandt_cfhtlens:_2012, sheldon_photometric_2012} and will be produced by ongoing and upcoming surveys \citep{abell_lsst_2009, carrasco_kind_exhausting_2014, bonnett_redshift_2016, masters_mapping_2015}.  
@@ -178,7 +180,7 @@ The most concerning weakness of \pzpdf s, however, is their usage in the literat
 
 % photo-z PDFs are most often reduced to point estimates
 Though their potential to improve estimates of physical parameters is tremendous, \pzpdf s have been applied only to a limited extent, most often by reduction to familiar point estimates.
-If the true redshifts $\{z_{j}^{\dagger}\}$ of galaxies $j$ are known, then the redshift PDFs are delta functions $\{\delta(z, z_{j}^{\dagger})\}$ centered at the true redshift, and the redshift distribution is effectively approximated by a histogram or other interpolation of the delta functions $\{\delta(z, z_{j}^{\dagger})\}$.
+If the true redshifts $\{z_{j}^{\dagger}\}$ of galaxies $j$ are known, then their \dwh{redshift PDFs are well-approximated by delta functions} $\{\delta(z, z_{j}^{\dagger})\}$ centered at the true redshift\dwh{\footnote{\dwh{Note that \sz s are not the same as known true redshifts; the PDFs of \sz s would be narrow and almost always unimodal, but they would not be delta functions due to observational errors.}}}, and the redshift distribution is effectively approximated by a histogram or other interpolation of the delta functions $\{\delta(z, z_{j}^{\dagger})\}$.
 When \pzpdf s are available instead of true redshifts, the simplest approach reduces them to point estimates $\{\hat{z}_{i}\}$ of redshift by using $\delta(z, \hat{z}_{j})$ in place of $\delta(z, z_{j}^{\dagger})$.
 Though it is most common for $\hat{z}_{j}$ to be the maximum or \textit{mode} of the \pzpdf, there are other, more principled point estimate reduction procedures \citep{tanaka_photometric_2018}.
 
@@ -200,7 +202,7 @@ Even with \pz s adhering to the \lsst\ requirements of \Tab{tab:lsstsrd}, the de
 
 % how people get n(z) from photo-z PDFs
 Though it is traditional to estimate \nz\ from \pz\ point estimates \citep{abruzzo_impact_2019}, there is a great deal of literature employing \pzpdf s.
-To circumvent this loss, it has become to be more common to calculate the conceptually simple but mathematically inconsistent \citep{hogg_data_2012} \textit{stacked estimator} $\hat{n}(z)$ of the redshift density function \citep{lima_estimating_2008}
+To circumvent this loss, it has become more common to calculate the conceptually simple but mathematically inconsistent \citep{hogg_data_2012} \textit{stacked estimator} $\hat{n}(z)$ of the redshift density function \citep{lima_estimating_2008}
 \begin{align}
 \label{eqn:stack}
 \hat{n}(z) &= \frac{1}{J} \sum_{j = 0}^{J} \pr{z}_{j}
@@ -390,8 +392,8 @@ At each iteration $i$ and for each walker, a proposal distribution $\hat{\ndphi}
 Two threshold conditions are defined, one designating all previous samples to be ignored as as products of a burn-in phase and another indicating when a sufficient number of post-burn samples have been accepted.  
 In this case, the first threshold (described in \Sect{app:acorr}) is defined in terms of sub-runs of $10^{3}$ accepted samples, and the second is defined as an accumulation of $10^{4}$ samples.
 
-Though previous versions used \texttt{HDF5} for the primary I/O format due to its efficiency for large quantities of data, it was abandoned in favor of \texttt{pickle} in the working release due to the instability of the \python\ implementation of the format on high-performance computing systems.  
-The resulting output is a set of $I$ ordered \texttt{hickle} files enumerated by $\rho$ containing the state information after each sub-run.  
+%Though previous versions used \texttt{HDF5} for the primary I/O format due to its efficiency for large quantities of data, it was abandoned in favor of \texttt{pickle} in the working release due to the instability of the \python\ implementation of the format on high-performance computing systems.  
+The resulting output is a set of $I$ ordered \texttt{pickle} files enumerated by $\rho$ containing the state information after each sub-run.  
 The state information includes $\frac{I_{0}}{s}$ actual samples $\ndphi_{i}$ for a pre-specified chain thinning factor $s$ and their full posterior probabilities $\pr{\ndphi_{i} \gvn \{\data_{j}\}}$ as well as the autocorrelation times and acceptance fractions calculated for each element of $\ndphi$ over the entire sub-run.  
 
 \subsection{Comparison with Alternative Approaches}
@@ -690,7 +692,7 @@ Some efforts have been made to modify an observationally informed implicit prior
 
 \Fig{fig:pzs-priors} shows examples of \pzpdf s with a low-redshift favoring implicit prior emulating that of a machine learning approach to \pz\ estimation (left panel) and a more complex interim prior emulating that of a template-fitting \pz\ method (right panel).
 One can see that the \pzpdf s take different shapes from one another even though the marginal histograms of the points are identical.
-The machine learning-like implicit prior has been modified to have nonzero value at high redshift because the implicit prior must be strictly positive definite for the \Chippr\ model to be valid.
+The machine learning-like implicit prior has been modified to have nonzero value at high-redshift because the implicit prior must be strictly positive definite for the \Chippr\ model to be valid.
 
 \begin{figure*}
 	\begin{center}
@@ -805,7 +807,7 @@ The excessive breadth of the alternative estimators can be seen quite plainly.
 \end{figure*}
 
 We then use the different estimators of \nz\ in a cosmological forecasting procedure with \cosmolike, constraining $\Omega_{m}$, $\Omega_{b}$, $w_{a}$, $w_{0}$, $n_{s}$, $S_{8}$, and $H_{0}$.
-Though there are also slight differences in the angle of the error ellipses, most of the differences are due to broadening of the contours under the alternative estimators relative to \Chippr, which are almost indistinguishable from those derived by using the true redshift distribution in each bin.
+Though there are also slight differences in the angle of the error ellipses, the most striking effect is the broadening of the contours under the alternative estimators relative to \Chippr, which are almost indistinguishable from those derived by using the true redshift distribution in each bin.
 The stacked estimator is significantly worse than the \Chippr\ \mmle\ for all parameters except $\Omega_{b}$ and $H_{0}$.
 Stacking, however, outperforms the histogram of modes for all parameters except $\Omega_{m}$ and $S_{8}$, for which their constraints are quite similar.
 Though the true values of the parameters themselves were not accessible with the Fisher matrix-based framework, we calculate the seven-dimensional KLD for the three \nz\ estimators relative to the constraints derived from the true \nz, showing that \Chippr\ preserves information $200-800$ times better than the alternatives, with the histogram of modes doing about four times better than stacking.
@@ -914,6 +916,7 @@ The following conclusions and recommendations can be made with confidence:
 By showing that \Chippr\ is effective in recovering the true redshift distribution function and posterior distributions on its parameters from catalogs of \pzpdf s, this work supports the production of \pzpdf s by upcoming photometric surveys such as \lsst\ to enable more accurate inference of the cosmological parameters.  
 We discourage researchers from co-adding \pzpdf s or converting them into point estimates of redshift and instead recommend the use of Bayesian probability to guide the usage of \pzpdf s.  
 We emphasize to those who produce \pzpdf s from data that it is essential to release the implicit prior used in generating this data product in order for proper inference to be conducted by consumers of this information.
+\aim{TODO: Strengthen language and get specific about what \pzpdf\ producers must do.}
 
 The technique herein developed is applicable with minimal modification to other one-point statistics of redshift to which we will apply this method in the future, such as the redshift-dependent luminosity function and weak lensing mean distance ratio.  
 Future work will also include the extension of this fully probabilistic approach to higher-order statistics of redshift such as the two-point correlation function.
