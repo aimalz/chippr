@@ -89,16 +89,14 @@
 \altaffiltext{5}{Max-Planck-Institut f\"ur Astronomie, K\"onigstuhl 17, D-69117 Heidelberg, Germany}
 
 \begin{abstract}
-A trustworthy estimate of the redshift distribution \nz\ is crucial for using weak gravitational lensing and large-scale structure of galaxy catalogs to study cosmology.
-Spectroscopic redshifts for the dim and numerous galaxies of next-generation weak-lensing surveys are expected to be unavailable, making photometric redshifts (photo-$z$s) the next-best alternative.
-The nontrivial systematics affecting photo-$z$ estimation have motivated the weak-lensing community to favor photo-$z$ posterior probability density functions (PDFs) as a more comprehensive alternative to photo-$z$ point estimates.
-However, analytic methods for utilizing these new data products in cosmological inference are still evolving.
-The ubiquitous methodology known as stacking produces a systematically biased estimator of $n(z)$ that worsens with decreasing signal-to-noise, the very regime where photo-$z$ PDFs are most necessary.
-We introduce a statistically rigorous probabilistic graphical model of \dwh{redshift-dependent photometry} for hierarchical inference, which is provably the only self-consistent way to combine photo-$z$ PDFs to produce an estimator of $n(z)$.
-Our Cosmological Hierarchical Inference with Probabilistic Photometric Redshifts (\textsc{CHIPPR}) model yields a more accurate characterization of $n(z)$ by correctly propagating the redshift uncertainty information beyond the best-fit estimator of $n(z)$ produced by traditional procedures.
-We present the \texttt{chippr} prototype code and use it to propagate these effects to constraints in the space of cosmological parameters, noting, however, that the mathematically justifiable approach incurs computational expense.
-The \textsc{CHIPPR} approach is applicable to any one-point statistic of any random variable, provided the prior probability density used to produce the posteriors is explicitly known; if the prior is implicit, as may be the case for popular photo-$z$ techniques, then the resulting posterior PDFs cannot be used for scientific inference.
-We therefore recommend that the photo-$z$ community direct attention to the development of methodologies that enable the recovery of photo-$z$ likelihoods \dwh{with support over all redshifts}, either directly or via a known prior probability density.
+A trustworthy estimate of the redshift distribution $n(z)$ is crucial for using weak gravitational lensing and large-scale structure of galaxy catalogs to study cosmology.
+\dwh{Spectroscopic redshifts for the dim and numerous galaxies of next-generation weak-lensing surveys are expected to be unavailable, making photometric redshift (photo-$z$) probability density functions (PDFs) the next-best alternative for comprehensively encapsulating the nontrivial systematics affecting photo-$z$ point estimation.
+The established stacked estimator of $n(z)$ avoids reducing photo-$z$ PDFs to point estimates but yields a systematically biased estimate of $n(z)$ that worsens with decreasing signal-to-noise, the very regime where photo-$z$ PDFs are most necessary.}
+We introduce Cosmological Hierarchical Inference with Probabilistic Photometric Redshifts (\textsc{CHIPPR}), a statistically rigorous probabilistic graphical model of redshift-dependent photometry, which correctly propagates the redshift uncertainty information beyond the best-fit estimator of $n(z)$ produced by traditional procedures and is provably the only self-consistent way to recover $n(z)$ from photo-$z$ PDFs.
+We present the \texttt{chippr} prototype code and use it to forecast constraints in the space of cosmological parameters, noting, however, that the mathematically justifiable approach incurs computational expense.
+The \textsc{CHIPPR} approach is applicable to any one-point statistic of any random variable, provided the prior probability density used to produce the posteriors is explicitly known; 
+if the prior is implicit, as may be the case for popular photo-$z$ techniques, then the resulting posterior PDFs cannot be used for scientific inference.
+We therefore recommend that the photo-$z$ community focus on developing methodologies that enable the recovery of photo-$z$ likelihoods with support over all redshifts, either directly or via a known prior probability density.
 \end{abstract}
 
 \keywords{cosmology: cosmological parameters --- galaxies: statistics --- gravitational lensing: weak --- methods: data analysis --- methods: statistical}
@@ -305,7 +303,7 @@ Because the parameters $\ndphi$ that we seek are causally separated from the dat
 			The redshift distribution \nz\ parameterized by hyperparameters $\ndphi$ exists independent of the survey of $J$ galaxies, indicated as a box.  
 			The redshifts $\{z_{j}\}$ of all galaxies in the survey are latent variables independently drawn from the redshift distribution, which is a function of $\ndphi$. 
 			The photometric data $\data_{j}$ for each galaxy is drawn from a function of its redshift $z_{j}$ and observed, indicated by a shaded circle.
-			\aim{Switch to vector graphics version?}}
+			}
 		\label{fig:pgm}
 	\end{center}
 \end{figure}
@@ -319,10 +317,10 @@ However, to do this, we must have a model for the general relationship between r
 Such a relationship $\pr{\data, z}$ is defined in the multidimensional space of probability density over redshift and photometry.
 If we were to marginalize over the photometry in $\pr{\data, z}$, we would obtain a one-dimensional PDF $\pr{z \gvn \ndphi^{*}}$ over redshift, which can by definition be parameterized by the same functional form as \nz, for some $\ndphi^{*}$ specific to the estimation procedure that may or may not bear any relation to the hyperparameters $\ndphi^{\dagger}$ of the true \nz.
 Rather, $\ndphi^{*}$ is a consequence of generative model for how photometry results from redshift, including the influence of intrinsic galaxy spectra and instrumental effects. 
-We call $\pr{z \gvn \ndphi^{*}}$ the \textit{implicit prior}, as it is rarely explicitly known nor chosen by the researcher\footnote{For template-based methods, the implicit prior is often an explicitly known input to the algorithm, engineered as an initial guess for the true $\ndphi$, with an aim for a realistic choice guided by an earlier spectroscopic survey.  
+We call $\pr{z \gvn \ndphi^{*}}$ the \textit{implicit prior}, as it is rarely explicitly known nor chosen by the researcher}\footnote{For template-based methods, the implicit prior is often an explicitly known input to the algorithm, engineered as an initial guess for the true $\ndphi$, with an aim for a realistic choice guided by an earlier spectroscopic survey.  
 (See \citet{benitez_bayesian_2000} for more detail.)
 It may thus be more appropriate to call it an \textit{interim prior}, but we will use the former term throughout this paper for generality.}
-Because the implicit prior is unavoidable and almost inherently not uninformative, the \pzpdf s reported by any method must be \textit{implicit posteriors} $\pr{z \gvn \data, \ndphi^{*}}$ weighted by the implicit prior.}
+Because the implicit prior is unavoidable and almost inherently not uninformative, the \pzpdf s reported by any method must be \textit{implicit posteriors} ${\pr{z \gvn \data, \ndphi^{*}}}$ weighted by the implicit prior.
 
 %Posteriors differ from likelihoods by way of a prior distribution, so we cannot simply assume that the available data products are \pz\ posteriors $\pr{z \gvn \data_{j}}$.  
 %Rather, we have a catalog of implicit-prior weighted \pz\ posteriors $\pr{z \gvn \data_{j}, \ndphi^{*}}$.  
@@ -844,8 +842,8 @@ If we naively used the \pzpdf\ catalog produced by a generic machine learning co
 
 \begin{figure}
 	\begin{center}
-		\includegraphics[width=0.45\textwidth]{figures/chippr/misspecified_mega_scatter.png}\\
-		\includegraphics[width=0.45\textwidth]{figures/chippr/misspecified_log_estimators.png}
+%		\includegraphics[width=0.45\textwidth]{figures/chippr/misspecified_mega_scatter.png}\\
+%		\includegraphics[width=0.45\textwidth]{figures/chippr/misspecified_log_estimators.png}
 		\caption{
 			Top: Examples of \pzpdf s with systematics at the level of the \lsst\ requirements with a machine learning-like implicit prior, including samples from the probability space of true and observed redshift (black points), \pzpdf s (colored curves), and the true redshifts of the example \pzpdf s (black vertical lines), with marginal histograms (gray) for each dimension with the true redshift distribution (blue curve) and implicit prior (red curve) in the insets.
 			Bottom: The results of \Chippr\ (samples in light blue, optimization in dark blue) and the alternative approaches (the stacked estimator in red, the histogram of modes in yellow) on \pzpdf s with uniformly distributed catastrophic outliers, with the true redshift density (black curve) and the uniform implicit prior given to \chippr\ (gray curve).
