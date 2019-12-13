@@ -117,7 +117,7 @@ Many more \pz s may be obtained in the time it would take to observe a smaller n
 \Pz s have thus enabled the era of precision cosmology, heralded by weak gravitational lensing tomography and baryon acoustic oscillation peak measurements.  
 
 % what's wrong with photo-zs?
-However, \pz s are susceptible to inaccuracy and imprecision \dwh{for a number of reasons}, particularly their inherent noisiness resulting from the coarseness of photometric filters, catastrophic errors in which galaxies of one SED at one redshift are mistaken for galaxies of another SED at a different redshift, and systematics introduced by observational techniques, data reduction processes, and training or template set limitations.  
+However, \pz s are susceptible to inaccuracy and imprecision in the form of their inherent noisiness resulting from the coarseness of photometric filters, catastrophic errors in which galaxies of one SED at one redshift are mistaken for galaxies of another SED at a different redshift, and systematics introduced by observational techniques, data reduction processes, and training or template set limitations.  
 Figure~\ref{fig:pedagogical_scatter} illustrates the relationship between photometry and redshift generically by showing ``data'' in one dimension for visualization purposes, suggesting that a special nonlinear projection of the photometry could more-or-less yield a one-to-one relationship with true redshifts.
 The similarity to traditional $z_{\mathrm{spec}}$ versus $z_{\mathrm{phot}}$ plots of \pz\ point estimates is no coincidence, as \pz\ point estimates effectively are indeed one such special nonlinear projection of the data.
 
@@ -199,8 +199,7 @@ Even with \pz s adhering to the \lsst\ requirements of \Tab{tab:lsstsrd}, the de
 % Say what precision the mass function is needed (in, say cluster studies) for precision cosmology.
 
 % how people get n(z) from photo-z PDFs
-Though it is traditional to estimate \nz\ from \pz\ point estimates \citep{abruzzo_impact_2019}, there is a great deal of literature employing \pzpdf s.
-To circumvent this loss, it has become more common to calculate the conceptually simple but mathematically inconsistent \citep{hogg_data_2012} \textit{stacked estimator} $\hat{n}(z)$ of the redshift density function \citep{lima_estimating_2008}
+Though it is traditional to estimate \nz\ from \pz\ point estimates \citep{abruzzo_impact_2019}, it has become more common to use \pzpdf s directly to calculate the conceptually simple but mathematically inconsistent \citep{hogg_data_2012} \textit{stacked estimator} $\hat{n}(z)$ of the redshift density function \citep{lima_estimating_2008}
 \begin{align}
 \label{eqn:stack}
 \hat{n}(z) &= \frac{1}{J} \sum_{j = 0}^{J} \pr{z}_{j}
