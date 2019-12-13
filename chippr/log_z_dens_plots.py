@@ -314,9 +314,10 @@ def plot_estimators(info, plot_dir, log=True, prepend='', metrics=True, mini=Tru
                         ((bin_true / bin_true) - 1.) * 100.,
                         w=w_tbp, s=s_tbp, a=a_tbp, c=c_tbp, d=d_tbp)
         else:
-            f = plt.figure(figsize=(5, 5))
+            f = plt.figure(figsize=(7.5, 7.5))
             sps_log = f.add_subplot(1, 1, 1)
             sps_log.set_xlabel(r'$z$')
+            sps_log.set_xticks(np.linspace(min(info['bin_ends']), np.ceil(max(info['bin_ends'])), 5))
         # mini_sps.ticklabel_format(style='sci',axis='y')
 
         # tru, =
@@ -499,7 +500,8 @@ def plot_estimators(info, plot_dir, log=True, prepend='', metrics=True, mini=Tru
                         w=w_mle, s=s_mle, a=a_mle, c=c_mle, d=d_mle, l=l_mle+lnz+err_txt)
 
     # sps_log.legend(handles=color_plots[:-1], fontsize='x-small', loc='lower center', frameon=False)
-    sps_log.legend(fontsize='small', loc='upper right', frameon=False)
+    sps_log.legend(fontsize='large', loc='upper right', frameon=False)
+    sps_log.text(0.25, -3.75, r'inferred $n(z)$', rotation=0, size=20)
     f.subplots_adjust(hspace=0, wspace=0)
     f.savefig(os.path.join(plot_dir, prepend+'estimators.png'), bbox_inches='tight', pad_inches = 0, dpi=d.dpi)
     print(info['stats'])

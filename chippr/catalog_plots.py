@@ -103,7 +103,7 @@ def plot_mega_scatter(zs, pfs, z_grid, grid_ends, truth=None, plot_loc='', prepe
     prepend: str, optional
         prepend string to plot name
     int_pr: numpy.ndarray, float, optional
-        plit the interim prior with the histograms?
+        plot the interim prior with the histograms?
     """
     n = len(zs)
     zs = zs.T
@@ -121,7 +121,7 @@ def plot_mega_scatter(zs, pfs, z_grid, grid_ends, truth=None, plot_loc='', prepe
 
     spacing = np.mean(z_grid[1:] - z_grid[:-1])
 
-    scatplot.plot(z_grid, z_grid, color='r', alpha=0.5, linewidth=1.)
+    scatplot.plot(z_grid, z_grid, color='k', alpha=0.5, linewidth=1.5)
     scatplot.scatter(true_zs, obs_zs, c='k', marker='.', s=1., alpha=0.1)
     randos = np.floor(n / (d.plot_colors + 1)) * np.arange(1., d.plot_colors + 1)# np.random.choice(range(len(z_grid)), d.plot_colors)
     randos = randos.astype(int)
@@ -133,30 +133,33 @@ def plot_mega_scatter(zs, pfs, z_grid, grid_ends, truth=None, plot_loc='', prepe
     for r in range(d.plot_colors):
         pf = sorted_pfs[randos[r]]
         norm_pf = pf / max_pfs
-        pu.plot_h(scatplot, [min(grid_ends), max(grid_ends)], [sorted_obs[randos[r]], sorted_obs[randos[r]]], c='k', s=':', w=0.75)
-        pu.plot_v(scatplot, [min(grid_ends), sorted_true[randos[r]], max(z_grid)], [sorted_obs[randos[r]], max(norm_pf)+sorted_obs[randos[r]]], c='k', s=':', w=0.75)
+        pu.plot_h(scatplot, [min(grid_ends), max(grid_ends)], [sorted_obs[randos[r]], sorted_obs[randos[r]]], c='k', s=':', w=0.5)
+        pu.plot_v(scatplot, [min(grid_ends), sorted_true[randos[r]], max(z_grid)], [sorted_obs[randos[r]], max(norm_pf)+sorted_obs[randos[r]]], c=pu.colors[r], s=':', w=1.)
         scatplot.step(z_grid, norm_pf + sorted_obs[randos[r]], c=pu.colors[r], where='mid')# plt.plot(z_grid, norm_pf + sorted_obs[randos[r]], c='k')
     limval = (max(grid_ends) - min(grid_ends)) / (len(grid_ends) - 1.)
     scatplot.set_xlim([min(grid_ends)-limval, max(grid_ends)+limval])
     scatplot.set_ylim([min(grid_ends)-limval, max(grid_ends)+limval])
-    scatplot.set_xlabel(r'$z_{spec}$', fontsize=20)
-    scatplot.set_ylabel(r'$z_{phot}$', fontsize=20)
+    scatplot.set_xticks(np.linspace(min(grid_ends), np.ceil(max(grid_ends)), 5))
+    scatplot.set_yticks(np.linspace(min(grid_ends), np.ceil(max(grid_ends)), 5))
+    scatplot.set_xlabel(r'$z_{spec}$')
+    scatplot.set_ylabel(r'$z_{phot}$')
+    scatplot.text(0.25, 3., r'mock $p(z\mid \mathrm{``data"})$', rotation=0, size=20)
 
     # scatplot.set_aspect(1.)
     divider = make_axes_locatable(scatplot)
     histx = divider.append_axes('top', 1.2, pad=0., sharex=scatplot)
     histy = divider.append_axes('right', 1.2, pad=0., sharey=scatplot)
 
+    histx.hist(true_zs, bins=grid_ends, alpha=0.25, color='k', stacked=False, density=True)
+    histy.hist(obs_zs, bins=grid_ends, orientation='horizontal', alpha=0.25, color='k', stacked=False, density=True)
+    if truth is not None:
+        histx.step(truth[0], truth[1], c='k', where='mid')
+        pu.plot_step(histy, np.pad(truth[1], (1, 1), 'constant', constant_values=(0, 0)), grid_ends, c='k', w=1.5)
+    if int_pr is not None:
+        histx.step(int_pr[0], int_pr[1], c='k', alpha=0.5, where='mid')
+        pu.plot_step(histy, np.pad(int_pr[1], (1, 1), 'constant', constant_values=(0, 0)), grid_ends, c='k', a=0.5, w=1.5)
     histx.xaxis.set_tick_params(labelbottom=False)
     histy.yaxis.set_tick_params(labelleft=False)
-    histx.hist(true_zs, bins=grid_ends, alpha=0.5, color='k', normed=True, stacked=False)
-    histy.hist(obs_zs, bins=grid_ends, orientation='horizontal', alpha=0.5, color='k', normed=True, stacked=False)
-    if truth is not None:
-        histx.plot(truth[0], truth[1] / np.sum(truth[1] * spacing), color='b', alpha=0.75)
-        histy.plot(truth[1] / np.sum(truth[1] * spacing), truth[0], color='b', alpha=0.75)
-    if int_pr is not None:
-        histx.plot(int_pr[0], int_pr[1] / np.sum(int_pr[1] * spacing), color='r', alpha=0.75)
-        histy.plot(int_pr[1] / np.sum(int_pr[1] * spacing), int_pr[0], color='r', alpha=0.75)
     histx.set_yticks([])
     histy.set_xticks([])
     histx.set_xlim([min(grid_ends)-limval, max(grid_ends)+limval])

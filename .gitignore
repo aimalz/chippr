@@ -3,8 +3,13 @@
 *.aux
 *.log
 *.bbl
+*.out
+*.log
+*.blg
 *.pdf
 *.png
 *.zip
 *.gz
 *.fdb_latexmk
+/research/results/*
+/research/scripts/*
