@@ -93,7 +93,9 @@ A trustworthy estimate of the redshift distribution $n(z)$ is crucial for using 
 \dwh{Spectroscopic redshifts for the dim and numerous galaxies of next-generation weak-lensing surveys are expected to be unavailable, making photometric redshift (photo-$z$) probability density functions (PDFs) the next-best alternative for comprehensively encapsulating the nontrivial systematics affecting photo-$z$ point estimation.
 The established stacked estimator of $n(z)$ avoids reducing photo-$z$ PDFs to point estimates but yields a systematically biased estimate of $n(z)$ that worsens with decreasing signal-to-noise, the very regime where photo-$z$ PDFs are most necessary.}
 We introduce Cosmological Hierarchical Inference with Probabilistic Photometric Redshifts (\textsc{CHIPPR}), a statistically rigorous probabilistic graphical model of redshift-dependent photometry, which correctly propagates the redshift uncertainty information beyond the best-fit estimator of $n(z)$ produced by traditional procedures and is provably the only self-consistent way to recover $n(z)$ from photo-$z$ PDFs.
-We present the \texttt{chippr} prototype code and use it to forecast constraints in the space of cosmological parameters, noting, however, that the mathematically justifiable approach incurs computational expense.
+We present the \texttt{chippr} prototype code
+%and use it to forecast constraints in the space of cosmological parameters
+, noting that the mathematically justifiable approach incurs computational expense.
 The \textsc{CHIPPR} approach is applicable to any one-point statistic of any random variable, provided the prior probability density used to produce the posteriors is explicitly known; 
 if the prior is implicit, as may be the case for popular photo-$z$ techniques, then the resulting posterior PDFs cannot be used for scientific inference.
 We therefore recommend that the photo-$z$ community focus on developing methodologies that enable the recovery of photo-$z$ likelihoods with support over all redshifts, either directly or via a known prior probability density.
@@ -215,7 +217,8 @@ Though others have approached the problem before \citep{leistedt_hierarchical_20
 
 In Section~\ref{sec:meth}, we present the \Chippr\ model and \chippr\ implementation for characterizing the full posterior probability landscape of \Nz\ using \pzpdf s. 
 In Section~\ref{sec:alldata}, we describe the experimental design for testing the fully probabilistic approach to mock and real datasets, the results of which are found in Section~\ref{sec:results}.
-In Section~\ref{sec:results}, we stress-test the \Chippr\ model against stacking and its other competitors in the context of cosmology.
+In Section~\ref{sec:results}, we stress-test the \Chippr\ model against stacking and its other competitors.
+% in the context of cosmology.
 
 \section{Method}
 \label{sec:meth}
@@ -732,103 +735,105 @@ The main implication of the response of \nz\ estimates to a nontrivial implicit 
 \label{sec:results}
 
 The experiments of \Sect{sec:alldata} isolate the potential sources of error in \nz\ estimation one at a time.
-Now, we stress-test \Chippr\ by investigating two realistically complex cases, one in which the \nz\ estimates are made tomographically as in a modern cosmological analysis (\Sect{sec:lsstdemo}) and one in which the \nz\ estimators are not provided with the same implicit prior used to generate the \pzpdf\ catalog (\Sect{sec:violations}).
+Now, we stress-test \Chippr\ by investigating 
+%two realistically complex cases, one in which the \nz\ estimates are made tomographically as in a modern cosmological analysis (\Sect{sec:lsstdemo}) and one 
+a case in which the \nz\ estimators are not provided the same implicit prior used to generate the \pzpdf\ catalog (\Sect{sec:violations}).
 
-\subsection{LSST Requirements}
-\label{sec:lsstdemo}
-
-It is of interest to explore the impact of incorrectly estimated \nz\ on the cosmological inference to answer the question of how wrong we will be in our understanding of the universe if we incorrectly constrain \nz.
-To test the impact of these uncertainties, we simulate mock data with all three effects with which \lsst\ is concerned at the levels of Table~\ref{tab:lsstsrd} and propagate the results of \Chippr\ and the other estimators to a Fisher matrix forecast using \cosmolike\ \citep{krause_cosmolike_2017}, a publicly available cosmological forecasting code.
-%Though redshift tomography is non-physical, as redshift is a continuous random variable, and binning in estimated redshift introduces poorly understood systematic error, we perform this analysis as an example of how it affects the current standard in how cosmological parameters are constrained by galaxy surveys, rather than how we think they ought to be constrained.
-%\aim{Don't introduce anti-tomography rant here, kind of controversial and should be explored where it has its own space.}
-
-\begin{figure}
-	\begin{center}
-		\includegraphics[width=0.45\textwidth]{figures/chippr/cosmolike_inputs.png}
-		\caption{
-			The \lsst-like tomographic binning and true redshift distribution, where the truth (solid) is a PDF evaluated on a fine grid of $350$ redshifts $0.0101 < z < 3.5001$, and the binned (dashed) and drawn (dotted) \nz\ are piecewise constant functions evaluated in $35$ evenly spaced bins, for four different tomographic bins (colors).
-		}
-		\label{fig:tomobins}
-	\end{center}
-\end{figure}
-
-\dwh{We consider as ground truth a set of known \nz\ corresponding to each of four hypothetical samples of galaxies and the corresponding cosmological parameter covariance matrix.
-The \nz\ of each galaxy subsample emulates that anticipated of galaxies binned by a redshift point estimate, as is common in tomographic redshift analyses, though our experimental procedure is agnostic to how the samples are identified.
-The cosmological parameter covariance matrices are those used for \desc\ forecasting with the ground truth \nz\ in the same four bins.}
-The true \nz\ in each pre-defined bin is already provided in the form of an evaluation of a function on a fine grid of $350$ redshifts $0.0101 < z < 3.5001$.
-
-First, we bin them down to a piecewise constant parameterization with a manageable $35$ hyperparameters for \chippr's sampling capabilities.
-Next, we draw $10^{4}$ true redshifts from the binned true \nz\ for each tomographic bin.
-The original, binned, and drawn \nz\ are shown in \Fig{fig:tomobins}.
-We emulate \pzpdf s for the $10^{4}$ true redshifts drawn from the true \nz\ in each bin using the procedure of \Fig{fig:flowchart} with all three effects of Table~\ref{tab:lsstsrd}
-at their given levels.
-Illustrations of this process are provided in \Fig{fig:per-bin-scatter}.
-
-\begin{figure*}
-	\begin{center}
-		\includegraphics[width=0.24\textwidth]{figures/chippr/0single_lsst_mega_scatter.png}
-		\includegraphics[width=0.24\textwidth]{figures/chippr/1single_lsst_mega_scatter.png}
-		\includegraphics[width=0.24\textwidth]{figures/chippr/2single_lsst_mega_scatter.png}
-		\includegraphics[width=0.24\textwidth]{figures/chippr/3single_lsst_mega_scatter.png}
-		\caption{As in \Fig{fig:mega_scatter}, with a different tomographic bin in each panel and the three effects of intrinsic scatter, uniformly distributed catastrophic outliers, and bias at the levels of the \lsst\ SRD, given in Table~\ref{tab:lsstsrd}.
-		\aim{TODO: Make this one big plot instead of four little ones to eliminate repeated insets and legend.
-		Enlarge axis labels.
-		Label panels.
-		Also, add watermark of ``mock data'' in UL corner, same for ``results of inference'' on other kind of plot.}
-		}
-		\label{fig:per-bin-scatter}
-	\end{center}
-\end{figure*}
-
-\que{Is the distinction between binned samples determined by some observational property and probabilistic redshift distributions sufficiently clear?}
-
-We then make a point estimate of \nz\ using \chippr's \mmle\ optimization option as well as the alternative methods on the \pzpdf\ catalog for each tomographic bin, shown in \Fig{fig:per-bin-ests}, because \cosmolike\ produces cosmology constraints from a single \nz\ result, rather than samples from the full posterior probability density of possible \nz.
-Note that \Fig{fig:per-bin-ests} is shown in linear rather than log probability units, unlike all other plots in this paper, to better show the behavior at low probability.
-The excessive breadth of the alternative estimators can be seen quite plainly.
-
-\begin{figure*}
-	\begin{center}
-		\includegraphics[width=0.24\textwidth]{figures/chippr/0single_lsst_lin_estimators.png}
-		\includegraphics[width=0.24\textwidth]{figures/chippr/1single_lsst_lin_estimators.png}
-		\includegraphics[width=0.24\textwidth]{figures/chippr/2single_lsst_lin_estimators.png}
-		\includegraphics[width=0.24\textwidth]{figures/chippr/3single_lsst_lin_estimators.png}
-		\caption{
-			The \chippr-derived and other estimators of \nz\ in each tomographic bin, with the true \nz\ (black), the implicit prior (gray), stacked estimator (red), histogram of modes (yellow), and \Chippr\ \mmle\ (blue).
-			The result of stacking is far too broad for \lsst-like \pzpdf s, even moreso than the simplistic histogram of modes.
-			\aim{TODO: Make this one big plot instead of four little ones to eliminate repeated axis labels and legend.
-			Label figure/panels.
-			Also, add watermark of ``results of inference'' in UL corner, same for ``mock data'' on other kind of plot.}
-		}
-		\label{fig:per-bin-ests}
-	\end{center}
-\end{figure*}
-
-We then use the different estimators of \nz\ in a cosmological forecasting procedure with \cosmolike, constraining $\Omega_{m}$, $\Omega_{b}$, $w_{a}$, $w_{0}$, $n_{s}$, $S_{8}$, and $H_{0}$.
-Though there are also slight differences in the angle of the error ellipses, the most striking effect is the broadening of the contours under the alternative estimators relative to \Chippr, which are almost indistinguishable from those derived by using the true redshift distribution in each bin.
-The stacked estimator is significantly worse than the \Chippr\ \mmle\ for all parameters except $\Omega_{b}$ and $H_{0}$.
-Stacking, however, outperforms the histogram of modes for all parameters except $\Omega_{m}$ and $S_{8}$, for which their constraints are quite similar.
-Though the true values of the parameters themselves were not accessible with the Fisher matrix-based framework, we calculate the seven-dimensional KLD for the three \nz\ estimators relative to the constraints derived from the true \nz, showing that \Chippr\ preserves information $200-800$ times better than the alternatives, with the histogram of modes doing about four times better than stacking.
-%\aim{TODO: Ask Elisabeth how to get the bias here.}
-\que{So a Fisher matrix analysis inherently can't provide the bias, because that requires data.
-Because we have no data, only posteriors conditioned on hypothetical data, this isn't possible.
-Do you think it's sufficient to provide the bias on the moments of \nz, since that's what everyone uses anyway?}
-
-\begin{figure*}
-	\begin{center}
-		\includegraphics[width=0.9\textwidth]{figures/chippr/final_plot.png}
-		\caption{
-			\que{Are the contours any easier to see now?}
-			The result of propagating the estimators of \nz\ by stacking (red), the histogram of modes (yellow), \Chippr\ (blue), and the true \nz\ (black) of \Fig{fig:per-bin-ests} to a subset of cosmological parameters.
-			For all parameters considered, \Chippr\ yields contours no broader than those corresponding to the true \nz, whereas for most parameters, stacking and the histogram of modes yield broader contours.
-			\aim{TODO: Fix formatting of axis labels.
-			Standardize ticklabels.}
-		}
-		\label{fig:cornerplot}
-	\end{center}
-\end{figure*}
-
-\que{Does this discussion adequately quantify how good \Nz\ has to be and how wrong we'll be if we estimate it wrong?
-	Suggestions for how to better establish context would be appreciated.}
+%\subsection{LSST Requirements}
+%\label{sec:lsstdemo}
+%
+%It is of interest to explore the impact of incorrectly estimated \nz\ on the cosmological inference to answer the question of how wrong we will be in our understanding of the universe if we incorrectly constrain \nz.
+%To test the impact of these uncertainties, we simulate mock data with all three effects with which \lsst\ is concerned at the levels of Table~\ref{tab:lsstsrd} and propagate the results of \Chippr\ and the other estimators to a Fisher matrix forecast using \cosmolike\ \citep{krause_cosmolike_2017}, a publicly available cosmological forecasting code.
+%%Though redshift tomography is non-physical, as redshift is a continuous random variable, and binning in estimated redshift introduces poorly understood systematic error, we perform this analysis as an example of how it affects the current standard in how cosmological parameters are constrained by galaxy surveys, rather than how we think they ought to be constrained.
+%%\aim{Don't introduce anti-tomography rant here, kind of controversial and should be explored where it has its own space.}
+%
+%\begin{figure}
+%	\begin{center}
+%		\includegraphics[width=0.45\textwidth]{figures/chippr/cosmolike_inputs.png}
+%		\caption{
+%			The \lsst-like tomographic binning and true redshift distribution, where the truth (solid) is a PDF evaluated on a fine grid of $350$ redshifts $0.0101 < z < 3.5001$, and the binned (dashed) and drawn (dotted) \nz\ are piecewise constant functions evaluated in $35$ evenly spaced bins, for four different tomographic bins (colors).
+%		}
+%		\label{fig:tomobins}
+%	\end{center}
+%\end{figure}
+%
+%\dwh{We consider as ground truth a set of known \nz\ corresponding to each of four hypothetical samples of galaxies and the corresponding cosmological parameter covariance matrix.
+%The \nz\ of each galaxy subsample emulates that anticipated of galaxies binned by a redshift point estimate, as is common in tomographic redshift analyses, though our experimental procedure is agnostic to how the samples are identified.
+%The cosmological parameter covariance matrices are those used for \desc\ forecasting with the ground truth \nz\ in the same four bins.}
+%The true \nz\ in each pre-defined bin is already provided in the form of an evaluation of a function on a fine grid of $350$ redshifts $0.0101 < z < 3.5001$.
+%
+%First, we bin them down to a piecewise constant parameterization with a manageable $35$ hyperparameters for \chippr's sampling capabilities.
+%Next, we draw $10^{4}$ true redshifts from the binned true \nz\ for each tomographic bin.
+%The original, binned, and drawn \nz\ are shown in \Fig{fig:tomobins}.
+%We emulate \pzpdf s for the $10^{4}$ true redshifts drawn from the true \nz\ in each bin using the procedure of \Fig{fig:flowchart} with all three effects of Table~\ref{tab:lsstsrd}
+%at their given levels.
+%Illustrations of this process are provided in \Fig{fig:per-bin-scatter}.
+%
+%\begin{figure*}
+%	\begin{center}
+%		\includegraphics[width=0.24\textwidth]{figures/chippr/0single_lsst_mega_scatter.png}
+%		\includegraphics[width=0.24\textwidth]{figures/chippr/1single_lsst_mega_scatter.png}
+%		\includegraphics[width=0.24\textwidth]{figures/chippr/2single_lsst_mega_scatter.png}
+%		\includegraphics[width=0.24\textwidth]{figures/chippr/3single_lsst_mega_scatter.png}
+%		\caption{As in \Fig{fig:mega_scatter}, with a different tomographic bin in each panel and the three effects of intrinsic scatter, uniformly distributed catastrophic outliers, and bias at the levels of the \lsst\ SRD, given in Table~\ref{tab:lsstsrd}.
+%		\aim{TODO: Make this one big plot instead of four little ones to eliminate repeated insets and legend.
+%		Enlarge axis labels.
+%		Label panels.
+%		Also, add watermark of ``mock data'' in UL corner, same for ``results of inference'' on other kind of plot.}
+%		}
+%		\label{fig:per-bin-scatter}
+%	\end{center}
+%\end{figure*}
+%
+%\que{Is the distinction between binned samples determined by some observational property and probabilistic redshift distributions sufficiently clear?}
+%
+%We then make a point estimate of \nz\ using \chippr's \mmle\ optimization option as well as the alternative methods on the \pzpdf\ catalog for each tomographic bin, shown in \Fig{fig:per-bin-ests}, because \cosmolike\ produces cosmology constraints from a single \nz\ result, rather than samples from the full posterior probability density of possible \nz.
+%Note that \Fig{fig:per-bin-ests} is shown in linear rather than log probability units, unlike all other plots in this paper, to better show the behavior at low probability.
+%The excessive breadth of the alternative estimators can be seen quite plainly.
+%
+%\begin{figure*}
+%	\begin{center}
+%		\includegraphics[width=0.24\textwidth]{figures/chippr/0single_lsst_lin_estimators.png}
+%		\includegraphics[width=0.24\textwidth]{figures/chippr/1single_lsst_lin_estimators.png}
+%		\includegraphics[width=0.24\textwidth]{figures/chippr/2single_lsst_lin_estimators.png}
+%		\includegraphics[width=0.24\textwidth]{figures/chippr/3single_lsst_lin_estimators.png}
+%		\caption{
+%			The \chippr-derived and other estimators of \nz\ in each tomographic bin, with the true \nz\ (black), the implicit prior (gray), stacked estimator (red), histogram of modes (yellow), and \Chippr\ \mmle\ (blue).
+%			The result of stacking is far too broad for \lsst-like \pzpdf s, even moreso than the simplistic histogram of modes.
+%			\aim{TODO: Make this one big plot instead of four little ones to eliminate repeated axis labels and legend.
+%			Label figure/panels.
+%			Also, add watermark of ``results of inference'' in UL corner, same for ``mock data'' on other kind of plot.}
+%		}
+%		\label{fig:per-bin-ests}
+%	\end{center}
+%\end{figure*}
+%
+%We then use the different estimators of \nz\ in a cosmological forecasting procedure with \cosmolike, constraining $\Omega_{m}$, $\Omega_{b}$, $w_{a}$, $w_{0}$, $n_{s}$, $S_{8}$, and $H_{0}$.
+%Though there are also slight differences in the angle of the error ellipses, the most striking effect is the broadening of the contours under the alternative estimators relative to \Chippr, which are almost indistinguishable from those derived by using the true redshift distribution in each bin.
+%The stacked estimator is significantly worse than the \Chippr\ \mmle\ for all parameters except $\Omega_{b}$ and $H_{0}$.
+%Stacking, however, outperforms the histogram of modes for all parameters except $\Omega_{m}$ and $S_{8}$, for which their constraints are quite similar.
+%Though the true values of the parameters themselves were not accessible with the Fisher matrix-based framework, we calculate the seven-dimensional KLD for the three \nz\ estimators relative to the constraints derived from the true \nz, showing that \Chippr\ preserves information $200-800$ times better than the alternatives, with the histogram of modes doing about four times better than stacking.
+%%\aim{TODO: Ask Elisabeth how to get the bias here.}
+%\que{So a Fisher matrix analysis inherently can't provide the bias, because that requires data.
+%Because we have no data, only posteriors conditioned on hypothetical data, this isn't possible.
+%Do you think it's sufficient to provide the bias on the moments of \nz, since that's what everyone uses anyway?}
+%
+%\begin{figure*}
+%	\begin{center}
+%		\includegraphics[width=0.9\textwidth]{figures/chippr/final_plot.png}
+%		\caption{
+%			\que{Are the contours any easier to see now?}
+%			The result of propagating the estimators of \nz\ by stacking (red), the histogram of modes (yellow), \Chippr\ (blue), and the true \nz\ (black) of \Fig{fig:per-bin-ests} to a subset of cosmological parameters.
+%			For all parameters considered, \Chippr\ yields contours no broader than those corresponding to the true \nz, whereas for most parameters, stacking and the histogram of modes yield broader contours.
+%			\aim{TODO: Fix formatting of axis labels.
+%			Standardize ticklabels.}
+%		}
+%		\label{fig:cornerplot}
+%	\end{center}
+%\end{figure*}
+%
+%\que{Does this discussion adequately quantify how good \Nz\ has to be and how wrong we'll be if we estimate it wrong?
+%	Suggestions for how to better establish context would be appreciated.}
 
 \subsection{Violations of the model}
 \label{sec:violations}
@@ -899,7 +904,8 @@ A thorough investigation of the degree to which the implicit prior can be meanin
 As an alternative, however, we must point out that if likelihoods were available rather than posteriors, the trouble with the implicit prior would be avoided altogether.
 We thus encourage the community of those making \pzpdf s to consider developing such methods so that the resulting data products may be correctly used in scientific inference more generically.}
 
-\aim{TODO: claim that implications for tomographic binning are severe, if that can be motivated by Section~\ref{sec:lsstdemo}.}
+\aim{TODO: claim that implications for tomographic binning are severe, if that can be motivated.}
+% by Section~\ref{sec:lsstdemo}.}
 
 The following conclusions and recommendations can be made with confidence:
 
@@ -912,8 +918,8 @@ The following conclusions and recommendations can be made with confidence:
 
 By showing that \Chippr\ is effective in recovering the true redshift distribution function and posterior distributions on its parameters from catalogs of \pzpdf s, this work supports the production of \pzpdf s by upcoming photometric surveys such as \lsst\ to enable more accurate inference of the cosmological parameters.  
 We discourage researchers from co-adding \pzpdf s or converting them into point estimates of redshift and instead recommend the use of Bayesian probability to guide the usage of \pzpdf s.  
-We emphasize to those who produce \pzpdf s from data that it is essential to release the implicit prior used in generating this data product in order for proper inference to be conducted by consumers of this information.
-\aim{TODO: Strengthen language and get specific about what \pzpdf\ producers must do.}
+We emphasize to those who produce \pzpdf s from data that it is essential to release the implicit prior used in generating this data product in order for any valid inference to be conducted by consumers of this information.
+\dwh{Methodologies for obtaining \pzpdf s must therefore be designed such that there is a known implicit prior, i.e. one that is not implicit at all, so that likelihoods may be recovered.}
 
 The technique herein developed is applicable with minimal modification to other one-point statistics of redshift to which we will apply this method in the future, such as the redshift-dependent luminosity function and weak lensing mean distance ratio.  
 Future work will also include the extension of this fully probabilistic approach to higher-order statistics of redshift such as the two-point correlation function.
