@@ -111,6 +111,6 @@ if __name__ == "__main__":
             test_info['name'] = test_name
             all_tests[test_name] = test_info
 
-    nps = mp.cpu_count()
+    nps = mp.cpu_count() - 1
     pool = mp.Pool(nps)
     pool.map(just_plot, all_tests.keys())

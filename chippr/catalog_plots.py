@@ -141,8 +141,8 @@ def plot_mega_scatter(zs, pfs, z_grid, grid_ends, truth=None, plot_loc='', prepe
     scatplot.set_ylim([min(grid_ends)-limval, max(grid_ends)+limval])
     scatplot.set_xticks(np.linspace(min(grid_ends), np.ceil(max(grid_ends)), 5))
     scatplot.set_yticks(np.linspace(min(grid_ends), np.ceil(max(grid_ends)), 5))
-    scatplot.set_xlabel(r'$z_{spec}$')
-    scatplot.set_ylabel(r'$z_{phot}$')
+    scatplot.set_xlabel(r'$z_{true}$')
+    scatplot.set_ylabel(r'$z_{est}$')
     scatplot.text(0.25, 3., r'mock $p(z\mid \mathrm{``data"})$', rotation=0, size=20)
 
     # scatplot.set_aspect(1.)
