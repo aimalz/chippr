@@ -317,7 +317,7 @@ def plot_estimators(info, plot_dir, log=True, prepend='', metrics=True, mini=Tru
             f = plt.figure(figsize=(7.5, 7.5))
             sps_log = f.add_subplot(1, 1, 1)
             sps_log.set_xlabel(r'$z$')
-            sps_log.set_xticks(np.linspace(min(info['bin_ends']), np.ceil(max(info['bin_ends'])), 5))
+            sps_log.set_xticks(np.linspace(np.floor(min(info['bin_ends'])), np.ceil(max(info['bin_ends'])), 5))
         # mini_sps.ticklabel_format(style='sci',axis='y')
 
         # tru, =
