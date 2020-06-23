@@ -344,7 +344,8 @@ def plot_estimators(info, plot_dir, log=True, prepend='', metrics=True, mini=Tru
         sps_log.set_ylim(-4., 1.)
         sps_log.set_ylabel(r'$\ln[n(z)]$')
     else:
-        sps_log.set_ylim(0., 3.)
+        sps_log.set_ylim(0., 4.)
+        sps_log.set_yticks([0,1,2,3,4])
         sps_log.set_ylabel(r'$n(z)$')
     sps_log.set_xlim(info['bin_ends'][0], info['bin_ends'][-1])
 
@@ -501,7 +502,11 @@ def plot_estimators(info, plot_dir, log=True, prepend='', metrics=True, mini=Tru
 
     # sps_log.legend(handles=color_plots[:-1], fontsize='x-small', loc='lower center', frameon=False)
     sps_log.legend(fontsize='large', loc='upper right', frameon=False)
-    sps_log.text(0.25, -3.75, r'inferred $n(z)$', rotation=0, size=20)
+    if log:
+        sps_log.text(0.25, -3.75, r'inferred $n(z)$', rotation=0, size=20)
+    else:
+        sps_log.text(2., 0.75, r'inferred $n(z)$', rotation=0, size=20)
+
     f.subplots_adjust(hspace=0, wspace=0)
     f.savefig(os.path.join(plot_dir, prepend+'estimators.png'), bbox_inches='tight', pad_inches = 0, dpi=d.dpi)
     print(info['stats'])
