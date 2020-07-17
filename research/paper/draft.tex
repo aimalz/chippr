@@ -131,9 +131,9 @@ Figure~\ref{fig:pedagogical_scatter} is an adaptation of the ubiquitous plots of
 	\begin{center}
 		\includegraphics[width=0.45\textwidth]{figures/jain05.png}
 		\caption{
-			A generic probability space (darker in areas of higher probability density) of true redshift ($x$-axis) and a nonlinear projection of photometric data ($y$-axis), with vertical cuts and marginals (orange) indicating the construction of likelihoods and horizontal cuts and marginals (blue) indicating the construction of posteriors.
-			The data points were extracted using WebPlotDigitizer \citep{rohatgi_webplotdigitizer_2019} from a \sz\ vs. \pz\ plot in \citet{jain_whole_2015};
-			the diagonal (yellow) represents a theoretically perfect \pz\ estimate.
+			A generic probability space (darker in areas of higher probability density) of true redshift ($x$-axis) and a nonlinear projection of photometric data ($y$-axis), with vertical cuts and marginals (orange) indicating the construction of likelihoods and horizontal cuts and marginals (blue) indicating the construction of posteriors, with a theoretically perfect \pz\ estimate on the diagonal (yellow) for reference.
+			The data points were extracted using WebPlotDigitizer \citep{rohatgi_webplotdigitizer_2019} from a \sz\ vs. \pz\ plot in \citet{jain_whole_2015}.
+%			\aim{TODO: recolor insets/bars to not be same as gradient.}
 		}
 		\label{fig:pedagogical_scatter}
 	\end{center}
@@ -384,8 +384,8 @@ thus the chosen $\pr{z, \data \gvn \ndphi^{*}}$ and $\pr{\ndphi}$ must be suffic
 
 Here we describe the method by which we demonstrate the \Chippr\ model.
 In \Sect{sec:exp}, we outline the implementation of the \chippr\ code.
-In \Sect{sec:sheldon}, we introduce the alternative \nz\ estimators against which \Chippr\ is compared.
-In \Sect{sec:diag}, we present the quantitative metrics by which 
+%In \Sect{sec:sheldon}, we introduce the alternative \nz\ estimators against which \Chippr\ is compared.
+%In \Sect{sec:diag}, we present the quantitative metrics by which the \nz\ estimators are compared.
 In \Sect{sec:mock}, we outline the procedure for emulating mock \pzip s.
 
 \subsection{Implementation}
@@ -396,7 +396,7 @@ In \Sect{sec:mcmc}, we describe the publicly available \chippr\ library.
 In \Sect{sec:sheldon}, we introduce the alternative approaches evaluated for comparison with \Chippr.
 In \Sect{sec:diag}, we describe the diagnostic criteria by which we assess estimators of \nz.
 %In \Sect{app:acorr}, we outline how \chippr\ can be used to sample the full log-posterior distribution $\ln[\pr{\ndphi \gvn \{\data_{j}\}}]$.
-%
+
 \subsubsection{Code}
 \label{sec:mcmc}
 
@@ -432,23 +432,24 @@ includes $\frac{I_{0}}{s}$ accepted samples $\ndphi_{i}$ for a pre-specified cha
 \subsubsection{Alternative approaches for comparison}
 \label{sec:sheldon}
 
-In this study, we compare the results of \Eq{eqn:fullpost} to those of the two most common approaches to estimating \nz\ from a catalog of \pzpdf s: the distribution $n(z_{\mathrm{max}})$ of the redshifts at maximum posterior probability
+In this study, we compare the results of \Eq{eqn:fullpost} to those of the two most common approaches to estimating \nz\ from a catalog of \pzip s: 
+the distribution $n(z_{\mathrm{max}})$ of the redshifts at maximum posterior probability
 \begin{equation}
 \label{eqn:mmap}
 f^{MMAP}(z; \hat{\ndphi}) = \sum_{j=1}^{J}\ \delta(z, \mathrm{mode}[\pr{z \gvn \data_{j}, \ndphi^{*}}])
 \end{equation}
-(i.e. the distribution of modes of the \pzpdf s) and the stacked estimator of \Eq{eqn:stacked}, which can be rewritten as 
+(i.e. the distribution of modes of the \pzip s) and the stacked estimator of \Eq{eqn:stacked}, which can be rewritten as 
 \begin{equation}
 \label{eqn:stacked}
 f^{stack}(z; \hat{\ndphi}) = \sum_{j=1}^{J}\ \pr{z \gvn \data_{j}, \ndphi^{*}}
 \end{equation}
-in terms of the implicit \pz\ posteriors we have.
+in terms of the \pzip s we have.
 These two approaches have been compared to one another by \citet{hildebrandt_cfhtlens:_2012}, \citet{benjamin_cfhtlens_2013}, and \citet{asorey_galaxy_2016} in the past but not to \Chippr.
 
 Point estimation converts the implicit \pz\ posteriors $\pr{z \gvn \data_{j}, \ndphi^{*}}$ into delta functions with all probability at a single estimated redshift.  
 Some variants of point estimation choose this single redshift to be that of maximum a posteriori probability $\mathrm{mode}[\pr{z \gvn \data_{j}, \ndphi^{*}}]$ or the expected value of redshift $\langle z \rangle = \integral{z \pr{z \gvn \data_{j}, \ndphi^{*}}}{z}$.
 \citet{tanaka_photometric_2018} directs attention to deriving an optimal point estimate reduction of a \pzpdf, but since the purpose of this paper is to compare against the most established alternative estimators of \nz, its use will be postponed until a future study.
-Stacking these modified \pzpdf s leads to the marginalized maximum a posteriori (MMAP) estimator and the marginalized expected value (MExp) estimator, though only the former is included in this study since the latter has fallen out of favor in recent years\footnote{And for good reason!  Consider a bimodal \pzpdf; its expected value may very well fall in a region of very low probability, yielding a less probable point estimate than the point at which either peak achieves its maximum.}.
+Stacking these modified \pzip s leads to the marginalized maximum a posteriori (MMAP) estimator and the marginalized expected value (MExp) estimator, though only the former is included in this study since the latter has fallen out of favor in recent years\footnote{And for good reason!  Consider a bimodal \pzpdf; its expected value may very well fall in a region of very low probability, yielding a less probable point estimate than the point at which either peak achieves its maximum.}.
 
 It is worth discussing the relationship between point estimation and stacking.  
 When the point estimator of redshift is equal to the true redshift, stacking delta function \pzpdf s will indeed lead to an accurate recovery of the true redshift distribution function.  
@@ -486,7 +487,7 @@ A detailed exploration of the KLD may be found in the Appendix to \citet{malz_ap
 %We note that $KL_{\ndphi,\ndphi^{\ddagger}} \neq KL_{\ndphi^{\ddagger},\ndphi}$ and is only interpretable when there is a notion that $\ndphi^{\dagger}$ is closer to the truth than $\ndphi$.
 %In simulated tests, $\ndphi^{\dagger}$ is the true value and $\ndphi'$ is that produced by one of the methods in question.
 
-\aim{TODO: Also include the mean redshift/$\Delta_{z}$ for each estimator of \nz, cite the DES/KiDS/HSC papers that motivate this.}
+%\aim{TODO: Also include the mean redshift/$\Delta_{z}$ for each estimator of \nz, cite the DES/KiDS/HSC papers that motivate this.}
 
 \subsection{Validation on mock data}
 \label{sec:mock}
@@ -498,13 +499,13 @@ A detailed exploration of the KLD may be found in the Appendix to \citet{malz_ap
 			%			\que{Change ``true joint model'' to true forward model, condition on $\phi^{\dagger}$, add footnote explaining distinction between dagger, star, prime, etc., check that derivation matches notation}
 			A flow chart illustrating the forward model used to generate mock data in the validation of \Chippr, as described in \Sect{sec:forward}.
 			Ovals indicate a quantity that must be chosen in order to generate the data, rectangles indicate an operation we perform, and rounded rectangles indicate a quantity created by the forward model.
-			Arrows indicate the inputs and outputs of each operation performed to simulate mock \pzpdf\ catalogs.
+			Arrows indicate the inputs and outputs of each operation performed to simulate mock \pzip\ catalogs.
 		}
 		\label{fig:flowchart}
 	\end{center}
 \end{figure*}
 
-We compare the results of \Chippr\ to those of stacking and the histogram of \pzpdf\ maxima (modes) on mock data in the form of catalogs of emulated \pzpdf s generated via the forward model discussed in \Sect{sec:forward}.
+We compare the results of \Chippr\ to those of stacking and the histogram of \pzip\ maxima (modes) on mock data in the form of catalogs of emulated \pzip s generated via the forward model discussed in \Sect{sec:forward}.
 \Fig{fig:flowchart} illustrates the implementation of the forward model, defined by the much simpler \Fig{fig:pgm}, used for validating the method presented here.
 The irony of a simple model and complex validation procedure is not lost on the authors.
 
@@ -524,13 +525,14 @@ with $c_{z} = 0.3$, because it has been used in forecasting studies for \des\ an
 %\aim{I learned this from talking to people and don't know of a published source that talks about the nitty gritty of the internal validation tests performed before there was data.}
 
 The mock data emulates the three sources of error of highest concern to the \pz\ community that are explored in detail later in this section: intrinsic scatter (\Sect{sec:scatter}), catastrophic outliers (\Sect{sec:outliers}), and canonical bias (\Sect{sec:bias}).
-\Fig{fig:mega_scatter} illustrates these three effects simultaneously at the tolerance of \lsst\ for demonstrative purposes, hearkening back to Figure~\ref{fig:pedagogical_scatter}.
+\Fig{fig:mega_scatter} illustrates these three effects simultaneously at the tolerance of \lsst\ for demonstrative purposes, harking back to Figure~\ref{fig:pedagogical_scatter}.
 
-\begin{figure}[H]
+\begin{figure}%[H]
 	\begin{center}
 		\includegraphics[width=0.45\textwidth]{figures/chippr/single_lsst-mega_scatter.png}
 		\caption{
-			The joint probability space of true and estimated redshift for the three concerning \pz\ systematics at the level of the \lsst\ requirements: intrinsic scatter, uniformly distributed catastrophic outliers, and bias.
+			The joint probability space of true and estimated redshift for the three concerning \pz\ systematics at the level of the \lsst\ requirements: 
+			intrinsic scatter, uniformly distributed catastrophic outliers, and bias.
 			The main panel shows samples (black points) in the space of mock data and redshift, akin to the standard scatterplots of true and estimated redshift, the $z_{\mathrm{spec}} = z_{\mathrm{phot}}$ diagonal (gray line), and posterior probabilities evaluated at the given estimated redshift (colored step functions).
 			The insets show marginal histograms (light gray) in each dimension, that can be compared with the true \nz\ used to make the figure (black) to see the effect of these systematics, as well as the implicit prior (dark gray).
 %			\aim{TODO: Include slice further up so we can see outliers.
@@ -715,7 +717,7 @@ Furthermore, the alternative estimators are only weakly affected, with informati
 The experiments of \Sect{sec:alldata} quantify the influence on each estimator of \nz\ due to each of the canonical types of \pz\ error one at a time in isolation.
 Now, we stress-test \Chippr\ by exploring the impact of the implicit prior, which has thus far not received much attention in the literature.
 %two realistically complex cases, one in which the \nz\ estimates are made tomographically as in a modern cosmological analysis (\Sect{sec:lsstdemo}) and one 
-\Sect{sec:interim} demonstrates the sensitivity of \nz\ estimation methods to realistically complex implicit priors, and \Sect{sec:violations} demonstrates the consequences of mischaracterization of the implicit prior used to generate the \pzpdf\ catalog.
+\Sect{sec:interim} demonstrates the sensitivity of \nz\ estimation methods to realistically complex implicit priors, and \Sect{sec:violations} demonstrates the consequences of mischaracterization of the implicit prior used to generate the \pzip\ catalog.
 These results provide compelling motivation for the \pz\ community to prioritize the study of implicit priors of existing and developing \pzpdf\ techniques.
 
 %\que{Add back the results of the LSST requirements here?}
@@ -818,7 +820,7 @@ These results provide compelling motivation for the \pz\ community to prioritize
 \subsection{Realistically complex implicit prior}
 \label{sec:interim}
 
-\chippr\ can handle any implicit prior with support over the redshift range where \nz\ is defined, but some archetypes of implicit prior are more likely to be encountered in the wilds of \pzpdf\ codes.
+\chippr\ can handle any implicit prior with support over the redshift range where \nz\ is defined, but some archetypes of implicit prior are more likely to be encountered in the wilds of \pzip\ codes.
 Ideally, an uninformative implicit prior would be used, although it may be complicated to compute from the covariances of the raw data.  
 Template-fitting codes have an explicit prior input formed by redshifting a small number of templates, leading to a highly nonuniform but physically-motivated interim prior.
 %Another potential method for selecting an interim prior with support over the entire redshift range expected of the photometric survey is to sum two or more $N(z)$ distributions obtained from reliable photometric surveys in the past.  
@@ -830,8 +832,8 @@ Some efforts have been made to modify an observationally informed implicit prior
 %By contrast, the galaxies that were unobserved in such a survey are more likely be dimmer, making them more likely to be at higher redshifts.  
 %Since the interim prior is not compatible with our beliefs about the true redshift distribution, the resulting interim redshift posteriors will be inappropriate.  
 
-\Fig{fig:pzs-priors} shows examples of \pzpdf s with a low-redshift favoring implicit prior emulating that of a machine learning approach to \pz\ estimation (left panel) and a more complex interim prior emulating that of a template-fitting \pz\ method (right panel).
-One can see that the \pzpdf s take different shapes from one another even though the marginal histograms of the points are identical.
+\Fig{fig:pzs-priors} shows examples of \pzip s with a low-redshift favoring implicit prior emulating that of a machine learning approach to \pz\ estimation (left panel) and a more complex interim prior emulating that of a template-fitting \pz\ method (right panel).
+One can see that the \pzip s take different shapes from one another even though the marginal histograms of the points are identical.
 The machine learning-like implicit prior has been modified to have nonzero value at high-redshift because the implicit prior must be strictly positive definite for the \Chippr\ model to be valid.
 
 \begin{figure*}
@@ -839,7 +841,7 @@ The machine learning-like implicit prior has been modified to have nonzero value
 		\includegraphics[width=0.45\textwidth]{figures/chippr/single_lsst_trpr-mega_scatter.png}
 		\includegraphics[width=0.45\textwidth]{figures/chippr/single_lsst_tmpr-mega_scatter.png}
 		\caption{
-			Examples of mock \pzpdf s generated with a machine learning-like implicit prior (left) and a template-fitting-like implicit prior (right), including samples from the probability space of true and observed redshift (black points), \pzpdf s (colored step functions), the true redshifts of the example \pzpdf s (colored vertical lines).
+			Examples of mock \pzip s generated with a machine learning-like implicit prior (left) and a template-fitting-like implicit prior (right), including samples from the probability space of true and observed redshift (black points), \pzip s (colored step functions), the true redshifts of the example \pzip s (colored vertical lines).
 			A histogram (light gray) of points in each dimension is shown in the respective inset, with the true redshift distribution (black) and implicit prior (dark gray).
 %			\aim{TODO: Label panels.
 %				Include slices higher up.}
@@ -848,7 +850,7 @@ The machine learning-like implicit prior has been modified to have nonzero value
 	\end{center}
 \end{figure*}
 
-\Fig{fig:results-priors} shows the performance of \Chippr\ and the traditional methods on \pzpdf s generated with nontrivial implicit priors.
+\Fig{fig:results-priors} shows the performance of \Chippr\ and the traditional methods on \pzip s generated with nontrivial implicit priors.
 In both cases, the \Chippr\ \mmle\ effectively recovers the true redshift distribution, and the distribution of \nz\ parameter values reflects higher uncertainty where the implicit prior undergoes large changes in derivative.
 The alternatives, on the other hand, are biased by the implicit prior except where it is flat, in the case of high redshifts for the machine learning-like implicit prior, resulting in over $1,000$ times the information loss on \nz\ for the machine learning-like implicit prior and some $5-20$ times the information loss for the template fitting-like implicit prior, relative to the \Chippr\ \mmle.
 
@@ -857,7 +859,7 @@ The alternatives, on the other hand, are biased by the implicit prior except whe
 		\includegraphics[width=0.45\textwidth]{figures/chippr/single_lsst_trpr_log_estimators.png}
 		\includegraphics[width=0.45\textwidth]{figures/chippr/single_lsst_tmpr_log_estimators.png}
 		\caption
-		{The results of \Chippr\ (samples in light blue and optimization in dark blue) and the alternative approaches (the stacked estimator in red and the histogram of modes in yellow) on \pzpdf s with an implicit prior like that of machine learning \pzpdf\ approaches (left) and an implicit prior like that of template-fitting \pzpdf\ codes (right), with the true redshift density (black curve) and implicit prior (gray curve).
+		{The results of \Chippr\ (samples in light blue and optimization in dark blue) and the alternative approaches (the stacked estimator in red and the histogram of modes in yellow) on \pzip s with an implicit prior like that of machine learning \pzip\ approaches (left) and an implicit prior like that of template-fitting \pzip\ codes (right), with the true redshift density (black curve) and implicit prior (gray curve).
 			\Chippr\ is robust to a nontrivial implicit prior, but the alternatives are biased toward the implicit prior.
 %			\aim{TODO: Label panels.
 %				Show the mean redshift for each estimator.}
@@ -866,14 +868,14 @@ The alternatives, on the other hand, are biased by the implicit prior except whe
 	\end{center}
 \end{figure*}
 
-The main implication of the response of \nz\ estimates to a nontrivial implicit prior is that the implicit prior must be accounted for when using \pzpdf\ catalogs.
+The main implication of the response of \nz\ estimates to a nontrivial implicit prior is that the implicit prior must be accounted for when using \pzip\ catalogs.
 
 \subsection{Violations of the model}
 \label{sec:violations}
 
 In this test, the \pzip s are made to the \lsst\ requirements but the implicit prior used for the inference is not the same as the implicit prior used for generating the data.
 \Pzpdf\ codes do not generally provide their implicit prior, with the exception of some template-fitting techniques for which it is a known input.
-If we naively used the \pzpdf\ catalog produced by a generic machine learning or template-fitting code and assumed a flat implicit prior, we would observe the contents of \Fig{fig:mischaracterized}.
+If we naively used the \pzip\ catalog produced by a generic machine learning or template-fitting code and assumed a flat implicit prior, we would observe the contents of \Fig{fig:mischaracterized}.
 
 \begin{figure*}
 	\begin{center}
@@ -882,7 +884,7 @@ If we naively used the \pzpdf\ catalog produced by a generic machine learning or
 		\caption
 		{The results of \Chippr\ (samples in light blue, optimization in dark blue) and the alternative approaches (the stacked estimator in red, the histogram of modes in yellow) when run with an incorrectly specified implicit prior (gray curve).
 			The data upon which each panel's results are based are provided in Figure~\ref{fig:pzs-priors}, where the left corresponds to the sort of implicit prior anticipated of machine learning approaches and the right corresponds to an implicit prior like that of a template-fitting code.
-			Here, \Chippr\ has been provided with a uniform implicit prior rather than those used to produce the mock \pzpdf s, and its performance is notably worse than when it is provided an accurate implicit prior, as in Figure~\ref{fig:results-priors}.
+			Here, \Chippr\ has been provided with a uniform implicit prior rather than those used to produce the mock \pzip s, and its performance is notably worse than when it is provided an accurate implicit prior, as in Figure~\ref{fig:results-priors}.
 %			\aim{Label panels.
 %				Show the mean redshift for each estimator.}
 			When the incorrect implicit prior is provided to \chippr, even Bayesian inference cannot recover the true \nz.
@@ -893,7 +895,7 @@ If we naively used the \pzpdf\ catalog produced by a generic machine learning or
 
 The results of using a mischaracterized implicit prior are disastrous, causing every estimator, including \Chippr, to be strongly biased.
 The stacked estimator and histogram of modes don't make use of the implicit prior so do no worse than when the implicit prior is accurately provided, but \Chippr\ is sensitive to prior misspecification, which violates the model upon which it is based.
-It is thus crucial that \pzpdf\ methods always characterize and provide the implicit prior.
+It is thus crucial that \pzip\ methods always characterize and provide the implicit prior.
 
 % removed ancient investigation on real data, would be hard to redo with the new \chippr\ code on this timescale given that I haven't even looked at the data format in 4 years
 
@@ -930,9 +932,10 @@ However, the mathematically valid approach to inference with probabilistic data 
 
 Additionally, this work highlights a crucial and almost entirely overlooked complication to the usage of \pzpdf s, namely the implicit prior, motivating the following recommendations: 
 \begin{itemize}
-\item \Chippr\ alone is robust to nontrivial implicit priors corresponding to the specifics of the architecture of the method by which \pzpdf s are obtained;
-a hierarchical inference such as \Chippr\ is the only valid way to utilize \pzpdf s.
-\item \Chippr, however, is sensitive to misspecification of the implicit prior;
+\item In the presence of a nontrivial implicit prior corresponding to the specifics of the architecture of the method by which \pzpdf s are obtained, established methods cannot recover \nz;
+a principled hierarchical inference such as \Chippr\ is the only way to recover \nz\ from \pzpdf s.
+\item %\Chippr, however, is sensitive to misspecification of the implicit prior;
+Neither \Chippr\ nor traditional alternatives can recover \nz\ in the presence of a misspecified implicit prior;
 the implicit prior used to produce the \pzpdf\ catalog must be known and provided to \Chippr\ in order to recover the true \nz.
 \end{itemize}
 Given the significance of the implicit prior \citep{schmidt_evaluation_2020}, it is therefore imperative that those developing codes to obtain \pzpdf s provide a way to isolate the implicit prior and that those publishing \pzpdf\ catalogs provide the implicit prior to users.
@@ -983,7 +986,8 @@ Future work will also include the extension of this fully probabilistic approach
 	AIM acknowledges support from the Max Planck Society and the Alexander von Humboldt Foundation in the framework of the Max Planck-Humboldt Research Award endowed by the Federal Ministry of Education and Research.
 	During the completion of this work, AIM was supported by National Science Foundation grant AST-1517237 and the U.S. Department of Energy, Office of Science, Office of Workforce Development for Teachers and Scientists, Office of Science Graduate Student Research (SCGSR) program, administered by the Oak Ridge Institute for Science and Education for the DOE under contract number DE‐SC0014664.
 	The authors thank Phil Marshall for advice on relevant examples, Elisabeth Krause for assistance with the \cosmolike\ code, Mohammadjavad Vakili for statistical insights, Geoffrey Ryan for programming advice, and Boris Leistedt for other helpful comments in the development of \Chippr.
-%	\aim{TODO: Circulate draft to GCCL; submit to ApJ; circulate to Dan Foreman-Mackey, Boris Leistedt, Kate Storey-Fisher; post to arXiv; circulate to Alan Heavens, Ann Lee, Phil Marshall, Anze Slosar, others for feedback.}
+%	The authors also acknowledge 
+%	\aim{TODO: Circulate draft to GCCL; submit to ApJ; circulate to Dan Foreman-Mackey, Boris Leistedt, Kate Storey-Fisher; post to arXiv; circulate to Johann Cohen-Tanugi, Will Hartley, Alan Heavens, Mike Jarvis, Francois Lanusse, Ann Lee, Rachel Mandelbaum, Phil Marshall, Chris Morrison, Jeff Newman, Sam Schmidt, Anze Slosar, Josh Speagle, others for feedback.}
 	This work was completed with generous nutritional support from the Center for Computational Astrophysics.
 %	\aim{TODO: Thank thesis readers.}
 \end{acknowledgements}
