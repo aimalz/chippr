@@ -4,8 +4,8 @@ python: 2.7
 install:
   - sudo apt-get update
   # Install the dependencies and the package:
-  - pip install -r requirements.txt
-  - python setup.py install
+#  - pip install -r requirements.txt
+#  - python setup.py install
   # Now get set up to run jupyter notebooks:
   - sudo apt-get install texlive-latex-recommended
   - sudo apt-get install texlive-latex-extra
@@ -13,11 +13,11 @@ install:
   - sudo apt-get install texlive-publishers
   - sudo apt-get install chktex
   - sudo apt-get install dvipng
-  - pip install --upgrade jupyter
-  - pip install nbconvert
+#  - pip install --upgrade jupyter
+#  - pip install nbconvert
   # Finally get set up to build the docs
-  - pip install sphinx
-  - pip install sphinx_rtd_theme
+#  - pip install sphinx
+#  - pip install sphinx_rtd_theme
 
 script:
   # Run the unit tests:
