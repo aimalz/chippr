@@ -47,6 +47,7 @@ class catalog(object):
         if vb:
             print self.params
 
+        np.random.seed(d.seed)
         self.cat = {}
 
         self.dir = loc
