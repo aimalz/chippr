@@ -23,9 +23,9 @@ script:
   # Run the unit tests:
   # - nosetests
   # Run the demo notebook:
-  - jupyter nbconvert --ExecutePreprocessor.kernel_name=python --ExecutePreprocessor.timeout=600 --to notebook --execute docs/notebooks/demo2.ipynb
+#  - jupyter nbconvert --ExecutePreprocessor.kernel_name=python --ExecutePreprocessor.timeout=600 --to notebook --execute docs/notebooks/demo2.ipynb
   # Build the docs, the same way readthedocs does it:
-  - cd docs ; sphinx-build -b html . _build/html ; cd -
+#  - cd docs ; sphinx-build -b html . _build/html ; cd -
   # Compile the paper
   - cd research/paper; make
 
