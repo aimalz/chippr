@@ -2,7 +2,10 @@ import numpy as np
 import scipy as sp
 import os
 import scipy.optimize as op
-import cPickle as cpkl
+try:
+    import cPickle as pkl
+except ImportError:
+    import pickle as pkl
 import emcee
 
 import matplotlib as mpl
@@ -433,7 +436,7 @@ class log_z_dens(object):
                 chain = burn_in_mcmc_outputs['chains']
                 burn_in_mcmc_outputs['chains'] -= u.safe_log(np.sum(np.exp(chain) * self.bin_difs[np.newaxis, np.newaxis, :], axis=2))[:, :, np.newaxis]
                 with open(os.path.join(self.res_dir, 'mcmc'+str(self.burn_ins)+'.p'), 'wb') as file_location:
-                    cpkl.dump(burn_in_mcmc_outputs, file_location)
+                    pkl.dump(burn_in_mcmc_outputs, file_location)
                 full_chain = np.concatenate((full_chain, burn_in_mcmc_outputs['chains']), axis=1)
                 if vb:
                     canvas = plots.plot_sampler_progress(canvas, burn_in_mcmc_outputs, full_chain, self.burn_ins, self.plot_dir, prepend=self.add_text)
@@ -446,7 +449,7 @@ class log_z_dens(object):
             mcmc_outputs['chains'] -= u.safe_log(np.sum(np.exp(chain) * self.bin_difs[np.newaxis, np.newaxis, :], axis=2))[:, :, np.newaxis]
             full_chain = np.concatenate((full_chain, mcmc_outputs['chains']), axis=1)
             with open(os.path.join(self.res_dir, 'full_chain.p'), 'wb') as file_location:
-                cpkl.dump(full_chain, file_location)
+                pkl.dump(full_chain, file_location)
 
             self.log_smp_nz = mcmc_outputs['chains']
             self.smp_nz = np.exp(self.log_smp_nz)
@@ -489,11 +492,10 @@ class log_z_dens(object):
                 self.info['stats']['rms']['true_nz' + '__' + key[4:]] = s.calculate_rms(np.exp(self.info['log_tru_nz']), np.exp(self.info['estimators'][key]))
                 self.info['stats']['log_rms']['log_true_nz'+ '__' + key] = s.calculate_rms(self.info['log_tru_nz'], self.info['estimators'][key])
 
-        for i in range(len(self.info['estimators'].keys())):
-            key_1 = self.info['estimators'].keys()[i]
-            for j in range(len(self.info['estimators'].keys()[:i])):
-                key_2 = self.info['estimators'].keys()[j]
-                # print(((i,j), (key_1, key_2)))
+        for i, key_1 in enumerate(self.info['estimators'].keys()):
+            for j, key_2 in enumerate(self.info['estimators'].keys()):
+                if j < i:
+                    continue
                 self.info['stats']['log_rms'][key_1 + '__' + key_2] = s.calculate_rms(self.info['estimators'][key_1], self.info['estimators'][key_2])
                 self.info['stats']['rms'][key_1[4:] + '__' + key_2[4:]] = s.calculate_rms(np.exp(self.info['estimators'][key_1]), np.exp(self.info['estimators'][key_2]))
 
@@ -535,7 +537,7 @@ class log_z_dens(object):
             returns the log_z_dens information dictionary object
         """
         with open(os.path.join(self.res_dir, read_loc), 'rb') as file_location:
-            self.info = cpkl.load(file_location)
+            self.info = pkl.load(file_location)
         if vb:
             print('The following quantities were read from '+read_loc+' in the '+style+' format:')
             for key in self.info:
@@ -558,7 +560,7 @@ class log_z_dens(object):
             True to print progress messages to stdout, False to suppress
         """
         with open(os.path.join(self.res_dir, write_loc), 'wb') as file_location:
-            cpkl.dump(self.info, file_location)
+            pkl.dump(self.info, file_location)
         if vb:
             print('The following quantities were written to '+write_loc+' in the '+style+' format:')
             for key in self.info:
