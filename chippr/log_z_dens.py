@@ -2,11 +2,11 @@ import numpy as np
 import scipy as sp
 import os
 import scipy.optimize as op
-import cPickle as cpkl
+import pickle as cpkl
 import emcee
 
 import matplotlib as mpl
-mpl.use('PS')
+# mpl.use('PS')
 import matplotlib.pyplot as plt
 
 import chippr
@@ -61,7 +61,7 @@ class log_z_dens(object):
         self.info['log_interim_posteriors'] = self.log_pdfs
 
         if vb:
-            print(str(self.n_bins) + ' bins, ' + str(len(self.log_pdfs)) + ' interim posterior PDFs')
+            print((str(self.n_bins) + ' bins, ' + str(len(self.log_pdfs)) + ' interim posterior PDFs'))
 
         self.hyper_prior = hyperprior
 
@@ -214,12 +214,12 @@ class log_z_dens(object):
                 return -2. * self.evaluate_log_hyper_posterior(log_nz)
 
         if vb:
-            print(self.dir + ' starting at ', start, _objective(start))
+            print((self.dir + ' starting at ', start, _objective(start)))
 
         res = op.minimize(_objective, start, method="Nelder-Mead", options={"maxfev": 1e5, "maxiter":1e5})
 
         if vb:
-            print(self.dir + ': ' + str(res))
+            print((self.dir + ': ' + str(res)))
         return res.x
 
     def calculate_mmle(self, start, vb=True, no_data=0, no_prior=0):
@@ -428,7 +428,7 @@ class log_z_dens(object):
             full_chain = np.array([[vals[w]] for w in range(self.n_walkers)])
             while self.burning_in:
                 if vb:
-                    print('beginning sampling '+str(self.burn_ins))
+                    print(('beginning sampling '+str(self.burn_ins)))
                 burn_in_mcmc_outputs = self.sample(vals, 10**n_burned)
                 chain = burn_in_mcmc_outputs['chains']
                 burn_in_mcmc_outputs['chains'] -= u.safe_log(np.sum(np.exp(chain) * self.bin_difs[np.newaxis, np.newaxis, :], axis=2))[:, :, np.newaxis]
@@ -489,10 +489,10 @@ class log_z_dens(object):
                 self.info['stats']['rms']['true_nz' + '__' + key[4:]] = s.calculate_rms(np.exp(self.info['log_tru_nz']), np.exp(self.info['estimators'][key]))
                 self.info['stats']['log_rms']['log_true_nz'+ '__' + key] = s.calculate_rms(self.info['log_tru_nz'], self.info['estimators'][key])
 
-        for i in range(len(self.info['estimators'].keys())):
-            key_1 = self.info['estimators'].keys()[i]
-            for j in range(len(self.info['estimators'].keys()[:i])):
-                key_2 = self.info['estimators'].keys()[j]
+        for i in range(len(list(self.info['estimators'].keys()))):
+            key_1 = list(self.info['estimators'].keys())[i]
+            for j in range(len(list(self.info['estimators'].keys())[:i])):
+                key_2 = list(self.info['estimators'].keys())[j]
                 # print(((i,j), (key_1, key_2)))
                 self.info['stats']['log_rms'][key_1 + '__' + key_2] = s.calculate_rms(self.info['estimators'][key_1], self.info['estimators'][key_2])
                 self.info['stats']['rms'][key_1[4:] + '__' + key_2[4:]] = s.calculate_rms(np.exp(self.info['estimators'][key_1]), np.exp(self.info['estimators'][key_2]))
@@ -537,11 +537,11 @@ class log_z_dens(object):
         with open(os.path.join(self.res_dir, read_loc), 'rb') as file_location:
             self.info = cpkl.load(file_location)
         if vb:
-            print('The following quantities were read from '+read_loc+' in the '+style+' format:')
+            print(('The following quantities were read from '+read_loc+' in the '+style+' format:'))
             for key in self.info:
                 print(key)
             if 'estimators' in self.info:
-                print(self.info['estimators'].keys())
+                print((list(self.info['estimators'].keys())))
         return self.info
 
     def write(self, write_loc, style='pickle', vb=True):
@@ -560,7 +560,7 @@ class log_z_dens(object):
         with open(os.path.join(self.res_dir, write_loc), 'wb') as file_location:
             cpkl.dump(self.info, file_location)
         if vb:
-            print('The following quantities were written to '+write_loc+' in the '+style+' format:')
+            print(('The following quantities were written to '+write_loc+' in the '+style+' format:'))
             for key in self.info:
                 print(key)
         return

@@ -30,7 +30,7 @@ class discrete(object):
         self.bin_ends = bin_ends
         self.dbins = self.bin_ends[1:] - self.bin_ends[:-1]
         self.n_bins = len(self.bin_ends)-1
-        self.bin_range = range(self.n_bins)
+        self.bin_range = list(range(self.n_bins))
 
         self.weights = weights
         # print('dbins: '+str(self.dbins))

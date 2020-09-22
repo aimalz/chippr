@@ -56,3 +56,39 @@ def ingest(in_info):
     else:
         in_dict = in_info
     return in_dict
+
+def mids_from_ends(inarr):
+    """
+    Function to make midpoints from grid of endpoints
+
+    Parameters
+    ----------
+    inarr: array, shape=(N)
+        array of grid endpoints
+
+    Returns
+    -------
+    outarr: array, shape=(N-1)
+        array of corresponding midpoints
+    """
+    outarr = (inarr[1:] + inarr[:-1]) / 2.
+    return outarr
+
+def ends_from_mids(inarr):
+    """
+    Function to make endpoints from grid of midpoints, assuming equal spacing
+
+    Parameters
+    ----------
+    inarr: array, shape=(N)
+        array of grid midpoints
+
+    Returns
+    -------
+    outarr: array, shape=(N+1)
+        array of corresponding endpoints
+    """
+    dif = np.mean(inarr[1:] - inarr[:-1])
+    int_ends = mids_from_ends(inarr)
+    outarr = np.concatenate((np.array([int_ends[0] - dif]), int_ends, np.array([int_ends[-1] + dif])))
+    return outarr
