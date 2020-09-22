@@ -30,6 +30,6 @@ As a disclaimer, it will need a major upgrade for flexibility and computational 
 ## License, Contributing etc
 
 The code in this repo is available for re-use under the MIT license, which means that you can do whatever you like with it, just don't blame me.
-If you end up using any of the code or ideas you find here in your academic research, please cite me as `Malz et al, in preparation\footnote{\texttt{https://github.com/aimalz/chippr}}`.
+If you end up using any of the code or ideas you find here in your academic research, please cite me as `Malz & Hogg, 2020 \footnote{[arXiv:2007.12178](https://arxiv.org/abs/2007.12178)\texttt{https://github.com/aimalz/chippr}}`.
 If you are interested in this project, please do drop me a line via the hyperlinked contact name above, or by [writing me an issue](https://github.com/aimalz/chippr/issues/new).
 To get started contributing to the `chippr` project, just fork the repo -- pull requests are always welcome!
