@@ -404,14 +404,13 @@ with $K$ bins of width $\delta z^{1}, \dots, \delta z^{K}$ defined by endpoints 
 Thus each $\pr{z \gvn \data_{j}} = f(z; \ndphi_{j})$ has parameters $\ndphi_{j}$ that are defined in the same basis as those of \nz.
 To infer the full log-posterior distribution $\ln[\pr{\ndphi \gvn \{\data_{j}\}}]$, one must provide a plaintext file with $K+1$ redshift bin endpoints $\{z_{k}\}$, the parameters $\ndphi^{*}$ of the implicit log-prior, and the parameters $\{\ndphi_{j}\}$ of the log-posteriors $\ln[\pr{z \gvn \data_{j}, \ndphi^{*})}$.
 
-The \emcee \citep{foreman-mackey_emcee_2013} implementation of ensemble sampling is used to sample the full log-posterior of \Eq{eqn:final}. 
+The \emcee \citep{foreman-mackey_emcee_2013} implementation of \new{}{MCMC} ensemble sampling is used to sample the full log-posterior of \Eq{eqn:final}. 
+\new{}{As a consequence of the Central Limit Theorem applied to a Markov Chain, the sample distribution satisfies a statistical guarantee of normality \citep{brooks_handbook_2011}, meaning the output samples $\{\ndphi_{i}\}$ of \chippr\ naturally define a notion of standard deviation interpretable as conventional error bars\footnote{Additionally, the proofs are tractable by hand in the special cases of simplified \pzpdf s introduced in \citet{malz_how_2021}.}.}
+
 \chippr\ accepts a configuration file of user-specified parameters, among them the number $W$ of walkers.
 At each iteration $i$ and for each walker, a proposal distribution $\hat{\ndphi}_{i}$ is drawn from the log-prior distribution and evaluated for acceptance to or rejection from the full log-posterior distribution.
-
 %In \Sect{app:acorr}, we outline how \chippr\ can be used to sample the full log-posterior distribution $\ln[\pr{\ndphi \gvn \{\data_{j}\}}]$.
-
-The resulting output includes $\frac{I_{0}}{s}$ accepted samples $\ndphi_{i}$ for a pre-specified chain thinning factor $s$ and their full posterior probabilities $\pr{\ndphi_{i} \gvn \{\data_{j}\}}$, as well as the autocorrelation times and acceptance fractions calculated for each element of $\ndphi$, divided into separate files before and after the completion of the burn-in phase, as defined by the Gelman-Rubin statistic \citep{gelman_inference_1992}.  
-\new{}{As a consequence of the Central Limit Theorem applied to a Markov Chain, the sample distribution satisfies a statistical guarantee of normality \citep{brooks_handbook_2011}, meaning the output samples $\{\ndphi_{i}\}$ of \chippr\ naturally define a notion of standard deviation interpretable as conventional error bars\footnote{Additionally, the proofs are tractable by hand in the special cases of simplified \pzpdf s introduced in \citet{malz_how_2021}.}.}
+The resulting output includes $\frac{I_{0}}{s}$ accepted samples $\ndphi_{i}$ for a pre-specified chain thinning factor $s$ and their full posterior probabilities $\pr{\ndphi_{i} \gvn \{\data_{j}\}}$, as well as the autocorrelation times and acceptance fractions calculated for each element of $\ndphi$, divided into separate files before and after the completion of the burn-in phase, as defined by the Gelman-Rubin statistic $R$ \citep{gelman_inference_1992}.
 
 \subsubsection{Alternative approaches for comparison}
 \label{sec:sheldon}
@@ -440,9 +439,9 @@ When the point estimator of redshift is equal to the true redshift, stacking del
 However, stacking is in general applied indiscriminately to broader \pzpdf s and imperfect point estimators of redshift.  
 It is for these reasons that alternatives are considered here.
 
-A final estimator of the hyperparameters is the maximum marginalized likelihood estimator (MMLE), the value of $\ndphi$ maximizing the log posterior given by \Eq{eqn:final} using any optimization code. 
-The MMLE can be obtained in substantially less time than enough samples to characterize the full log-posterior distribution of \nz.
-However, the MMLE yields only a point estimate of \nz\ rather than characterizing the full log-posterior on $\ndphi$, and it does not escape the dependence on the choice of hyperprior distribution.  
+A final estimator of the hyperparameters is the maximum marginalized likelihood estimator (\mmle), the value of $\ndphi$ maximizing the log posterior given by \Eq{eqn:final} using any optimization code. 
+The \mmle can be obtained in substantially less time than enough samples to characterize the full log-posterior distribution of \nz.
+However, the \mmle yields only a point estimate of \nz\ rather than characterizing the full log-posterior on $\ndphi$, and it does not escape the dependence on the choice of hyperprior distribution.  
 Furthermore, derivatives will not in general be available for the full posterior distribution, restricting optimization methods used, and, as is true for any optimization code, there is a risk of numerical instability.
 
 \subsubsection{Performance metrics}
@@ -455,7 +454,7 @@ Since MCMC samples of these hyperparameters are Gaussian distributions, we can q
 In simulated cases where the true parameter values are known, we calculate the Kullback-Leibler divergence (KLD), given by 
 \begin{equation}
 \label{eqn:kl}
-KL_{\ndphi,\ndphi^{\ddagger}} = \integral{\pr{z \gvn \ndphi} \ln \left[ \frac{\pr{z \gvn \ndphi}}{\pr{z \gvn \ndphi^{\dagger}}} \right]}{z} ,
+KL\new{}{D}_{\ndphi,\ndphi^{\ddagger}} = \integral{\pr{z \gvn \ndphi} \ln \left[ \frac{\pr{z \gvn \ndphi}}{\pr{z \gvn \ndphi^{\dagger}}} \right]}{z} ,
 \end{equation}
 which measures a distance from parameter values $\ndphi$ to true parameter values $\ndphi^{\dagger}$.  
 The KLD is a measure of the information loss, in units of nats, due to using $\ndphi$ to approximate the true $\ndphi^{\dagger}$ when it is known.
@@ -513,12 +512,14 @@ The mock data emulates the three sources of error of highest concern to the \pz\
 The hyperprior distribution chosen for these tests is a multivariate normal distribution with mean $\vec{\mu}$ equal to the implicit prior $\ndphi^{*}$ and covariance
 \begin{equation}
 \label{eqn:priorcov}
-\Sigma_{k,k'} = q\ \exp[-\frac{e}{2}\ (\bar{z}_{k}-\bar{z}_{k'})^{2}]\ +\ t\delta(k,k')
+\Sigma_{k,k'} = q\ \exp\left[-\frac{\new{e}{\varepsilon}}{2}\ (\bar{z}_{k}-\bar{z}_{k'})^{2}\right]\ +\ t\delta(k,k')
 \end{equation}
-inspired by one used in Gaussian processes, where $k$ and $k'$ are indices ranging from $1$ to $K$ and $q=1.0$, $e=100.0$, and $t=q\cdot10^{-5}$ are constants chosen to permit draws from this prior distribution to produce shapes similar to that of a true $\tilde{\ndphi}$.  
+inspired by one used in Gaussian processes, where $k$ and $k'$ are indices ranging from $1$ to $K$ and $q = 1.0$, $\new{e}{\varepsilon} = 100.0$, and $t = q \cdot 10^{-5}$ are constants chosen to permit draws from this prior distribution to produce shapes similar to that of a true $\tilde{\ndphi}$.  
 We adapt the full log-posterior of \Eq{eqn:final} to the chosen binning of redshift space.
 
-The sampler is initialized with $W=100$ walkers each with a value chosen from a Gaussian distribution of identity covariance around a sample from the hyperprior distribution.  
+The sampler is initialized with $W = 100$ walkers each with a value chosen from a Gaussian distribution of identity covariance around a sample from the hyperprior distribution.  
+\new{}{The computational expense is dominated by the sampler's burn-in phase and driven predominantly by the number of parameters $K$;
+for the tests presented in this study, with $J = 10^{4}$ galaxies, $K = 35$ parameters, $W = 100$ walkers, a Gelman-Rubin convergence threshold of $R = 1.5$, a thinning factor of $s = 1$, and $\frac{I_{0}}{s} = 10^{3}$ accepted post-burn samples, the single-threaded computation time on a 2017-era laptop is on the order of a few hours.}
 
 %{\color{white}{\Fig{fig:pzs-scatter} \Fig{fig:results-scatter} \Fig{fig:uniform-outliers } \Fig{fig:nonuniform-outliers-data} \Fig{fig:nonuniform-outliers-results} \Fig{fig:bias}}}
 \section{Results}
@@ -660,9 +661,10 @@ Furthermore, the alternative estimators are only weakly affected, with informati
 \label{sec:results}
 
 The experiments of \Sect{sec:alldata} quantify the influence on each estimator of \nz\ due to each of the canonical types of \pz\ error one at a time in isolation.
-Now, we stress-test \Chippr\ by exploring the impact of the implicit prior, which has thus far not received much attention in the literature.
-%and propagate these \nz\ estimates to forecasted constraints on the cosmological parameters in a tomographic analysis (\Sect{sec:lsstdemo})
+Now, we \new{}{forecast the influence of these \nz\ estimators on cosmological parameter constraints in a tomographic analysis and} stress-test \Chippr\ by exploring the impact of the implicit prior, which has thus far not received attention in the literature.
+%(\Sect{sec:lsstdemo})
 \Sect{sec:interim} demonstrates the sensitivity of \nz\ estimation methods to realistically complex implicit priors, and \Sect{sec:violations} demonstrates the consequences of mischaracterization of the implicit prior used to generate the \pzip\ catalog.
+\new{}{\Sect{sec:lsstdemo} presents the impact of \nz\ estimation methods on forecasted cosmological parameter constraints.}
 These results provide compelling motivation for the \pz\ community to prioritize the study of implicit priors of existing and developing \pzpdf\ techniques.
 
 \begin{figure*}
@@ -788,14 +790,13 @@ It is thus crucial that \pzip\ methods always characterize and provide the impli
 	We consider as ground truth a set of known \nz\ corresponding to each of four hypothetical samples of galaxies and the corresponding cosmological parameter covariance matrix.
 	The \nz\ of each galaxy subsample emulates that anticipated of galaxies binned by a redshift point estimate, as is common in tomographic redshift analyses, though our experimental procedure is agnostic to how the samples are identified.
 	The cosmological parameter covariance matrices are those used for \desc\ forecasting with the ground truth \nz\ in the same four bins.
-	\aim{TODO: put all relevant files on GitHub.}
+%	\aim{TODO: put all relevant files on GitHub.}
 	The true \nz\ in each pre-defined bin is provided in the form of an evaluation of the function on a fine grid of $350$ redshifts $0.0101 < z < 3.5001$.
 	
 	First, we bin down the true redshift distribution to a piecewise constant parameterization with a manageable $35$ hyperparameters for \chippr's sampling capabilities.
 	Next, we draw $10^{4}$ true redshifts from the binned true \nz\ for each tomographic bin.
 	The original, binned, and drawn \nz\ are shown in the top panel of \Fig{fig:per-bin-scatter}.
-	We emulate \pzpdf s for the $10^{4}$ true redshifts drawn from the true \nz\ in each bin using the procedure of \Fig{fig:flowchart} with all three effects of Table~\ref{tab:lsstsrd}
-	at their given levels.
+	We emulate \pzpdf s for the $10^{4}$ true redshifts drawn from the true \nz\ in each bin using the procedure of \Fig{fig:flowchart} with all three effects of Table~\ref{tab:lsstsrd} at their given levels.
 	The drawn $(z_{spec}, z_{phot})$ pairs are shown in the main panel of \Fig{fig:per-bin-scatter}, and the side panel shows their marginal histograms.
 	%Illustrations of this process are provided in \Fig{fig:per-bin-scatter}.
 	
@@ -830,7 +831,7 @@ Based on our tests, the following statements about the \Chippr\ methodology may 
 \begin{itemize}
 \item \Chippr\ outperforms traditional estimators of \nz\ under realistically complex \new{conditions}{systematics}, even at pessimistic levels relative to future survey requirements on the \new{traditional}{standard} \pz\ error statistics, \new{as demonstrated both by eye and according to KLD values corresponding to}{achieving $\sim$} $10\%$ the information loss of alternative methods.
 \item Both the \Chippr\ \mmle\ and the mean of \chippr\ samples are good point estimators of \nz, whereas the histogram of modes is very sensitive to outliers and the stacked estimator is always excessively broad.
-\item The error bars o\new{n}{f} the posterior distribution over \nz\ hyperparameters are interpretable and arise naturally under \Chippr, unlike those that \new{may be}{are sometimes} assumed for the conventional point estimators.
+\item The error bars \new{on}{of} the posterior distribution over \nz\ hyperparameters are interpretable and arise naturally under \Chippr, unlike those that \new{may be}{are sometimes} assumed for the conventional point estimators.
 \item \new{}{When the \nz\ estimates for LSST-like data are propagated through a cosmological forecast, \Chippr's information loss in the $(\Omega_{m}, \Omega_{b}, w_{a}, w_{0}, n_{s}, S_{8}, H_{0})$ parameter space is 2-3 times lower than that corresponding to traditional \nz\ estimators.}
 \end{itemize}
 Not only is \Chippr\ the only mathematically correct approach to the problem\new{}{ of obtaining \nz\ from an external catalog of \pzpdf s}, it also recovers the true values of \new{}{both} the hyperparameters defining \nz \new{}{and the cosmological parameters} better than popular alternatives, as measured by the \new{loss of information in \nz}{KLD}.
@@ -882,11 +883,11 @@ Future work will also include the extension of this fully probabilistic approach
 %\renewcommand{\thesubsection}{\Alph{subsection}}
 \numberwithin{equation}{section}
 
-\section{Derivation}
-\label{app:math}
+\section{}%Derivation}
+%\label{app:math}
 
 We perform the derivation of \Eq{eqn:fullpost} using log-probabilities.  
-What we wish to estimate is then the full log-posterior probability distribution (hereafter the full log-posterior) of the hyperparameters $\ndphi$ given the catalog of photometry $\{\data_{j}\}$.
+What we wish to estimate is \new{then}{} the full log-posterior probability distribution (hereafter the full log-posterior) of the hyperparameters $\ndphi$ given the catalog of photometry $\{\data_{j}\}$.
 
 By Bayes' Rule, the full log-posterior
 \begin{equation}
