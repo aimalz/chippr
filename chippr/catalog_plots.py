@@ -2,7 +2,7 @@ import numpy as np
 import os
 
 import matplotlib as mpl
-mpl.use('PS')
+# mpl.use('PS')
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -31,8 +31,8 @@ def plot_true_histogram(true_samps, n_bins=(10, 50), plot_loc='', prepend='', pl
     pu.set_up_plot()
     f = plt.figure(figsize=(5, 5))
     sps = f.add_subplot(1, 1, 1)
-    sps.hist(true_samps, bins=n_bins[1], normed=1, color='k', alpha=0.5, log=True)
-    sps.hist(true_samps, bins=n_bins[0], normed=1, color='y', alpha=0.5, log=True)
+    sps.hist(true_samps, bins=n_bins[1], color='k', alpha=0.5, log=True)#, normed=1
+    sps.hist(true_samps, bins=n_bins[0], color='y', alpha=0.5, log=True)#, normed=1
     sps.set_xlabel(r'$z_{true}$')
     sps.set_ylabel(r'$n(z_{true})$')
     f.savefig(os.path.join(plot_loc, prepend+plot_name), bbox_inches='tight', pad_inches = 0, dpi=d.dpi)
@@ -105,6 +105,9 @@ def plot_mega_scatter(zs, pfs, z_grid, grid_ends, truth=None, plot_loc='', prepe
     int_pr: numpy.ndarray, float, optional
         plot the interim prior with the histograms?
     """
+    print('debug demo')
+    print((truth, np.shape(zs), np.shape(pfs), np.shape(z_grid), np.shape(grid_ends)))
+
     n = len(zs)
     zs = zs.T
     true_zs = zs[0]
@@ -154,10 +157,10 @@ def plot_mega_scatter(zs, pfs, z_grid, grid_ends, truth=None, plot_loc='', prepe
     histy.hist(obs_zs, bins=grid_ends, orientation='horizontal', alpha=0.25, color='k', stacked=False, density=True)
     if truth is not None:
         histx.step(truth[0], truth[1], c='k', where='mid')
-        pu.plot_step(histy, np.pad(truth[1], (1, 1), 'constant', constant_values=(0, 0)), grid_ends, c='k', w=1.5)
+        pu.plot_step(histy, np.pad(truth[1], (1, 1), 'constant', constant_values=(0, 0)), u.ends_from_mids(truth[0]), c='k', w=1.5)
     if int_pr is not None:
         histx.step(int_pr[0], int_pr[1], c='k', alpha=0.5, where='mid')
-        pu.plot_step(histy, np.pad(int_pr[1], (1, 1), 'constant', constant_values=(0, 0)), grid_ends, c='k', a=0.5, w=1.5)
+        pu.plot_step(histy, np.pad(int_pr[1], (1, 1), 'constant', constant_values=(0, 0)), u.ends_from_mids(int_pr[0]), c='k', a=0.5, w=1.5)
     histx.xaxis.set_tick_params(labelbottom=False)
     histy.yaxis.set_tick_params(labelleft=False)
     histx.set_yticks([])

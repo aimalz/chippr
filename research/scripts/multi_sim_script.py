@@ -65,26 +65,26 @@ def make_true(given_key):
     if test_info['params']['smooth_truth'] == 1:
         # true_shape = test_info['params']['true_shape']
         true_loc = test_info['params']['true_loc']
-        true_scale = test_info['params']['true_scale']
+        true_scale = test_info['params1']['true_scale']
         true_nz = gamma(true_loc, true_scale**2, bounds=(min(test_info['bin_ends']), max(test_info['bin_ends'])))#sps.erlang(true_shape, true_loc, true_scale)
         true_dict = {'amps': [1.], 'means': [true_loc], 'sigmas': [true_scale]}
     else:
         bin_range = max(test_info['bin_ends']) - min(test_info['bin_ends'])
-        true_amps = np.array([0.20, 0.35, 0.55])
+        true_amps = np.array([0.35, 0.55, 0.20])
         true_means = np.array([0.5, 0.2, 0.75]) * bin_range + min(test_info['bin_ends'])
-        true_sigmas = np.array([0.4, 0.2, 0.1]) * bin_range
+        true_sigmas = np.array([0.2, 0.1, 0.4]) * bin_range
 
         n_mix_comps = len(true_amps)
         true_funcs = []
         for c in range(n_mix_comps):
             true_funcs.append(chippr.gauss(true_means[c], true_sigmas[c]**2))
-            true_nz = chippr.gmix(true_amps, true_funcs, limits=(min(test_info['bin_ends']), max(test_info['bin_ends'])))
+        true_nz = chippr.gmix(true_amps, true_funcs, limits=(min(test_info['bin_ends']), max(test_info['bin_ends'])))
 
-            true_dict = {'amps': true_amps, 'means': true_means, 'sigmas': true_sigmas}
+        true_dict = {'amps': true_amps, 'means': true_means, 'sigmas': true_sigmas}
     true_dict['bins'] = test_info['bin_ends']
 
         # true_zs = true_nz.sample(test_info['params']['n_galaxies'])
-        # true_dict['zs'] = true_zs
+        # true_dict['zs'] = true_zsnps = mp.cpu_count()
     test_info['truth'] = true_dict
 
     return(test_info, true_nz)
@@ -231,6 +231,7 @@ if __name__ == "__main__":
     import os
     import shutil
     import multiprocessing as mp
+    nps = mp.cpu_count()
     import scipy.interpolate as spi
 
     import chippr
@@ -246,6 +247,8 @@ if __name__ == "__main__":
             test_info['name'] = test_name[:-1]
             all_tests[test_name] = test_info
 
-    nps = mp.cpu_count()
-    pool = mp.Pool(nps)
-    pool.map(make_catalog, all_tests.keys())
+    if len(all_tests.keys()) > 1:
+        pool = mp.Pool(nps-1)
+        pool.map(make_catalog, all_tests.keys())
+    else:
+        make_catalog(all_tests.keys()[0])

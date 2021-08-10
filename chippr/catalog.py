@@ -5,7 +5,7 @@ import os
 import pickle as pkl
 
 import matplotlib as mpl
-mpl.use('PS')
+# mpl.use('PS')
 import matplotlib.pyplot as plt
 
 import chippr
@@ -45,7 +45,7 @@ class catalog(object):
         self.params = d.check_sim_params(self.params)
 
         if vb:
-            print self.params
+            print(self.params)
 
         np.random.seed(d.seed)
         self.cat = {}
@@ -427,7 +427,7 @@ class catalog(object):
         lfs = []
         for n in self.N_range:
             points = zip(self.z_fine, [self.samps[n][1]] * self.n_tot)
-            cur=pspace.pdf(np.array(points))
+            cur = pspace.pdf(np.array([p for p in points]))
             lfs.append(cur)
         lfs = np.array(lfs)
         lfs /= np.sum(lfs, axis=-1)[:, np.newaxis] * self.dz_fine

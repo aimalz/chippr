@@ -151,7 +151,7 @@ def multi_parameter_gr_stat(sample):
     """
     dims = np.shape(sample)
     (n_walkers, n_iterations, n_params) = dims
-    n_burn_ins = n_iterations / 2
+    n_burn_ins = int(n_iterations / 2)
     chain_ensemble = np.swapaxes(sample, 0, 1)
     chain_ensemble = chain_ensemble[n_burn_ins:, :]
     Rs = np.zeros((n_params))
@@ -177,7 +177,7 @@ def gr_test(sample, threshold=d.gr_threshold):
         True if burning in, False if post-burn in
     """
     gr = multi_parameter_gr_stat(sample)
-    print('Gelman-Rubin test statistic = '+str(gr))
+    print(('Gelman-Rubin test statistic = '+str(gr)))
     test_result = np.max(gr) > threshold
     return test_result
 
@@ -198,7 +198,7 @@ def cft(xtimes, lag):#xtimes has ntimes elements
         autocorrelation time for one time lag for one parameter of one walker
     """
     lent = len(xtimes) - lag
-    allt = xrange(lent)
+    allt = range(lent)
     ans = np.array([xtimes[t+lag] * xtimes[t] for t in allt])
     return ans
 
@@ -217,8 +217,8 @@ def cf(xtimes):#xtimes has ntimes elements
         autocorrelation time over all time lags for one parameter of one walker
     """
     cf0 = np.dot(xtimes, xtimes)
-    allt = xrange(len(xtimes) / 2)
-    cf = np.array([sum(cft(xtimes,lag)[len(xtimes) / 2:]) for lag in allt]) / cf0
+    allt = range(int(len(xtimes) / 2))
+    cf = np.array([sum(cft(xtimes, lag)[int(len(xtimes) / 2):]) for lag in allt]) / cf0
     return cf
 
 def cfs(x, mode):#xbinstimes has nbins by ntimes elements

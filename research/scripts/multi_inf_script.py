@@ -160,6 +160,7 @@ if __name__ == "__main__":
     import pickle
     import os
     import multiprocessing as mp
+    nps = mp.cpu_count()
 
     import chippr
     from chippr import *
@@ -174,6 +175,5 @@ if __name__ == "__main__":
             test_info['name'] = test_name
             all_tests[test_name] = test_info
 
-    nps = mp.cpu_count()
-    pool = mp.Pool(nps)
+    pool = mp.Pool(nps-1)
     pool.map(do_inference, all_tests.keys())

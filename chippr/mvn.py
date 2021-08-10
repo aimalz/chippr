@@ -29,7 +29,7 @@ class mvn(object):
         self.sigma = self.norm_var()
         self.invvar = self.invert_var()
 
-        assert np.linalg.eig(self.var) > 0.
+        assert(np.all(np.linalg.eig(self.var)[0] > 0.))
 
         self.dist = MGD(self.mean, self.var)
 

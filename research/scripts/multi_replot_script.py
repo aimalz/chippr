@@ -104,6 +104,10 @@ if __name__ == "__main__":
     result_dir = os.path.join('..', 'results')
     name_file = 'which_plt_tests.txt'
 
+    watermarks = {
+    
+    }
+
     with open(name_file) as tests_to_run:
         all_tests = {}
         for test_name in tests_to_run:

@@ -101,6 +101,7 @@ if __name__ == "__main__":
 
     result_dir = os.path.join('..', 'results')
     test_name = 'thesis_neghibias'
+    watermark = None
 
     all_tests = {}
     test_info = {}

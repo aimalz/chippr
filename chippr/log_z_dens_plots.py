@@ -3,7 +3,7 @@ import os
 import scipy as sp
 
 import matplotlib as mpl
-mpl.use('PS')
+# mpl.use('PS')
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 
