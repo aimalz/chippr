@@ -12,5 +12,7 @@ outlier_fraction 0.1
 ez_bias 1
 variable_bias 1
 ez_bias_val -0.003
+interim_prior template
+wrong_prior 1
 n_walkers 100
 gr_threshold 1.5
